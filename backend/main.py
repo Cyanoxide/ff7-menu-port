@@ -1,14 +1,24 @@
 from typing import Union
 
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Annotated
 import models
 from database import engine, SessionLocal
 from sqlalchemy.orm import Session
 
+
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # or restrict to frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 models.Base.metadata.create_all(bind=engine)
+
 
 class PartyMember(BaseModel):
     name: str
