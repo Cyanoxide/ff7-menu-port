@@ -1,0 +1,15 @@
+.contentBox {
+    margin: 1.5rem;
+    padding: 1.5rem;
+    background-image:
+        linear-gradient(to top right, #021fac, #00063f),
+        linear-gradient(to bottom right, #0223c1, #00022e);
+    background-blend-mode: overlay;
+    border-radius: 3px;
+    border: 1px solid #78797a;
+    /* inner border */
+    box-shadow:
+        0 0 0 3px #dbdbdb,
+        /* middle border */
+        0 0 0 4px #a4a0a0;
+}

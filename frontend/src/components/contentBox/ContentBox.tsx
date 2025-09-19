@@ -8,7 +8,7 @@ interface contentBoxProps {
 
 const ContentBox: React.FC<contentBoxProps> = ({ children, ...props }) => {
     return (
-        <div className={styles.simpleDialog} {...props}>
+        <div className={styles.contentBox} {...props}>
             {children}
         </div>
     );
