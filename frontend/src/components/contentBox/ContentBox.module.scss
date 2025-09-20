@@ -1,15 +1,18 @@
+$margin: 1.5rem;
+$padding: 1.5rem;
+
 .contentBox {
-    margin: 1.5rem;
-    padding: 1.5rem;
+    max-width: calc(100% - ($margin * 2));
+    margin: auto;
+    padding: $padding;
+    position: absolute;
     background-image:
         linear-gradient(to top right, #021fac, #00063f),
         linear-gradient(to bottom right, #0223c1, #00022e);
     background-blend-mode: overlay;
-    border-radius: 3px;
-    border: 1px solid #78797a;
-    /* inner border */
+    border-radius: 5px;
+    border: 2px solid #78797a;
     box-shadow:
-        0 0 0 3px #dbdbdb,
-        /* middle border */
-        0 0 0 4px #a4a0a0;
+        0 0 0 4px #dbdbdb,
+        0 0 0 5px #a4a0a0;
 }
