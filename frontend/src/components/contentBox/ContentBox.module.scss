@@ -15,4 +15,17 @@ $padding: 1.5rem;
     box-shadow:
         0 0 0 4px #dbdbdb,
         0 0 0 5px #a4a0a0;
+
+    &[data-label="pageInfo"] {
+        padding: 1.9rem 1.1rem;
+    }
+
+    &[data-label="menu"] {
+        padding: 1.25rem 2.8rem;
+    }
+
+    &[data-label="metaInfo"] {
+        padding: 0.75rem 0.55rem 0.75rem 0.35rem;
+    }
+
 }
