@@ -8,10 +8,10 @@ interface PartyMember {
     image_path: string
 }
 
-export async function fetchPartyMember({ signal, memberId }: { signal: AbortSignal, memberId: number }): Promise<PartyMember> {
-    const response = await fetch(`http://localhost:8000/partymember/${memberId}`, { signal: signal });
+const ENDPOINT_URL = "http://localhost:8000";
 
-    console.log(response, memberId)
+export async function fetchPartyMember({ signal, memberId }: { signal: AbortSignal, memberId: number }): Promise<PartyMember> {
+    const response = await fetch(`${ENDPOINT_URL}/partymember/${memberId}`, { signal: signal });
 
     if (!response.ok) {
         const error = new Error('An error occurred while fetching party Member');
@@ -19,6 +19,5 @@ export async function fetchPartyMember({ signal, memberId }: { signal: AbortSign
     }
 
     const partyMemberData = await response.json();
-    console.log(partyMemberData)
     return partyMemberData;
 }
