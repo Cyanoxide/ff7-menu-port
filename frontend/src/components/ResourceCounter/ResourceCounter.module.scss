@@ -1,0 +1,19 @@
+.resourceCounter {
+    margin-top: -1px;
+}
+
+.resourceBar {
+    position: relative;
+    background-color: #500a12;
+    height: 4px;
+    box-shadow: -4px 4px 0px #1b0217;
+    margin-top: -3px;
+    overflow: hidden;
+
+    &>div {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 4px;
+    }
+}
