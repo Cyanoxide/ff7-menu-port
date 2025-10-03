@@ -15,9 +15,9 @@ body.crt-effect::after {
   right: 0px;
   bottom: 0px;
   background: repeating-linear-gradient(0deg, #111 0px, #111 1px, transparent 2px, transparent 5px);
-  background-size: 100% 3px;
+  background-size: 100% 30px;
   animation: lines 3s ease-out infinite;
-  opacity: 0.3;
+  opacity: 0.2;
   pointer-events: none;
   z-index: 11;
   filter: blur(0.8px);
