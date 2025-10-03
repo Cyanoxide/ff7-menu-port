@@ -1,33 +1,20 @@
 .font {
     height: 36px;
+    font-size: 26px;
     display: flex;
     white-space: nowrap;
 }
 
-/* .font.blue .font-glyph {
-    background-image: url("/font-blue-spritesheet.png");
-}
-
-.font.yellow .font-glyph {
-    background-image: url("/font-yellow-spritesheet.png");
-}*/
-
 .font-glyph {
-    /* background-color: red; */
     background-image: url("/font-spritesheet.png");
     display: inline-block;
     width: 20px;
     height: 39px;
     background-size: 970px 282px;
-    /* text-indent: -10000px; */
     image-rendering: auto;
     flex-shrink: 0;
     color: transparent;
 }
-
-/* .font-glyph:nth-child(2n) {
-    background-color: green;
-} */
 
 .font-glyph[data-sprite=" "] {
     background-position: 13px 0;
@@ -598,7 +585,7 @@
 
 [data-label="time"] {
     .font-glyph[data-sprite=":"] {
-        animation: blinkingAnimation 1s linear infinite;
+        animation: blinkingAnimation 1.5s linear infinite;
     }
 }
 
