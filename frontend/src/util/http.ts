@@ -2,10 +2,11 @@ interface PartyMember {
     id: number;
     name: string;
     level: number;
+    limit_level: number;
+    age_epoch: number;
     hp: number;
     mp: number;
-    limit_level: number;
-    image_path: string
+    image_path: string;
 }
 
 const ENDPOINT_URL = "http://localhost:8000";

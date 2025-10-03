@@ -19,6 +19,39 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId }) => {
         enabled: memberId !== undefined,
     });
 
+    function epochToDate(epoch: number): Date {
+        return new Date(epoch < 1e12 ? epoch * 1000 : epoch);
+    }
+
+    function convertAgeEpochToLevel(epoch: number) {
+        const date = epochToDate(epoch);
+        const now = new Date();
+
+        let years = now.getFullYear() - date.getFullYear();
+
+        const hasHadBirthday =
+            now.getMonth() > date.getMonth() ||
+            (now.getMonth() === date.getMonth() && now.getDate() >= date.getDate());
+
+        if (!hasHadBirthday) years--;
+
+        return years;
+    }
+
+    function getDaysUntilLevel(epoch: number) {
+        const date = epochToDate(epoch);
+        const now = new Date();
+
+        const next = new Date(now.getFullYear(), date.getMonth(), date.getDate());
+
+        if (next < now) {
+            next.setFullYear(next.getFullYear() + 1);
+        }
+
+        const diff = next.getTime() - now.getTime();
+        return Math.ceil(diff / (1000 * 60 * 60 * 24));
+    }
+
 
     let content;
 
@@ -36,16 +69,18 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId }) => {
     }
 
     if (data) {
-        const { name: memberName, level, hp, mp, limit_level, image_path } = data;
+        const { name: memberName, level, hp, mp, limit_level, image_path, age_epoch } = data;
+
+        console.log(age_epoch)
 
         content = (
-            <div className={`${styles.partyMember} flex justify-between`}>
+            <div className={`flex justify-between`}>
                 <img src={image_path} alt="Party Member Portrait" width={145} className="object-contain" />
                 <div className="mt-2 ml-8">
                     <p className="mb-2">{textToSprite(memberName)}</p>
                     <p className="flex">
                         <span className="font-glyph" data-sprite="lv">lv</span>
-                        {textToSprite(level.toString(), true)}
+                        {textToSprite(convertAgeEpochToLevel(new Date(age_epoch).getTime()).toFixed(0), true)}
                     </p>
                     <ResourceCounter label="hp" maxValue={hp} currentValue={hp} accentColor="#4f8fd4" />
                     <ResourceCounter label="mp" maxValue={mp} currentValue={mp} accentColor="#63d9c1" />
@@ -53,7 +88,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId }) => {
                 <div className="mt-12">
                     <p>{textToSprite("next level")}</p>
                     <div className="ml-7">
-                        <ProgressBar percentage={50} />
+                        <ProgressBar percentage={(getDaysUntilLevel(age_epoch) / 365) * 100} />
                     </div>
                     <p>{textToSprite(`Limit level ${limit_level.toString()}`)}</p>
                     <div className="ml-7">

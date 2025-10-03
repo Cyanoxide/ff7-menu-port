@@ -24,9 +24,10 @@ class PartyMember(BaseModel):
     name: str
     image_path: str
     level: int
+    limit_level: int
+    age_epoch: int
     hp: int
     mp: int
-    limit_level: int
 
 
 def get_db():
@@ -51,9 +52,10 @@ async def create_party_member(party_member: PartyMember, db: db_dependency):
     db_party_member = models.PartyMembers(
         name=party_member.name,
         level=party_member.level,
+        limit_level=party_member.limit_level,
+        age_epoch=party_member.age_epoch,
         hp=party_member.hp,
         mp=party_member.mp,
-        limit_level=party_member.limit_level,
         image_path=party_member.image_path
     )
     db.add(db_party_member)
