@@ -15,17 +15,91 @@ $padding: 1.5rem;
     box-shadow:
         0 0 0 4px #dbdbdb,
         0 0 0 5px #a4a0a0;
+    opacity: 0;
+    animation: fadeIn 0.25s ease-in 0.2s forwards;
+    transition: inset 0.35s ease-in 0.2s;
 
     &[data-label="pageInfo"] {
         padding: 1.9rem 1.1rem;
+        top: -100%;
     }
 
     &[data-label="menu"] {
-        padding: 1.25rem 2.8rem;
+        padding: 1.25rem 1.6rem 1.25rem 2.8rem;
+        top: 100%;
+        overflow-y: clip;
+        transition: inset 0.35s ease-in 0.35s, height 0.2s ease-in;
     }
 
     &[data-label="metaInfo"] {
         padding: 0.75rem 0.55rem 0.75rem 0.35rem;
+        left: -100%;
     }
 
+    &[data-label="party"] {
+        padding: 1.65rem 12.7rem 1.65rem 3.2rem;
+        right: -100%;
+    }
+
+    &[data-label="bio"] {
+        height: 0;
+        width: 0;
+        opacity: 0;
+        transition: all 0.3s ease-in 0.5s;
+        overflow: hidden;
+    }
+
+    &[data-label="test"] {
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        opacity: 0;
+    }
+
+    &[data-label="close"] {
+        margin-top: -7px;
+        height: 52px;
+        width: 49px;
+        padding: 7px;
+        position: absolute;
+        right: -43px;
+
+        & span:hover {
+            margin-left: 0;
+        }
+    }
+}
+
+[data-active="true"] {
+    [data-label="pageInfo"] {
+        top: 45.4rem;
+    }
+
+    [data-label="menu"] {
+        top: 0;
+    }
+
+    [data-label="metaInfo"] {
+        left: 51.2rem;
+    }
+
+    [data-label="party"] {
+        right: 6rem;
+    }
+
+    [data-label="bio"] {
+        height: 340px;
+        width: 720px;
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
