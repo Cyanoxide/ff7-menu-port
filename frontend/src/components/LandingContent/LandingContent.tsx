@@ -6,9 +6,9 @@ import textToSprite from "../../util/textToSprite";
 function LandingContent() {
     return (
         <>
-            <ContentBox className="w-[1000px] h-[720px] m-auto" top={44} data-label="party">
+            <ContentBox className="w-[1000px] h-[720px] m-auto absolute top-[44px]" data-label="party">
                 <PartyMember memberId={1} showProgressBars={true} />
-                <ContentBox left={53} bottom={79} right={220} top={303} data-label="bio">
+                <ContentBox className="absolute left-[53px] bottom-[79px] right-[220px] top-[303px]" data-label="bio">
                     <p className="mb-2">{textToSprite("I'm a Senior Web Developer based in")}</p>
                     <p className="mb-6">{textToSprite("Gloucester, UK.")}</p>
                     <p className="mb-6">{textToSprite("Welcome to my WIP sandbox.")}</p>
@@ -17,7 +17,7 @@ function LandingContent() {
                     <p className="mb-2">{textToSprite("built with PS1 aesthetics in mind.")}</p>
                 </ContentBox>
             </ContentBox>
-            <ContentBox className="w-[280px] h-[110px] m-auto" right={0} bottom={110} data-label="metaInfo">
+            <ContentBox className="w-[280px] h-[110px] m-auto absolute right-0 bottom-[110px]" data-label="metaInfo">
                 <ul className="flex justify-between flex-col h-full">
                     <li className="flex justify-between">
                         <span>{textToSprite("Time")}</span>
@@ -29,7 +29,7 @@ function LandingContent() {
                     </li>
                 </ul>
             </ContentBox>
-            <ContentBox className="w-[535px] h-[95px] m-auto" right={0} bottom={0} data-label="pageInfo">{textToSprite("Homepage")}</ContentBox>
+            <ContentBox className="w-[535px] h-[95px] m-auto absolute right-0 bottom-0" data-label="pageInfo">{textToSprite("Homepage")}</ContentBox>
         </>
     );
 }
