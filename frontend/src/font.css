@@ -16,6 +16,10 @@
     color: transparent;
 }
 
+[data-highlighted=true] .font-glyph {
+    background-image: url("/font-spritesheet--blue.png");
+}
+
 .font-glyph[data-sprite=" "] {
     background-position: 13px 0;
     width: 6px;
