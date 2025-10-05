@@ -4,4 +4,43 @@ body {
   background: #000;
   color: #fff;
   font-family: sans-serif;
+  filter: blur(0.6px);
+}
+
+body.crt-effect::after {
+  content: '';
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background: repeating-linear-gradient(0deg, #111 0px, #111 1px, transparent 2px, transparent 5px);
+  background-size: 100% 30px;
+  animation: lines 3s ease-out infinite;
+  opacity: 0.2;
+  pointer-events: none;
+  z-index: 11;
+  filter: blur(0.8px);
+}
+
+@keyframes jitter {
+
+  0%,
+  100% {
+    transform: translateY(-0.25px);
+  }
+
+  50% {
+    transform: translateY(0.25px);
+  }
+}
+
+@keyframes lines {
+  0% {
+    background-position: 0px 0px;
+  }
+
+  100% {
+    background-position: 0px 15px;
+  }
 }

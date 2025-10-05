@@ -1,0 +1,29 @@
+.menu {
+    li {
+        position: relative;
+        transition: height 0.2s ease-in;
+
+        &>span:not(.active),
+        [data-label="close"]>span {
+            cursor: pointer;
+        }
+
+        &>span:not(.active):hover:before,
+        [data-label="close"]>span:hover:before {
+            content: "";
+            position: absolute;
+            margin-left: -81px;
+            background-image: url("/cursor.png");
+            width: 76px;
+            height: 46px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            margin-top: 4px;
+        }
+
+        [data-label="close"]>span:hover:before {
+            margin-top: -4px;
+            margin-left: -72px;
+        }
+    }
+}

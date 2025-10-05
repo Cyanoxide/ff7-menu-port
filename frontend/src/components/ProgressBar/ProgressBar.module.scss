@@ -1,0 +1,66 @@
+.progressBar {
+    background: #cfcfcf;
+    width: 13.5rem;
+    height: 1.7rem;
+    position: relative;
+
+    &>div {
+        position: absolute;
+        margin: 0.2rem 0.3rem;
+        background: #7b7a78;
+        inset: 0;
+
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            box-shadow: inset 0px 2px 3px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        &>div {
+            height: 100%;
+
+            &[data-limit=true] {
+                animation: limitAnimation 0.5s linear infinite;
+            }
+        }
+    }
+}
+
+@keyframes limitAnimation {
+    0% {
+        background-color: #eec4b2;
+    }
+
+    13% {
+        background-color: #e6d7b0;
+    }
+
+    25% {
+        background-color: #e3e8b7;
+    }
+
+    38% {
+        background-color: #d6e9ba;
+    }
+
+    50% {
+        background-color: #c1e5a8;
+    }
+
+    63% {
+        background-color: #b9e9e3;
+    }
+
+    75% {
+        background-color: #c8c9f7;
+    }
+
+    88% {
+        background-color: #c8c9f7;
+    }
+
+    100% {
+        background-color: #eec4b2;
+    }
+}
