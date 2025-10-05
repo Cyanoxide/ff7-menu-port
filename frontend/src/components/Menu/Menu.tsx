@@ -9,7 +9,16 @@ interface MenuProps {
 
 const Menu = ({ activePage, setActivePage }: MenuProps) => {
     const menuItems: Record<string, string> = {
+        "skills": "Skills",
         "projects": "Projects",
+        "history": "History",
+        // "config": "Config",
+        // "resume": "Resume",
+        // "about": "About",
+        // "contact": "Contact",
+        // "github": "Github",
+        // "donate": "Donate",
+        // "quit": "Quit"
     }
 
     const handleClose = () => {
