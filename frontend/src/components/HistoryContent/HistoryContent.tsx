@@ -1,5 +1,5 @@
 import ContentBox from "../contentBox/ContentBox";
-import PartyMember from "../PartyMember/PartyMember";
+import HistorySave from "../HistorySave/HistorySave";
 import textToSprite from "../../util/textToSprite";
 
 import styles from "./HistoryContent.module.scss";
@@ -34,7 +34,13 @@ function HistoryContent() {
 
     return (
         <>
-            <ContentBox data-label="historyHeader" top={0}><div></div></ContentBox>
+            <div className="relative h-[84px] mb-[10px]">
+                <ContentBox data-label="historyHeader" className="h-full absolute top-0 left-0 right-0">{textToSprite("Select a file.")}</ContentBox>
+                <ContentBox data-label="historyFileLabel" className="h-full w-[225px] absolute top-0 right-[278px]">{textToSprite("FILE  01")}</ContentBox>
+            </div>
+            <HistorySave />
+            <HistorySave />
+            <HistorySave />
         </>
     );
 }
