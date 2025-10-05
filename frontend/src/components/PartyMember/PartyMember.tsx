@@ -1,16 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchPartyMember } from "../../util/http.ts";
 import textToSprite from "../../util/textToSprite.tsx";
-import styles from "./PartyMember.module.scss"
 
 import ProgressBar from "../ProgressBar/ProgressBar.tsx";
 import ResourceCounter from "../ResourceCounter/ResourceCounter.tsx";
 
 interface partyMemberProps {
-    memberId: number
+    memberId: number,
+    showProgressBars?: boolean
 }
 
-const PartyMember: React.FC<partyMemberProps> = ({ memberId }) => {
+const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = false }) => {
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ["partyMemberData", memberId],
         queryFn: ({ signal }) => fetchPartyMember({ signal, memberId }),
@@ -71,8 +71,6 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId }) => {
     if (data) {
         const { name: memberName, level, hp, mp, limit_level, image_path, age_epoch } = data;
 
-        console.log(age_epoch)
-
         content = (
             <div className={`flex justify-between`}>
                 <img src={image_path} alt="Party Member Portrait" width={145} className="object-contain" />
@@ -85,16 +83,18 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId }) => {
                     <ResourceCounter label="hp" maxValue={hp} currentValue={hp} accentColor="#4f8fd4" />
                     <ResourceCounter label="mp" maxValue={mp} currentValue={mp} accentColor="#63d9c1" />
                 </div>
-                <div className="mt-12">
-                    <p>{textToSprite("next level")}</p>
-                    <div className="ml-7">
-                        <ProgressBar percentage={(getDaysUntilLevel(age_epoch) / 365) * 100} />
+                {showProgressBars && (
+                    <div className="mt-12">
+                        <p>{textToSprite("next level")}</p>
+                        <div className="ml-7">
+                            <ProgressBar percentage={(getDaysUntilLevel(age_epoch) / 365) * 100} />
+                        </div>
+                        <p>{textToSprite(`Limit level ${limit_level.toString()}`)}</p>
+                        <div className="ml-7">
+                            <ProgressBar percentage={100} accentColor="#dfbddd" data-limit="true" />
+                        </div>
                     </div>
-                    <p>{textToSprite(`Limit level ${limit_level.toString()}`)}</p>
-                    <div className="ml-7">
-                        <ProgressBar percentage={100} accentColor="#dfbddd" data-limit="true" />
-                    </div>
-                </div>
+                )}
             </div>
         );
     }
