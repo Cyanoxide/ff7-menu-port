@@ -1,7 +1,6 @@
 import styles from "./Menu.module.scss";
 import textToSprite from "../../util/textToSprite";
 import ContentBox from "../contentBox/ContentBox";
-import { useState, useEffect } from "react";
 
 interface MenuProps {
     activePage: string;
@@ -10,17 +9,7 @@ interface MenuProps {
 
 const Menu = ({ activePage, setActivePage }: MenuProps) => {
     const menuItems: Record<string, string> = {
-        "item": "Item",
-        "magic": "Magic",
-        "materia": "Materia",
-        "equip": "Equip",
-        "status": "Status",
-        "order": "Order",
-        "limit": "Limit",
-        "config": "Config",
-        "phs": "PHS",
-        "save": "Save",
-        "quit": "Quit",
+        "projects": "Projects",
     }
 
     const handleClose = () => {
