@@ -56,6 +56,57 @@ $padding: 1.5rem;
         opacity: 0;
     }
 
+    &[data-label="header"],
+    &[data-label="description"] {
+        width: 100%;
+        max-width: none;
+        opacity: 0;
+    }
+
+    &[data-label="description"] {
+        padding-left: 2rem;
+    }
+
+    &[data-label="skillsDescription"] {
+        padding-left: 2rem;
+        padding-top: 1.2rem;
+        width: 100%;
+        max-width: none;
+    }
+
+    &[data-label="contentLeft"],
+    &[data-label="contentRight"] {
+        max-width: none;
+        opacity: 0;
+    }
+
+    &[data-label="contentLeft"] {
+        width: 47%;
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+
+    &[data-label="contentRight"] {
+        width: 53%;
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+
+    &[data-label="skillsHeader"] {
+        width: 100%;
+        max-width: none;
+        opacity: 0;
+    }
+
+    &[data-label="skillsContentLeft"] {
+        width: 59%;
+        padding-right: 2.4rem;
+    }
+
+    &[data-label="skillsContentRight"] {
+        width: 42%;
+    }
+
     &[data-label="close"] {
         margin-top: -7px;
         height: 52px;

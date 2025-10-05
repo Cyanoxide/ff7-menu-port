@@ -1,0 +1,66 @@
+.skill {
+    &[data-color]:before {
+        content: "";
+        background-image: url("/materia-spritesheet.png");
+        background-repeat: no-repeat;
+        background-size: 200px 30px;
+        width: 2.5rem;
+        margin-right: 0.5rem;
+        margin-top: 0.1rem;
+    }
+
+    &[data-color=blue]:before {
+        background-position-x: 4px;
+    }
+
+    &[data-color=pink]:before {
+        background-position-x: -39px;
+    }
+
+    &[data-color=red]:before {
+        background-position-x: -82px;
+    }
+
+    &[data-color=green]:before {
+        background-position-x: -124px;
+    }
+
+    &[data-color=yellow]:before {
+        background-position-x: -167px;
+    }
+}
+
+.star {
+    background-image: url("/star-spritesheet.png");
+    background-repeat: no-repeat;
+    background-size: 380px 130px;
+    background-position-y: -73px;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-right: 0.3rem;
+
+    &[data-star="true"] {
+        background-position-y: 0;
+    }
+
+    &[data-color="pink"] {
+        background-position-x: 0;
+
+    }
+
+    &[data-color="green"] {
+        background-position-x: -80px;
+    }
+
+    &[data-color="red"] {
+        background-position-x: -159px;
+    }
+
+    &[data-color="yellow"] {
+        background-position-x: -239px;
+    }
+
+    &[data-color="blue"] {
+        background-position-x: -318px;
+    }
+}
