@@ -69,7 +69,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     }
 
     if (data) {
-        const { name: memberName, level, hp, mp, limit_level, image_path, age_epoch } = data;
+        const { name: memberName, hp, mp, limit_level, image_path, age_epoch } = data;
 
         content = (
             <div className={`flex justify-between`}>

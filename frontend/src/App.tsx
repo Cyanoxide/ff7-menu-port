@@ -18,10 +18,30 @@ function App() {
     setIsLoaded(true);
   }, []);
 
+  useEffect(() => {
+    const app = document.getElementById('root');
+    if (app) {
+      const scaleApp = () => {
+        const originalWidth = 1250;
+        const originalHeight = 975;
+
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+
+        const scale = Math.min(windowWidth / originalWidth, windowHeight / originalHeight);
+        app.style.zoom = String(scale);
+      }
+
+      window.addEventListener('load', scaleApp);
+      window.addEventListener('resize', scaleApp);
+      scaleApp();
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <div className="flex h-screen" data-active={isLoaded}>
-        <div className="w-[1100px] h-[825px] m-auto relative">
+        <div className="w-[1100px] h-[825px] mx-auto my-[5rem] relative">
           {activePage === "home" && <LandingContent />}
           {(activePage === "skills" && <SkillsContent />)}
           {(activePage === "projects" && <ProjectsContent />)}

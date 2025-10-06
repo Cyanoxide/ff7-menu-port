@@ -22,8 +22,6 @@ function ProjectsContent() {
         setmoreInfo([]);
     }
 
-
-
     return (
         <>
             <ContentBox data-label="header" className="h-[84px] absolute">
