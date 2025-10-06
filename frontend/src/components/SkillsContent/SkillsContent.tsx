@@ -127,8 +127,8 @@ function SkillsContent() {
                         <PartyMember memberId={1} />
                     </div>
                     <div className="mt-9 mr-2">
-                        <EquipmentSlots type="Wpn." name="Mouse" multiSlots={3} singleSlots={2} materia={skills} materiaPositions={materiaPositionsTop} setSkill={setSkill} skillPlaceholder={skillPlaceholder} />
-                        <EquipmentSlots type="Arm." name="Keyboard" multiSlots={2} singleSlots={2} materia={skills} materiaPositions={materiaPositionsBottom} setSkill={setSkill} skillPlaceholder={skillPlaceholder} />
+                        <EquipmentSlots type="Wpn." name="Mouse" multiSlots={3} singleSlots={2} materia={skills} materiaPositions={materiaPositionsTop} setSkill={setSkill} />
+                        <EquipmentSlots type="Arm." name="Keyboard" multiSlots={2} singleSlots={2} materia={skills} materiaPositions={materiaPositionsBottom} setSkill={setSkill} />
                     </div>
                 </div>
             </ContentBox>
@@ -137,8 +137,8 @@ function SkillsContent() {
                 <div className="flex justify-between items-center">
                     <p className={`${styles.skill} flex`} data-color={skill.color}>{textToSprite(skill.name)}</p>
                     {skill.id !== 0 && <ul className="flex">
-                        {Array.from({ length: 5 }).map((star, index) => (
-                            <li className={styles.star} data-color={skill.color} data-star={index < skill.score}></li>
+                        {Array.from({ length: 5 }).map((_, index) => (
+                            <li key={index} className={styles.star} data-color={skill.color} data-star={index < skill.score}></li>
                         ))}
                     </ul>}
                 </div>
