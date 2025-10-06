@@ -26,19 +26,19 @@ function ProjectsContent() {
 
     return (
         <>
-            <ContentBox data-label="header" className="h-[84px]">
+            <ContentBox data-label="header" className="h-[84px] absolute">
                 <div className="ml-4">
                     <span>{textToSprite("Use")}</span>
                 </div>
             </ContentBox>
-            <ContentBox data-label="description" className="h-[87px]" top={93}>{textToSprite(description)}</ContentBox>
-            <ContentBox data-label="contentLeft" top={190} bottom={0}>
+            <ContentBox data-label="description" className="h-[87px] absolute top-[93px]">{textToSprite(description)}</ContentBox>
+            <ContentBox data-label="contentLeft" className="absolute top-[190px] bottom-0">
                 <PartyMember memberId={1} />
-                {!!moreInfo.length && <ContentBox data-label="moreInfo" bottom={30} left={30} right={34}>
+                {!!moreInfo.length && <ContentBox className="absolute bottom-[20px] left-[30px] right-[34px]" data-label="moreInfo">
                     {moreInfo.map((item) => (<div className="mb-2">{textToSprite(item)}</div>))}
                 </ContentBox>}
             </ContentBox>
-            <ContentBox data-label="contentRight" top={190} right={0} bottom={0}>
+            <ContentBox className="absolute top-[190px] right-0 bottom-0" data-label="contentRight">
                 <ul>
                     <li className={styles.item} onMouseEnter={() => handleMouseEnter("tripleTriad")} onMouseLeave={handleMouseLeave}>
                         <a href="https://triple-triad.jamiepates.com" className="flex justify-between items-center" target="_blank">

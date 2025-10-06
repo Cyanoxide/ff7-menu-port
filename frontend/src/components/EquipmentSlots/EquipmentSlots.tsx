@@ -18,7 +18,6 @@ interface equipmentSlotsProps {
     materia?: Materia[],
     materiaPositions?: (number | null)[]
     setSkill?: (skill: Materia) => void;
-    skillPlaceholder?: Materia
 }
 
 

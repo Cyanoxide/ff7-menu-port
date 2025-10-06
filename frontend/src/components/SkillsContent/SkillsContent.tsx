@@ -121,29 +121,29 @@ function SkillsContent() {
 
     return (
         <>
-            <ContentBox data-label="skillsHeader" className="h-[300]" top={0}>
+            <ContentBox data-label="skillsHeader" className="h-[300] absolute top-0">
                 <div className="flex justify-between items-end">
                     <div className="w-[447px] mb-2 ml-2">
                         <PartyMember memberId={1} />
                     </div>
                     <div className="mt-9 mr-2">
-                        <EquipmentSlots type="Wpn." name="Mouse" multiSlots={3} singleSlots={2} materia={skills} materiaPositions={materiaPositionsTop} setSkill={setSkill} skillPlaceholder={skillPlaceholder} />
-                        <EquipmentSlots type="Arm." name="Keyboard" multiSlots={2} singleSlots={2} materia={skills} materiaPositions={materiaPositionsBottom} setSkill={setSkill} skillPlaceholder={skillPlaceholder} />
+                        <EquipmentSlots type="Wpn." name="Mouse" multiSlots={3} singleSlots={2} materia={skills} materiaPositions={materiaPositionsTop} setSkill={setSkill} />
+                        <EquipmentSlots type="Arm." name="Keyboard" multiSlots={2} singleSlots={2} materia={skills} materiaPositions={materiaPositionsBottom} setSkill={setSkill} />
                     </div>
                 </div>
             </ContentBox>
-            <ContentBox data-label="skillsDescription" className="h-[79px]" top={270}><p>{textToSprite(skill.description)}</p></ContentBox>
-            <ContentBox data-label="skillsContentLeft" top={359} bottom={0}>
+            <ContentBox data-label="skillsDescription" className="h-[79px] absolute top-[270px]"><p>{textToSprite(skill.description)}</p></ContentBox>
+            <ContentBox data-label="skillsContentLeft" className="absolute top-[359px] bottom-0">
                 <div className="flex justify-between items-center">
                     <p className={`${styles.skill} flex`} data-color={skill.color}>{textToSprite(skill.name)}</p>
                     {skill.id !== 0 && <ul className="flex">
-                        {Array.from({ length: 5 }).map((star, index) => (
-                            <li className={styles.star} data-color={skill.color} data-star={index < skill.score}></li>
+                        {Array.from({ length: 5 }).map((_, index) => (
+                            <li key={index} className={styles.star} data-color={skill.color} data-star={index < skill.score}></li>
                         ))}
                     </ul>}
                 </div>
             </ContentBox>
-            <ContentBox data-label="skillsContentRight" top={359} right={0} bottom={0}>
+            <ContentBox data-label="skillsContentRight" className="absolute top-[359px] right-0 bottom-0">
                 <ul>
                     {skills.map((skill) => (
                         <li key={skill.id} onMouseEnter={() => handleMouseEnter(skill.name)} className="mb-1.5">

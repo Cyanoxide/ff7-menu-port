@@ -3,18 +3,13 @@ import type { ReactNode } from 'react';
 import styles from './contentBox.module.scss';
 
 interface contentBoxProps {
-    children: ReactNode;
-    top?: number | "auto",
-    right?: number | "auto",
-    bottom?: number | "auto",
-    left?: number | "auto",
-    zIndex?: number,
+    children?: ReactNode;
     className?: string,
 }
 
-const ContentBox: React.FC<contentBoxProps> = ({ children, top, right, bottom, left, zIndex, className, ...props }) => {
+const ContentBox: React.FC<contentBoxProps> = ({ children, className, ...props }) => {
     return (
-        <div className={`${styles.contentBox} ${className}`} style={{ top, right, bottom, left, zIndex }} {...props}>
+        <div className={`${styles.contentBox} ${className}`} {...props}>
             {children}
         </div>
     );

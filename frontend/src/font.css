@@ -285,6 +285,12 @@
     width: 19px;
 }
 
+
+.font-glyph[data-sprite="é"] {
+    background-position: -861px -42px;
+    width: 19px;
+}
+
 .font-glyph[data-sprite="0"] {
     background-position: 0px -93px;
     width: 25px;

@@ -6,7 +6,7 @@ import Menu from './components/Menu/Menu';
 import LandingContent from './components/LandingContent/LandingContent';
 import ProjectsContent from "./components/ProjectsContent/ProjectsContent";
 import SkillsContent from "./components/SkillsContent/SkillsContent";
-
+import HistoryContent from './components/HistoryContent/HistoryContent';
 
 function App() {
   const queryClient = new QueryClient();
@@ -23,7 +23,9 @@ function App() {
       <div className="flex h-screen" data-active={isLoaded}>
         <div className="w-[1100px] h-[825px] m-auto relative">
           {activePage === "home" && <LandingContent />}
-          {activePage === "projects" && <ProjectsContent />}
+          {(activePage === "skills" && <SkillsContent />)}
+          {(activePage === "projects" && <ProjectsContent />)}
+          {(activePage === "history" && <HistoryContent />)}
           <Menu activePage={activePage} setActivePage={setActivePage} />
         </div>
       </div>

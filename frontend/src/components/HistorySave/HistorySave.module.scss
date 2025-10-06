@@ -1,0 +1,14 @@
+.historySave {
+    &:hover:before {
+        content: "";
+        position: absolute;
+        background-image: url("/cursor.png");
+        background-size: contain;
+        background-repeat: no-repeat;
+        margin-left: -1rem;
+        margin-top: 6rem;
+        width: 76px;
+        height: 46px;
+        z-index: 1;
+    }
+}
