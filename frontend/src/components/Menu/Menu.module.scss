@@ -9,6 +9,7 @@
         }
 
         &>span:not(.active):hover:before,
+        &>a:not(.active):hover:before,
         [data-label="close"]>span:hover:before {
             content: "";
             position: absolute;
