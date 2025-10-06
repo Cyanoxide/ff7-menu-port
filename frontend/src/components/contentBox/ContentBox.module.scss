@@ -83,6 +83,10 @@
         width: 42%;
     }
 
+    &[data-label="historySaveMeta"] {
+        padding: 0.75rem;
+    }
+
     &[data-label="close"] {
         margin-top: -7px;
         height: 52px;
