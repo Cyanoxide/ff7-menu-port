@@ -34,7 +34,7 @@ function ProjectsContent() {
             <ContentBox data-label="description" className="h-[87px] absolute top-[93px]">{textToSprite(description)}</ContentBox>
             <ContentBox data-label="contentLeft" className="absolute top-[190px] bottom-0">
                 <PartyMember memberId={1} />
-                {!!moreInfo.length && <ContentBox className="absolute bottom-[30px] left-[30px] right-[34px]" data-label="moreInfo">
+                {!!moreInfo.length && <ContentBox className="absolute bottom-[20px] left-[30px] right-[34px]" data-label="moreInfo">
                     {moreInfo.map((item) => (<div className="mb-2">{textToSprite(item)}</div>))}
                 </ContentBox>}
             </ContentBox>

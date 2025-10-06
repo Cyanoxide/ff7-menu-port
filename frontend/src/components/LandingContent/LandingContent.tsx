@@ -8,7 +8,7 @@ function LandingContent() {
         <>
             <ContentBox className="w-[1000px] h-[720px] m-auto absolute top-[44px]" data-label="party">
                 <PartyMember memberId={1} showProgressBars={true} />
-                <ContentBox className="absolute left-[53px] bottom-[79px] right-[220px] top-[303px]" data-label="bio">
+                <ContentBox className="absolute left-[53px] right-[220px] top-[294px]" data-label="bio">
                     <p className="mb-2">{textToSprite("I'm a Senior Web Developer based in")}</p>
                     <p className="mb-6">{textToSprite("Gloucester, UK.")}</p>
                     <p className="mb-6">{textToSprite("Welcome to my WIP sandbox.")}</p>
