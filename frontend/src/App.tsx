@@ -7,6 +7,7 @@ import LandingContent from './components/LandingContent/LandingContent';
 import ProjectsContent from "./components/ProjectsContent/ProjectsContent";
 import SkillsContent from "./components/SkillsContent/SkillsContent";
 import HistoryContent from './components/HistoryContent/HistoryContent';
+import ConfigContent from './components/ConfigContent/ConfigContent';
 
 function App() {
   const queryClient = new QueryClient();
@@ -46,6 +47,7 @@ function App() {
           {(activePage === "skills" && <SkillsContent />)}
           {(activePage === "projects" && <ProjectsContent />)}
           {(activePage === "history" && <HistoryContent />)}
+          {(activePage === "config" && <ConfigContent />)}
           <Menu activePage={activePage} setActivePage={setActivePage} />
         </div>
       </div>
