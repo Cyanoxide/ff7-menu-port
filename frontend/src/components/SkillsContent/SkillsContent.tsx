@@ -109,8 +109,8 @@ function SkillsContent() {
     ]
 
     const [skill, setSkill] = useState<Materia>(skillPlaceholder);
-    const [materiaPositionsTop, setMateriaPositionsTop] = useState([1, null, 2, 3, 4, 9, null, 10]);
-    const [materiaPositionsBottom, setMateriaPositionsBottom] = useState([5, 6, 7, 8, null]);
+    const [materiaPositionsTop] = useState([1, null, 2, 3, 4, 9, null, 10]);
+    const [materiaPositionsBottom] = useState([5, 6, 7, 8, null]);
 
     const handleMouseEnter = (skill: string) => {
         const skillObj = skills.find(item => item.name === skill);
