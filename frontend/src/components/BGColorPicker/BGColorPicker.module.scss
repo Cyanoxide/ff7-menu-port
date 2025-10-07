@@ -1,0 +1,91 @@
+.colorPicker {
+
+    &>div:first-child button:hover:before,
+    &>div:first-child:not(:hover) button[data-active="true"]:before {
+        content: "";
+        position: absolute;
+        margin-left: -102px;
+        background-image: url("/cursor.png");
+        width: 76px;
+        height: 46px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        margin-top: -18px;
+    }
+}
+
+.RGBPreview {
+    width: 2.5rem;
+    height: 2.5rem;
+    left: calc(100% + 2rem);
+    position: absolute;
+    top: 0;
+}
+
+.RGBSliders {
+    top: calc(100% + 10px);
+    position: absolute;
+    left: -1px;
+    padding: 0.35rem 1.3rem 0.35rem 1rem;
+    width: 34rem;
+
+    &>div {
+        padding-left: 2rem;
+        position: relative;
+        display: flex;
+
+        &:before {
+            content: "";
+            background-image: url("/rgb-spritesheet.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+            height: 1.75rem;
+            width: 2.3rem;
+            position: absolute;
+            left: 0;
+            margin-top: 0.35rem;
+        }
+
+        &.red:before {
+            background-position-x: 0;
+        }
+
+        &.green:before {
+            background-position-x: -38px;
+        }
+
+        &.blue:before {
+            background-position-x: -76px;
+        }
+    }
+}
+
+.RGBSlider {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    filter: blur(0.8px);
+
+    &::-webkit-slider-thumb,
+    &::-moz-range-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 1.2rem;
+        height: 1.7rem;
+        border-radius: 0;
+        background: #cccc;
+        cursor: pointer;
+        border: 2px solid;
+        border-top-color: #fff;
+        border-left-color: fff;
+        border-bottom-color: #000;
+        border-right-color: #000;
+    }
+
+    &::-webkit-slider-runnable-track,
+    &::-moz-range-track {
+        background-color: rgba(255, 255, 255, 0.15);
+        box-shadow: inset -2.2px -2.2px rgba(255, 255, 255, 0.2), -2.2px -2.2px rgba(0, 0, 0, 0.4);
+        height: 1.8rem
+    }
+}

@@ -1,5 +1,6 @@
 
-type WindowColor = {
+export type WindowCorner = "topLeft" | "topRight" | "bottomLeft" | "bottomRight";
+export type WindowColor = {
     topLeft: [number, number, number];
     topRight: [number, number, number];
     bottomLeft: [number, number, number];
@@ -7,6 +8,7 @@ type WindowColor = {
 };
 
 export interface State {
+    windowCorner: WindowCorner;
     windowColor: WindowColor;
 }
 
