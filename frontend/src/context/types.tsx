@@ -15,6 +15,7 @@ export interface State {
 
 export type Action =
     | { type: "SET_WINDOW_COLOR"; payload: WindowColor }
+    | { type: "SET_SECONDS"; payload: number }
     | { type: "INCREMENT_SECONDS"; }
 
 export interface ContextType extends State {
