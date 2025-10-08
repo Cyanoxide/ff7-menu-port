@@ -1,7 +1,7 @@
 
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { Provider, useContext } from "./context/context";
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 
 import Menu from './components/Menu/Menu';
 import LandingContent from './components/LandingContent/LandingContent';

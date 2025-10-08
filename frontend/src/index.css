@@ -5,6 +5,7 @@ body {
   color: #fff;
   font-family: sans-serif;
   filter: blur(0.6px);
+  overflow: hidden;
 }
 
 body.crt-effect::after {

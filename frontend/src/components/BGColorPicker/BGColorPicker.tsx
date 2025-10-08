@@ -38,15 +38,16 @@ const BGColorPicker = () => {
     const dismissHandler = () => {
         setActiveColorPicker(null);
     }
-    
+
     const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>, color: "red" | "green" | "blue") => {
         const index = (color === "red") ? "0" : (color === "green") ? "1" : (color === "blue") ? "2" : null;
         if (!activeColorPicker || !index) return;
 
         windowColor[activeColorPicker][index] = parseInt(e.target.value, 10);
         dispatch({ type: "SET_WINDOW_COLOR", payload: windowColor });
+        localStorage.setItem("windowColor", JSON.stringify(windowColor));
     }
-    
+
     return (
         <>
             <div onClick={dismissHandler} className="absolute w-full h-full top-0 left-0 bottom-0 right-0"></div>
