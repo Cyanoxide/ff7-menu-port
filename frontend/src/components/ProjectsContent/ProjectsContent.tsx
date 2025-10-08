@@ -33,7 +33,7 @@ function ProjectsContent() {
             <ContentBox data-label="contentLeft" className="absolute top-[190px] bottom-0">
                 <PartyMember memberId={1} />
                 {!!moreInfo.length && <ContentBox className="absolute bottom-[20px] left-[30px] right-[34px]" data-label="moreInfo">
-                    {moreInfo.map((item) => (<div className="mb-2">{textToSprite(item)}</div>))}
+                    {moreInfo.map((item) => (<div key={item} className="mb-2">{textToSprite(item)}</div>))}
                 </ContentBox>}
             </ContentBox>
             <ContentBox className="absolute top-[190px] right-0 bottom-0" data-label="contentRight">

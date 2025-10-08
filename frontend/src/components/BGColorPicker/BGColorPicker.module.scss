@@ -11,6 +11,7 @@
         background-size: contain;
         background-repeat: no-repeat;
         margin-top: -18px;
+        z-index: 1;
     }
 }
 
@@ -23,7 +24,7 @@
 }
 
 .RGBSliders {
-    top: calc(100% + 10px);
+    top: calc(100% + 15px);
     position: absolute;
     left: -1px;
     padding: 0.35rem 1.3rem 0.35rem 1rem;
