@@ -15,6 +15,21 @@ export const Provider = ({ children }: { children: ReactNode }) => {
         return () => clearInterval(timer);
     }, []);
 
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        const windowColorJSON = localStorage.getItem("windowColor");
+        if (windowColorJSON) {
+            try {
+                const windowColor = JSON.parse(windowColorJSON);
+                console.log(windowColor)
+                dispatch({ type: "SET_WINDOW_COLOR", payload: windowColor });
+            } catch (error) {
+                console.error("Failed to parse windowColor from localStorage", error);
+            }
+        }
+    }, []);
+
     return (
         <Context value={{ ...state, dispatch }}>
             {children}

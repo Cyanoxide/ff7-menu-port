@@ -45,6 +45,7 @@ const BGColorPicker = () => {
 
         windowColor[activeColorPicker][index] = parseInt(e.target.value, 10);
         dispatch({ type: "SET_WINDOW_COLOR", payload: windowColor });
+        localStorage.setItem("windowColor", JSON.stringify(windowColor));
     }
 
     return (
