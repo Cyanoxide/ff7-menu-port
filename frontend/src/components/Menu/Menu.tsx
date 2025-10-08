@@ -12,8 +12,8 @@ const Menu = ({ activePage, setActivePage }: MenuProps) => {
         "projects": "Projects",
         "skills": "Skills",
         "history": "History",
+        "config": "Config",
         "": "",
-        // "config": "Config",
         // "about": "About",
         // "contact": "Contact",
         // "quit": "Quit"

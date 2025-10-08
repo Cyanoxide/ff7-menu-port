@@ -188,6 +188,7 @@
 .font-glyph[data-sprite="g"] {
     background-position: -196px -42px;
     width: 22px;
+    height: 42px;
 }
 
 .font-glyph[data-sprite="h"] {
@@ -203,6 +204,7 @@
 .font-glyph[data-sprite="j"] {
     background-position: -287px -42px;
     width: 12px;
+    height: 42px;
 }
 
 .font-glyph[data-sprite="k"] {
@@ -233,11 +235,13 @@
 .font-glyph[data-sprite="p"] {
     background-position: -481px -42px;
     width: 22px;
+    height: 42px;
 }
 
 .font-glyph[data-sprite="q"] {
     background-position: -515px -42px;
     width: 22px;
+    height: 42px;
 }
 
 .font-glyph[data-sprite="r"] {
@@ -278,6 +282,7 @@
 .font-glyph[data-sprite="y"] {
     background-position: -793px -42px;
     width: 22px;
+    height: 42px;
 }
 
 .font-glyph[data-sprite="z"] {

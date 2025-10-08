@@ -1,9 +1,6 @@
 .contentBox {
     padding: 1.5rem;
-    background-image:
-        linear-gradient(to top right, #021fac, #00063f),
-        linear-gradient(to bottom right, #0223c1, #00022e);
-    background-blend-mode: overlay;
+    background-color: #000;
     border-radius: 5px;
     border: 2px solid #78797a;
     box-shadow:
@@ -41,6 +38,7 @@
         height: 0;
         width: 0;
         transition: all 0.3s ease-in 0.5s;
+        overflow: hidden;
     }
 
     &[data-label="header"],
