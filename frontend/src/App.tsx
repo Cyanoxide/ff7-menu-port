@@ -1,6 +1,6 @@
 
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import { Provider, useContext } from "./context/context";
+import { Provider } from "./context/context";
 import { useEffect, useState } from 'react';
 
 import Menu from './components/Menu/Menu';

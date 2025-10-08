@@ -1,13 +1,9 @@
-import { useState, useEffect } from "react";
+import { useContext } from "../../context/context";
+
 import textToSprite from "../../util/textToSprite";
 
 const Time = () => {
-    const [seconds, setSeconds] = useState(0);
-
-    useEffect(() => {
-        const timer = setInterval(() => setSeconds(s => s + 1), 1000);
-        return () => clearInterval(timer); // cleanup on unmount
-    }, []);
+    const { seconds } = useContext();
 
     const formatTime = (sec: number) => {
         const h = Math.floor(sec / 3600);
