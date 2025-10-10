@@ -1,4 +1,17 @@
 .skill {
+    &:hover:after {
+        content: "";
+        position: absolute;
+        margin-left: -73px;
+        background-image: url("/cursor.png");
+        width: 76px;
+        height: 46px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        z-index: 1;
+        pointer-events: none;
+    }
+
     &[data-color]:before {
         content: "";
         background-image: url("/materia-spritesheet.png");
@@ -38,6 +51,8 @@
     width: 3.5rem;
     height: 3.5rem;
     margin-right: 0.3rem;
+    image-rendering: crisp-edges;
+    filter: blur(0.7px);
 
     &[data-star="true"] {
         background-position-y: 0;
