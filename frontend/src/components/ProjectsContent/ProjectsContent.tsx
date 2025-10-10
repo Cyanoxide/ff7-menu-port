@@ -1,19 +1,23 @@
 import { useState } from "react";
+import { useContext } from "../../context/context";
 
 import ContentBox from "../contentBox/ContentBox";
 import PartyMember from "../PartyMember/PartyMember";
 import textToSprite from "../../util/textToSprite";
+import playSound from "../../util/sounds";
 
 import styles from "./ProjectsContent.module.scss";
 
 function ProjectsContent() {
+    const { isSoundEnabled } = useContext();
     const [description, setDescription] = useState("");
     const [moreInfo, setmoreInfo] = useState<string[]>([]);
 
     const handleMouseEnter = (item: string) => {
         if (item === "tripleTriad") {
             setDescription("Let's play a game of cards!");
-            setmoreInfo(["This is a React project", "I built to authentically", "recreate the FF8", "version of Triple Triad", "to be playable in a", "web browser."])
+            setmoreInfo(["This is a React project", "I built to authentically", "recreate the FF8", "version of Triple Triad", "to be playable in a", "web browser."]);
+            playSound("select", isSoundEnabled)
         }
     }
 
@@ -38,7 +42,7 @@ function ProjectsContent() {
             </ContentBox>
             <ContentBox className="absolute top-[190px] right-0 bottom-0" data-label="contentRight">
                 <ul>
-                    <li className={styles.item} onMouseEnter={() => handleMouseEnter("tripleTriad")} onMouseLeave={handleMouseLeave}>
+                    <li className={styles.item} onMouseEnter={() => handleMouseEnter("tripleTriad")} onMouseLeave={handleMouseLeave} onClick={() => playSound("select", isSoundEnabled)}>
                         <a href="https://triple-triad.jamiepates.com" className="flex justify-between items-center" target="_blank">
                             <span className="flex items-center">
                                 <img src="/cardicon.gif" alt="Card Icon" width="36" height="36" className="mr-2" />

@@ -5,9 +5,10 @@ import type { WindowCorner } from "../../context/types";
 import styles from "./BGColorPicker.module.scss";
 import ContentBox from "../contentBox/ContentBox";
 import textToSprite from "../../util/textToSprite";
+import playSound from "../../util/sounds";
 
 const BGColorPicker = () => {
-    const { windowColor, dispatch } = useContext();
+    const { windowColor, isSoundEnabled, dispatch } = useContext();
     const [activeColorPicker, setActiveColorPicker] = useState<WindowCorner | null>(null);
 
     const RGBSliders = activeColorPicker ? (
@@ -33,14 +34,17 @@ const BGColorPicker = () => {
 
     const onClickHandler = (corner: WindowCorner) => {
         setActiveColorPicker(corner);
+        playSound("select", isSoundEnabled);
     }
 
     const dismissHandler = () => {
         setActiveColorPicker(null);
+        playSound("back", isSoundEnabled);
     }
 
     const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>, color: "red" | "green" | "blue") => {
         const index = (color === "red") ? "0" : (color === "green") ? "1" : (color === "blue") ? "2" : null;
+        playSound("select", isSoundEnabled);
         if (!activeColorPicker || !index) return;
 
         windowColor[activeColorPicker][index] = parseInt(e.target.value, 10);
@@ -50,16 +54,16 @@ const BGColorPicker = () => {
 
     return (
         <>
-            <div onClick={dismissHandler} className="absolute w-full h-full top-0 left-0 bottom-0 right-0"></div>
+            {activeColorPicker && <div onClick={dismissHandler} className="absolute w-full h-full top-0 left-0 bottom-0 right-0"></div>}
             <ContentBox data-label="configColorPreview" className={`${styles.colorPicker} w-[14rem] h-[5rem] relative`}>
                 <div>
                     <div className="flex justify-between absolute left-0 top-0 right-0 h-1/2">
-                        <button onClick={() => onClickHandler("topLeft")} className="w-1/2" data-active={activeColorPicker === "topLeft"} />
-                        <button onClick={() => onClickHandler("topRight")} className="w-1/2" data-active={activeColorPicker === "topRight"} />
+                        <button onClick={() => onClickHandler("topLeft")} onMouseEnter={() => playSound("select", isSoundEnabled)} className="w-1/2" data-active={activeColorPicker === "topLeft"} />
+                        <button onClick={() => onClickHandler("topRight")} onMouseEnter={() => playSound("select", isSoundEnabled)} className="w-1/2" data-active={activeColorPicker === "topRight"} />
                     </div>
                     <div className="flex justify-between absolute left-0 bottom-0 right-0 h-1/2">
-                        <button onClick={() => onClickHandler("bottomLeft")} className="w-1/2" data-active={activeColorPicker === "bottomLeft"} />
-                        <button onClick={() => onClickHandler("bottomRight")} className="w-1/2" data-active={activeColorPicker === "bottomRight"} />
+                        <button onClick={() => onClickHandler("bottomLeft")} onMouseEnter={() => playSound("select", isSoundEnabled)} className="w-1/2" data-active={activeColorPicker === "bottomLeft"} />
+                        <button onClick={() => onClickHandler("bottomRight")} onMouseEnter={() => playSound("select", isSoundEnabled)} className="w-1/2" data-active={activeColorPicker === "bottomRight"} />
                     </div>
                 </div>
                 {activeColorPicker && RGBPreview}
