@@ -1,6 +1,8 @@
 
+import { useContext } from "../../context/context";
 import ContentBox from "../contentBox/ContentBox";
 import textToSprite from "../../util/textToSprite";
+import playSound from "../../util/sounds";
 
 import styles from "./HistorySave.module.scss";
 
@@ -21,11 +23,12 @@ interface historySaveProps {
 
 
 const HistorySave: React.FC<historySaveProps> = ({ historyItem, ...props }) => {
+    const { isSoundEnabled } = useContext();
     if (!historyItem) return;
 
     return (
         <>
-            <a href={historyItem.link} title={historyItem.name} target="_blank" className={`${styles.historySave} cursor-pointer`} {...props}>
+            <a href={historyItem.link} onMouseEnter={() => playSound("select", isSoundEnabled)} onClick={() => playSound("select", isSoundEnabled)} title={historyItem.name} target="_blank" className={`${styles.historySave} cursor-pointer`} {...props}>
                 <ContentBox data-label="historySave" className="h-[235px] relative">
                     <div className="mr-[414px] flex gap-5">
                         <img className="h-[11.5rem] w-auto" src={historyItem.image_path} />

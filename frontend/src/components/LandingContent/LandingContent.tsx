@@ -11,7 +11,7 @@ function LandingContent() {
                 <ContentBox className="absolute left-[53px] right-[220px] top-[294px] bottom-0" data-label="bio">
                     <p className="mb-2">{textToSprite("I'm a Senior Web Developer based in")}</p>
                     <p className="mb-6">{textToSprite("Gloucester, UK.")}</p>
-                    <p className="mb-6">{textToSprite("Welcome to my sandbox.")}</p>
+                    <p className="mb-6">{textToSprite("Welcome to my personal sandbox.")}</p>
                     <p className="mb-2">{textToSprite("I plan to add an ever-growing collection")}</p>
                     <p className="mb-2">{textToSprite("of small technical projects here, mostly")}</p>
                     <p className="mb-2">{textToSprite("built with PS1 aesthetics in mind.")}</p>

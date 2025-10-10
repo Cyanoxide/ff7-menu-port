@@ -22,6 +22,16 @@ export const Provider = ({ children }: { children: ReactNode }) => {
             }
         }
 
+        const isSoundEnabledJSON = localStorage.getItem("isSoundEnabled");
+        if (isSoundEnabledJSON) {
+            try {
+                const isSoundEnabled = JSON.parse(isSoundEnabledJSON);
+                dispatch({ type: "SET_IS_SOUND_ENABLED", payload: isSoundEnabled });
+            } catch (error) {
+                console.error("Failed to parse isSoundEnabled from localStorage", error);
+            }
+        }
+
         const secondsJSON = localStorage.getItem("seconds");
         if (secondsJSON) {
             try {

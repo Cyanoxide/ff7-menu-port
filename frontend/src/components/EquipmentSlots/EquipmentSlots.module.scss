@@ -18,6 +18,20 @@
     height: 40px;
     width: 40px;
     margin-right: 0.5rem;
+
+    &:hover:before {
+        content: "";
+        position: absolute;
+        margin-left: -62px;
+        background-image: url("/cursor.png");
+        width: 76px;
+        height: 46px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        margin-top: 5px;
+        z-index: 1;
+        pointer-events: none;
+    }
 }
 
 .materiaSlot+.materiaSlot:after {

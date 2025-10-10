@@ -1,5 +1,7 @@
 import styles from "./EquipmentSlots.module.scss";
 import textToSprite from "../../util/textToSprite";
+import playSound from "../../util/sounds";
+import { useContext } from "../../context/context";
 
 type Materia = {
     id: number;
@@ -22,19 +24,22 @@ interface equipmentSlotsProps {
 
 
 const EquipmentSlots: React.FC<equipmentSlotsProps> = ({ type = "Wpn.", name = "Buster Sword", multiSlots = 0, singleSlots = 0, materia = [], materiaPositions = [], setSkill, ...props }) => {
+    const {isSoundEnabled} = useContext();
     let counter = 0;
 
     const MateriaSlot = (i: number, materia: Materia[]) => {
         const matchedMateria = materia.find(item => item.id === materiaPositions[i]);
 
-        const handleMouseEnter = (materia: Materia) => {
-            if (materia && setSkill) {
+        const handleMouseEnter = (materia?: Materia) => {
+            playSound("select", isSoundEnabled);
+
+            if (matchedMateria && materia && setSkill) {
                 setSkill(materia);
             }
         }
 
         return (
-            <div key={i} onMouseEnter={() => matchedMateria && handleMouseEnter(matchedMateria)} className={styles.materiaSlot} data-value={i}>
+            <div key={i} onMouseEnter={() => handleMouseEnter(matchedMateria)} onClick={() => playSound("error", isSoundEnabled)} className={styles.materiaSlot} data-value={i}>
                 <div className={styles.skill} data-color={matchedMateria?.color || null}>
                     {matchedMateria ? matchedMateria.name : materiaPositions[i]}
                 </div>

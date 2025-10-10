@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useContext } from "../../context/context";
 
 import ContentBox from "../contentBox/ContentBox";
 import PartyMember from "../PartyMember/PartyMember";
 import EquipmentSlots from "../EquipmentSlots/EquipmentSlots";
 import textToSprite from "../../util/textToSprite";
+import playSound from "../../util/sounds";
 
 import styles from "./SkillsContent.module.scss";
 
@@ -17,6 +19,7 @@ type Materia = {
 };
 
 function SkillsContent() {
+    const { isSoundEnabled } = useContext();
     const skillPlaceholder = {
         id: 0,
         name: "",
@@ -113,6 +116,7 @@ function SkillsContent() {
     const [materiaPositionsBottom] = useState([5, 6, 7, 8, null]);
 
     const handleMouseEnter = (skill: string) => {
+        playSound("select", isSoundEnabled);
         const skillObj = skills.find(item => item.name === skill);
         if (skillObj) {
             setSkill(skillObj);
@@ -146,7 +150,7 @@ function SkillsContent() {
             <ContentBox data-label="skillsContentRight" className="absolute top-[359px] right-0 bottom-0">
                 <ul>
                     {skills.map((skill) => (
-                        <li key={skill.id} onMouseEnter={() => handleMouseEnter(skill.name)} className="mb-1.5">
+                        <li key={skill.id} onMouseEnter={() => handleMouseEnter(skill.name)} onClick={() => playSound("error", isSoundEnabled)} className="mb-1.5">
                             <span className={`${styles.skill} flex`} data-color={skill.color}>{textToSprite(skill.name)}</span>
                         </li>
                     ))}

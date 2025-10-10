@@ -20,6 +20,10 @@
     background-image: url("/font-spritesheet--blue.png");
 }
 
+[data-disabled=true] .font-glyph {
+    background-image: url("/font-spritesheet--grey.png");
+}
+
 .font-glyph[data-sprite=" "] {
     background-position: 13px 0;
     width: 6px;

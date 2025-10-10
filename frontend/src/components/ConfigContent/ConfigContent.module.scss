@@ -1,14 +1,14 @@
-.historySave {
-    &:hover:before {
+.soundToggle {
+    button:hover:before {
         content: "";
         position: absolute;
+        margin-left: -110px;
         background-image: url("/cursor.png");
-        background-size: contain;
-        background-repeat: no-repeat;
-        margin-left: -1rem;
-        margin-top: 6rem;
         width: 76px;
         height: 46px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        margin-top: -2px;
         z-index: 1;
         pointer-events: none;
     }
