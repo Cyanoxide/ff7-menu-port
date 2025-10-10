@@ -24,6 +24,20 @@ body.crt-effect::after {
   filter: blur(0.8px);
 }
 
+body.crt-effect:before {
+  content: "";
+  position: absolute;
+  background: url("/checkerboard.png");
+  background-size: auto;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  background-size: 5px;
+  mix-blend-mode: multiply;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
 @keyframes jitter {
 
   0%,
