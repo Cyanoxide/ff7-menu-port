@@ -6,6 +6,8 @@ export const reducer = (state: State, action: Action): State => {
             return { ...state, windowColor: action.payload };
         case "SET_SECONDS":
             return { ...state, seconds: action.payload };
+        case "SET_IS_SOUND_ENABLED":
+            return { ...state, isSoundEnabled: action.payload };
         case "INCREMENT_SECONDS":
             return { ...state, seconds: state.seconds + 1 };
         default:
@@ -22,4 +24,5 @@ export const initialState: State = {
     },
     windowCorner: null,
     seconds: 0,
+    isSoundEnabled: true,
 };
