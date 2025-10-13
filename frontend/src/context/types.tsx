@@ -1,5 +1,7 @@
 
 export type PartyMember = { id: number; name: string; limit_level: number; age_epoch: number; hp: number; mp: number; image_path: string; };
+export type History = { id: number; name: string; link: string; user: string; level: number; role: string; year: string; image_path: string; }
+
 export type WindowCorner = "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | null;
 export type WindowColor = {
     topLeft: [number, number, number];

@@ -3,24 +3,13 @@ import { useContext } from "../../context/context";
 import ContentBox from "../contentBox/ContentBox";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
+import type { History } from "../../context/types";
 
 import styles from "./HistorySave.module.scss";
 
-type HistoryItem = {
-    id: number;
-    name: string;
-    link: string;
-    role: string;
-    user: string;
-    year: string;
-    level: string;
-    image_path: string;
-};
-
 interface historySaveProps {
-    historyItem: HistoryItem;
+    historyItem: History;
 };
-
 
 const HistorySave: React.FC<historySaveProps> = ({ historyItem, ...props }) => {
     const { isSoundEnabled } = useContext();
@@ -35,7 +24,7 @@ const HistorySave: React.FC<historySaveProps> = ({ historyItem, ...props }) => {
                         <img className="h-[11.5rem] w-auto" src="/portrait.png" />
                         <div className="ml-2 mt-[1.3rem]">
                             <p className="mb-4">{textToSprite(historyItem.user)}</p>
-                            <p className="flex"><span className="font-glyph" data-sprite="lv">lv</span><span>{textToSprite(historyItem.level, true)}</span></p>
+                            <p className="flex"><span className="font-glyph" data-sprite="lv">lv</span><span>{textToSprite(historyItem.level.toString(), true)}</span></p>
                         </div>
                     </div>
                     <ContentBox data-label="historySaveMeta" className="absolute w-[27rem] h-[7rem] top-[31px] right-[-2px]">
