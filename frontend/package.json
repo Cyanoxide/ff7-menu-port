@@ -1,5 +1,7 @@
 {
   "name": "frontend",
+  "homepage": "https://www.jamiepates.com",
+  "base": "/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
