@@ -12,6 +12,20 @@
         pointer-events: none;
     }
 
+    &[data-active=true]:after {
+        content: "";
+        position: absolute;
+        margin-left: -73px;
+        background-image: url("/cursor.png");
+        width: 76px;
+        height: 46px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        z-index: 1;
+        pointer-events: none;
+        animation: blinking 0.15s linear infinite;
+    }
+
     &[data-color]:before {
         content: "";
         background-image: url("/materia-spritesheet.png");
@@ -77,5 +91,15 @@
 
     &[data-color="blue"] {
         background-position-x: -318px;
+    }
+}
+
+@keyframes blinking {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
     }
 }
