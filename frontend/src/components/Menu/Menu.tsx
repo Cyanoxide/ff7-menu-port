@@ -17,9 +17,6 @@ const Menu = ({ activePage, setActivePage }: MenuProps) => {
         "skills": "Skills",
         "history": "History",
         "config": "Config",
-        // "about": "About",
-        // "contact": "Contact",
-        // "quit": "Quit"
     }
 
     const menuLinks: Record<string, { name: string; path: string; download?: boolean }> = {

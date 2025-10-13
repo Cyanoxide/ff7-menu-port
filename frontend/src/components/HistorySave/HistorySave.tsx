@@ -3,12 +3,12 @@ import { useContext } from "../../context/context";
 import ContentBox from "../contentBox/ContentBox";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
-import type { History } from "../../context/types";
+import type { HistoryType } from "../../context/types";
 
 import styles from "./HistorySave.module.scss";
 
 interface historySaveProps {
-    historyItem: History;
+    historyItem: HistoryType;
 };
 
 const HistorySave: React.FC<historySaveProps> = ({ historyItem, ...props }) => {

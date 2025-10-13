@@ -6,118 +6,30 @@ import PartyMember from "../PartyMember/PartyMember";
 import EquipmentSlots from "../EquipmentSlots/EquipmentSlots";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
+import skillsJSON from "../../data/skills.json";
+import type { SkillType } from "../../context/types";
 
 import styles from "./SkillsContent.module.scss";
-
-type Materia = {
-    id: number;
-    name: string;
-    color: string;
-    description: string;
-    additionalInfo: string;
-    score: number;
-};
 
 function SkillsContent() {
     const { isSoundEnabled } = useContext();
     const skillPlaceholder = {
         id: 0,
         name: "",
-        color: "",
+        color: null,
         description: "",
         additionalInfo: "",
         score: 0
     }
-    const skills = [
-        {
-            id: 1,
-            name: "React",
-            color: "green",
-            description: "A JavaScript library for building interactive user interfaces.",
-            additionalInfo: "",
-            score: 4
-        },
-        {
-            id: 2,
-            name: "Typescript",
-            color: "yellow",
-            description: "A superset of JavaScript that adds static typing.",
-            additionalInfo: "",
-            score: 3
-        },
-        {
-            id: 3,
-            name: "Javascript",
-            color: "yellow",
-            description: "A programming language for creating dynamic content.",
-            additionalInfo: "",
-            score: 5
-        },
-        {
-            id: 4,
-            name: "Python",
-            color: "blue",
-            description: "A general-purpose, readable programming language.",
-            additionalInfo: "",
-            score: 4
-        },
-        {
-            id: 5,
-            name: "Django",
-            color: "blue",
-            description: "A Python framework for web apps.",
-            additionalInfo: "",
-            score: 4
-        },
-        {
-            id: 6,
-            name: "SQL",
-            color: "yellow",
-            description: "A language for managing relational databases.",
-            additionalInfo: "",
-            score: 3
-        },
-        {
-            id: 7,
-            name: "PHP",
-            color: "yellow",
-            description: "A server-side language for building dynamic web pages.",
-            additionalInfo: "",
-            score: 2
-        },
-        {
-            id: 8,
-            name: "Git",
-            color: "pink",
-            description: "A version control system for managing code changes.",
-            additionalInfo: "",
-            score: 4
-        },
-        {
-            id: 9,
-            name: "Photoshop",
-            color: "red",
-            description: "A graphics editor used for image manipulation and design.",
-            additionalInfo: "",
-            score: 5
-        },
-        {
-            id: 10,
-            name: "Docker",
-            color: "pink",
-            description: "A platform for packaging, and running containerized apps.",
-            additionalInfo: "",
-            score: 2
-        },
-    ]
 
-    const [skill, setSkill] = useState<Materia>(skillPlaceholder);
+
+    const [skill, setSkill] = useState<SkillType>(skillPlaceholder);
     const [materiaPositionsTop] = useState([1, null, 2, 3, 4, 9, null, 10]);
     const [materiaPositionsBottom] = useState([5, 6, 7, 8, null]);
 
     const handleMouseEnter = (skill: string) => {
         playSound("select", isSoundEnabled);
-        const skillObj = skills.find(item => item.name === skill);
+        const skillObj = (skillsJSON as SkillType[]).find(item => item.name === skill);
         if (skillObj) {
             setSkill(skillObj);
         }
@@ -131,8 +43,8 @@ function SkillsContent() {
                         <PartyMember memberId={1} />
                     </div>
                     <div className="mt-9 mr-2">
-                        <EquipmentSlots type="Wpn." name="Mouse" multiSlots={3} singleSlots={2} materia={skills} materiaPositions={materiaPositionsTop} setSkill={setSkill} />
-                        <EquipmentSlots type="Arm." name="Keyboard" multiSlots={2} singleSlots={2} materia={skills} materiaPositions={materiaPositionsBottom} setSkill={setSkill} />
+                        <EquipmentSlots type="Wpn." name="Mouse" multiSlots={3} singleSlots={2} materia={skillsJSON as SkillType[]} materiaPositions={materiaPositionsTop} setSkill={setSkill} />
+                        <EquipmentSlots type="Arm." name="Keyboard" multiSlots={2} singleSlots={2} materia={skillsJSON as SkillType[]} materiaPositions={materiaPositionsBottom} setSkill={setSkill} />
                     </div>
                 </div>
             </ContentBox>
@@ -149,7 +61,7 @@ function SkillsContent() {
             </ContentBox>
             <ContentBox data-label="skillsContentRight" className="absolute top-[359px] right-0 bottom-0">
                 <ul>
-                    {skills.map((skill) => (
+                    {skillsJSON.map((skill) => (
                         <li key={skill.id} onMouseEnter={() => handleMouseEnter(skill.name)} onClick={() => playSound("error", isSoundEnabled)} className="mb-1.5">
                             <span className={`${styles.skill} flex`} data-color={skill.color}>{textToSprite(skill.name)}</span>
                         </li>

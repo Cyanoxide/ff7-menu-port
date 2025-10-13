@@ -2,10 +2,10 @@ import ContentBox from "../contentBox/ContentBox";
 import HistorySave from "../HistorySave/HistorySave";
 import textToSprite from "../../util/textToSprite";
 import historyJSON from "../../data/history.json";
-import type { History } from "../../context/types";
+import type { HistoryType } from "../../context/types";
 
 function HistoryContent() {
-    const history = (historyJSON as History[]);
+    const history = (historyJSON as HistoryType[]);
 
     return (
         <>

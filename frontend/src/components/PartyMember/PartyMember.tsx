@@ -3,7 +3,7 @@ import textToSprite from "../../util/textToSprite.tsx";
 import ProgressBar from "../ProgressBar/ProgressBar.tsx";
 import ResourceCounter from "../ResourceCounter/ResourceCounter.tsx";
 import partyMemberJSON from "../../data/partyMember.json";
-import type { PartyMember } from "../../context/types.tsx";
+import type { PartyMemberType } from "../../context/types.tsx";
 
 interface partyMemberProps {
     memberId?: number,
@@ -13,7 +13,7 @@ interface partyMemberProps {
 const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = false }) => {
     if (!memberId) return;
 
-    const partyMemberData = (partyMemberJSON as PartyMember[]).find((partyMember) => partyMember.id === memberId);
+    const partyMemberData = (partyMemberJSON as PartyMemberType[]).find((partyMember) => partyMember.id === memberId);
 
     function epochToDate(epoch: number): Date {
         return new Date(epoch < 1e12 ? epoch * 1000 : epoch);
