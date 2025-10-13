@@ -24,5 +24,5 @@ export const initialState: State = {
     },
     windowCorner: null,
     seconds: 0,
-    isSoundEnabled: true,
+    isSoundEnabled: false,
 };

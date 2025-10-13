@@ -21,23 +21,24 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const app = document.getElementById('root');
+    function scaleApp() {
+      const app = document.getElementById("root");
     if (app) {
-      const scaleApp = () => {
-        const originalWidth = 1250;
-        const originalHeight = 975;
-
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-
-        const scale = Math.min(windowWidth / originalWidth, windowHeight / originalHeight);
-        app.style.zoom = String(scale);
+        const scale = Math.min(
+          window.innerWidth / 1250,
+          window.innerHeight / 975
+        );
+        app.style.transform = `scale(${scale})`;
       }
-
-      window.addEventListener('load', scaleApp);
-      window.addEventListener('resize', scaleApp);
-      scaleApp();
     }
+
+    window.addEventListener("load", scaleApp);
+    window.addEventListener("resize", scaleApp);
+    window.addEventListener("orientationchange", scaleApp);
+    window.visualViewport?.addEventListener("resize", scaleApp);
+    window.visualViewport?.addEventListener("scroll", scaleApp);
+
+      scaleApp();
   }, []);
 
   return (
