@@ -1,0 +1,72 @@
+[
+    {
+        "id": 1,
+        "name": "React",
+        "color": "green",
+        "description": "A JavaScript library for building interactive user interfaces.",
+        "score": 4
+    },
+    {
+        "id": 2,
+        "name": "Typescript",
+        "color": "yellow",
+        "description": "A superset of JavaScript that adds static typing.",
+        "score": 3
+    },
+    {
+        "id": 3,
+        "name": "Javascript",
+        "color": "yellow",
+        "description": "A programming language for creating dynamic content.",
+        "score": 5
+    },
+    {
+        "id": 4,
+        "name": "Python",
+        "color": "blue",
+        "description": "A general-purpose, readable programming language.",
+        "score": 4
+    },
+    {
+        "id": 5,
+        "name": "Django",
+        "color": "blue",
+        "description": "A Python framework for web apps.",
+        "score": 4
+    },
+    {
+        "id": 6,
+        "name": "SQL",
+        "color": "yellow",
+        "description": "A language for managing relational databases.",
+        "score": 3
+    },
+    {
+        "id": 7,
+        "name": "PHP",
+        "color": "yellow",
+        "description": "A server-side language for building dynamic web pages.",
+        "score": 2
+    },
+    {
+        "id": 8,
+        "name": "Git",
+        "color": "pink",
+        "description": "A version control system for managing code changes.",
+        "score": 4
+    },
+    {
+        "id": 9,
+        "name": "Photoshop",
+        "color": "red",
+        "description": "A graphics editor used for image manipulation and design.",
+        "score": 5
+    },
+    {
+        "id": 10,
+        "name": "Docker",
+        "color": "pink",
+        "description": "A platform for packaging, and running containerized apps.",
+        "score": 2
+    }
+]

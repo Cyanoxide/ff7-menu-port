@@ -1,23 +1,19 @@
-import { useQuery } from "@tanstack/react-query";
-import { fetchPartyMember } from "../../util/http.ts";
 import textToSprite from "../../util/textToSprite.tsx";
 
 import ProgressBar from "../ProgressBar/ProgressBar.tsx";
 import ResourceCounter from "../ResourceCounter/ResourceCounter.tsx";
+import partyMemberJSON from "../../data/partyMember.json";
+import type { PartyMemberType } from "../../context/types.tsx";
 
 interface partyMemberProps {
-    memberId: number,
+    memberId?: number,
     showProgressBars?: boolean
 }
 
 const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = false }) => {
-    const { data, isLoading, isError, error } = useQuery({
-        queryKey: ["partyMemberData", memberId],
-        queryFn: ({ signal }) => fetchPartyMember({ signal, memberId }),
-        staleTime: 5000,
-        // gcTime: 1000,
-        enabled: memberId !== undefined,
-    });
+    if (!memberId) return;
+
+    const partyMemberData = (partyMemberJSON as PartyMemberType[]).find((partyMember) => partyMember.id === memberId);
 
     function epochToDate(epoch: number): Date {
         return new Date(epoch < 1e12 ? epoch * 1000 : epoch);
@@ -52,24 +48,10 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
         return Math.ceil(diff / (1000 * 60 * 60 * 24));
     }
 
-
     let content;
 
-    if (isLoading) {
-        content = <p>{textToSprite("Loading...")}</p>;
-    }
-
-    if (isError) {
-        content = (
-            <>
-                <p>{textToSprite("An error occurred")}</p>
-                <p>{textToSprite(error.message)}</p>
-            </>
-        );
-    }
-
-    if (data) {
-        const { name: memberName, hp, mp, limit_level, image_path, age_epoch } = data;
+    if (partyMemberData) {
+        const { name: memberName, hp, mp, limit_level, image_path, age_epoch } = partyMemberData;
 
         content = (
             <div className={`flex justify-between`}>

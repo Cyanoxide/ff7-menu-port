@@ -17,7 +17,7 @@ function ProjectsContent() {
         if (item === "tripleTriad") {
             setDescription("Let's play a game of cards!");
             setmoreInfo(["This is a React project", "I built to authentically", "recreate the FF8", "version of Triple Triad", "to be playable in a", "web browser."]);
-            playSound("select", isSoundEnabled)
+            playSound("select", isSoundEnabled);
         }
     }
 

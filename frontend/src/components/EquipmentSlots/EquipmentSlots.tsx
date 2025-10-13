@@ -2,35 +2,27 @@ import styles from "./EquipmentSlots.module.scss";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { useContext } from "../../context/context";
-
-type Materia = {
-    id: number;
-    name: string;
-    color: string;
-    description: string;
-    additionalInfo: string;
-    score: number;
-};
+import type { SkillType } from "../../context/types";
 
 interface equipmentSlotsProps {
     type?: string,
     name?: string,
     multiSlots?: number,
     singleSlots?: number,
-    materia?: Materia[],
+    materia?: SkillType[],
     materiaPositions?: (number | null)[]
-    setSkill?: (skill: Materia) => void;
+    setSkill?: (skill: SkillType) => void;
 }
 
 
 const EquipmentSlots: React.FC<equipmentSlotsProps> = ({ type = "Wpn.", name = "Buster Sword", multiSlots = 0, singleSlots = 0, materia = [], materiaPositions = [], setSkill, ...props }) => {
-    const {isSoundEnabled} = useContext();
+    const { isSoundEnabled } = useContext();
     let counter = 0;
 
-    const MateriaSlot = (i: number, materia: Materia[]) => {
+    const MateriaSlot = (i: number, materia: SkillType[]) => {
         const matchedMateria = materia.find(item => item.id === materiaPositions[i]);
 
-        const handleMouseEnter = (materia?: Materia) => {
+        const handleMouseEnter = (materia?: SkillType) => {
             playSound("select", isSoundEnabled);
 
             if (matchedMateria && materia && setSkill) {

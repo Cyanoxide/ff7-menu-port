@@ -1,0 +1,11 @@
+[
+    {
+        "id": 1,
+        "name": "Jamie Pates",
+        "limit_level": 3,
+        "age_epoch": 667785600,
+        "hp": 1342,
+        "mp": 540,
+        "image_path": "/portrait.png"
+    }
+]
