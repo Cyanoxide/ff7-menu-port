@@ -6,6 +6,9 @@ body {
   font-family: sans-serif;
   filter: blur(0.6px);
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 body.crt-effect::after {
@@ -24,7 +27,7 @@ body.crt-effect::after {
   filter: blur(0.8px);
 }
 
-body.crt-effect:before {
+body.crt-effect #root:before {
   content: "";
   position: absolute;
   background: url("/checkerboard.png");
@@ -34,8 +37,16 @@ body.crt-effect:before {
   top: 0;
   background-size: 5px;
   mix-blend-mode: multiply;
-  opacity: 0.15;
+  opacity: 0.1;
   pointer-events: none;
+  z-index: 1;
+}
+
+#root {
+  width: 1250px;
+  height: 975px;
+  transform-origin: top center;
+  margin: 0 auto;
 }
 
 @keyframes jitter {
