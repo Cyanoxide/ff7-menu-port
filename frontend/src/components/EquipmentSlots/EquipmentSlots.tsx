@@ -12,10 +12,13 @@ interface equipmentSlotsProps {
     materia?: SkillType[],
     materiaPositions?: (number | null)[]
     setSkill?: (skill: SkillType) => void;
+    selectedMateria: number | null;
+    setSelectedMateria: (id: number | null) => void;
+    setMateriaPositions: (positions: (number | null)[]) => void;
 }
 
 
-const EquipmentSlots: React.FC<equipmentSlotsProps> = ({ type = "Wpn.", name = "Buster Sword", multiSlots = 0, singleSlots = 0, materia = [], materiaPositions = [], setSkill, ...props }) => {
+const EquipmentSlots: React.FC<equipmentSlotsProps> = ({ type = "Wpn.", name = "Buster Sword", multiSlots = 0, singleSlots = 0, materia = [], materiaPositions = [], setSkill, selectedMateria, setSelectedMateria, setMateriaPositions, ...props }) => {
     const { isSoundEnabled } = useContext();
     let counter = 0;
 
@@ -30,8 +33,27 @@ const EquipmentSlots: React.FC<equipmentSlotsProps> = ({ type = "Wpn.", name = "
             }
         }
 
+        const handleOnClick = (index: number) => {
+            const previousValue = materiaPositions[index];
+
+            if (!selectedMateria && !materiaPositions[index]) {
+                playSound("error", isSoundEnabled);
+            } else {
+                playSound("materia", isSoundEnabled);
+            }
+
+            for (let i = 0; i < materiaPositions.length; i++) {
+                if (selectedMateria === materiaPositions[i]) {
+                    materiaPositions[i] = null;
+                }
+            }
+            materiaPositions[index] = selectedMateria;
+            setMateriaPositions(materiaPositions);
+            setSelectedMateria(previousValue);
+        }
+
         return (
-            <div key={i} onMouseEnter={() => handleMouseEnter(matchedMateria)} onClick={() => playSound("error", isSoundEnabled)} className={styles.materiaSlot} data-value={i}>
+            <div key={i} onMouseEnter={() => handleMouseEnter(matchedMateria)} onClick={() => handleOnClick(i)} className={styles.materiaSlot} data-value={i}>
                 <div className={styles.skill} data-color={matchedMateria?.color || null}>
                     {matchedMateria ? matchedMateria.name : materiaPositions[i]}
                 </div>

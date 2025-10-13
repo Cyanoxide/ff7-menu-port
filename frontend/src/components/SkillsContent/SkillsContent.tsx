@@ -24,8 +24,9 @@ function SkillsContent() {
 
 
     const [skill, setSkill] = useState<SkillType>(skillPlaceholder);
-    const [materiaPositionsTop] = useState([1, null, 2, 3, 4, 9, null, 10]);
-    const [materiaPositionsBottom] = useState([5, 6, 7, 8, null]);
+    const [materiaPositionsTop, setMateriaPositionsTop] = useState([1, null, 2, 3, 4, 9, null, 10]);
+    const [materiaPositionsBottom, setMateriaPositionsBottom] = useState([5, 6, 7, 8, null]);
+    const [selectedMateria, setSelectedMateria] = useState<number | null>(null);
 
     const handleMouseEnter = (skill: string) => {
         playSound("select", isSoundEnabled);
@@ -33,6 +34,17 @@ function SkillsContent() {
         if (skillObj) {
             setSkill(skillObj);
         }
+    }
+
+    const handleOnClick = (id?: number) => {
+        if (!id) {
+            playSound("error", isSoundEnabled);
+            return;
+        }
+
+        const value = (id !== selectedMateria) ? id : null;
+        setSelectedMateria(value);
+        playSound("select", isSoundEnabled);
     }
 
     return (
@@ -43,8 +55,8 @@ function SkillsContent() {
                         <PartyMember memberId={1} />
                     </div>
                     <div className="mt-9 mr-2">
-                        <EquipmentSlots type="Wpn." name="Mouse" multiSlots={3} singleSlots={2} materia={skillsJSON as SkillType[]} materiaPositions={materiaPositionsTop} setSkill={setSkill} />
-                        <EquipmentSlots type="Arm." name="Keyboard" multiSlots={2} singleSlots={2} materia={skillsJSON as SkillType[]} materiaPositions={materiaPositionsBottom} setSkill={setSkill} />
+                        <EquipmentSlots type="Wpn." name="Mouse" multiSlots={3} singleSlots={2} materia={skillsJSON as SkillType[]} materiaPositions={materiaPositionsTop} setMateriaPositions={setMateriaPositionsTop} setSkill={setSkill} selectedMateria={selectedMateria} setSelectedMateria={setSelectedMateria}/>
+                        <EquipmentSlots type="Arm." name="Keyboard" multiSlots={2} singleSlots={2} materia={skillsJSON as SkillType[]} materiaPositions={materiaPositionsBottom} setMateriaPositions={setMateriaPositionsBottom} setSkill={setSkill} selectedMateria={selectedMateria} setSelectedMateria={setSelectedMateria} />
                     </div>
                 </div>
             </ContentBox>
@@ -62,8 +74,8 @@ function SkillsContent() {
             <ContentBox data-label="skillsContentRight" className="absolute top-[359px] right-0 bottom-0">
                 <ul>
                     {skillsJSON.map((skill) => (
-                        <li key={skill.id} onMouseEnter={() => handleMouseEnter(skill.name)} onClick={() => playSound("error", isSoundEnabled)} className="mb-1.5">
-                            <span className={`${styles.skill} flex`} data-color={skill.color}>{textToSprite(skill.name)}</span>
+                        <li key={skill.id} onMouseEnter={() => handleMouseEnter(skill.name)} onClick={() => handleOnClick(skill.id)} className="mb-1.5">
+                            <span className={`${styles.skill} flex`} data-color={skill.color} data-active={skill.id === selectedMateria}>{textToSprite(skill.name)}</span>
                         </li>
                     ))}
                 </ul>
