@@ -24,14 +24,13 @@ function SkillsContent() {
 
 
     const [skill, setSkill] = useState<SkillType>(skillPlaceholder);
-    const [materiaPositionsTop, setMateriaPositionsTop] = useState([1, null, 2, 3, 4, 9, null, 10]);
-    const [materiaPositionsBottom, setMateriaPositionsBottom] = useState([5, 6, 7, 8, null]);
+    const [materiaPositions, setMateriaPositions] = useState([[1, null, 2, 3, 4, 9, null, 10], [5, 6, 7, 8, null]]);
     const [selectedMateria, setSelectedMateria] = useState<number | null>(null);
 
     const handleMouseEnter = (skill: string) => {
         playSound("select", isSoundEnabled);
         const skillObj = (skillsJSON as SkillType[]).find(item => item.name === skill);
-        if (skillObj) {
+        if (!selectedMateria && skillObj) {
             setSkill(skillObj);
         }
     }
@@ -55,8 +54,8 @@ function SkillsContent() {
                         <PartyMember memberId={1} />
                     </div>
                     <div className="mt-9 mr-2">
-                        <EquipmentSlots type="Wpn." name="Mouse" multiSlots={3} singleSlots={2} materia={skillsJSON as SkillType[]} materiaPositions={materiaPositionsTop} setMateriaPositions={setMateriaPositionsTop} setSkill={setSkill} selectedMateria={selectedMateria} setSelectedMateria={setSelectedMateria}/>
-                        <EquipmentSlots type="Arm." name="Keyboard" multiSlots={2} singleSlots={2} materia={skillsJSON as SkillType[]} materiaPositions={materiaPositionsBottom} setMateriaPositions={setMateriaPositionsBottom} setSkill={setSkill} selectedMateria={selectedMateria} setSelectedMateria={setSelectedMateria} />
+                        <EquipmentSlots type="Wpn." name="Mouse" multiSlots={3} singleSlots={2} materia={skillsJSON as SkillType[]} materiaPositions={materiaPositions} setMateriaPositions={setMateriaPositions} setSkill={setSkill} selectedMateria={selectedMateria} setSelectedMateria={setSelectedMateria} />
+                        <EquipmentSlots type="Arm." name="Keyboard" multiSlots={2} singleSlots={2} materia={skillsJSON as SkillType[]} materiaPositions={materiaPositions} setMateriaPositions={setMateriaPositions} setSkill={setSkill} selectedMateria={selectedMateria} setSelectedMateria={setSelectedMateria} />
                     </div>
                 </div>
             </ContentBox>
