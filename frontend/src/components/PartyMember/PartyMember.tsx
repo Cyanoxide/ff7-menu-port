@@ -17,11 +17,16 @@ interface partyMemberProps {
 
 const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = false, healthReduction = false }) => {
     const partyMemberData = (partyMemberJSON as PartyMemberType[]).find((partyMember) => partyMember.id === memberId);
-    const [currentHealth, setCurrentHealth] = useState(partyMemberData!.hp);
     const [isAttacking, setIsAttacking] = useState(false);
     const [isDying, setIsDying] = useState(false);
     const [damage, setDamage] = useState(0);
-    const { isSoundEnabled } = useContext();
+    const { isSoundEnabled, currentHealth, dispatch } = useContext();
+
+    useEffect(() => {
+        if (currentHealth === null) {
+            dispatch({ type: "SET_CURRENT_HEALTH", payload: partyMemberData!.hp });
+        }
+    }, [])
 
     useEffect(() => {
         setTimeout(() => {
@@ -76,13 +81,13 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
             const healthReduction = Math.floor(Math.random() * (35 - 15 + 1)) + 20;
             const multiplier = (Math.random() > 0.95) ? 2 : 1;
             setDamage(healthReduction * multiplier);
-            setCurrentHealth(prev => Math.max(0, prev - healthReduction));
+            dispatch({ type: "SET_CURRENT_HEALTH", payload: Math.max(0, currentHealth - healthReduction) });
 
             if (healthReduction >= currentHealth) {
                 playSound("delete", isSoundEnabled);
                 setIsDying(true);
             } else {
-                if (healthReduction * multiplier > 40) {
+                if (healthReduction * multiplier > 50) {
                     playSound("crit", isSoundEnabled);
                 } else {
                     playSound("slash", isSoundEnabled);
@@ -117,7 +122,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
                         <span className="font-glyph" data-sprite="lv">lv</span>
                         {textToSprite(convertAgeEpochToLevel(new Date(age_epoch).getTime()).toFixed(0), true)}
                     </p>
-                    <ResourceCounter label="hp" maxValue={hp} currentValue={currentHealth} accentColor="#4f8fd4" />
+                    <ResourceCounter label="hp" maxValue={hp} currentValue={currentHealth || 0} accentColor="#4f8fd4" />
                     <ResourceCounter label="mp" maxValue={mp} currentValue={mp} accentColor="#63d9c1" />
                 </div>
                 {showProgressBars && (
