@@ -15,6 +15,8 @@ export interface State {
     windowCorner: WindowCorner;
     windowColor: WindowColor;
     seconds: number;
+    currentHealth: number | null;
+    currentMana: number | null;
     isSoundEnabled: boolean;
 }
 
@@ -22,6 +24,8 @@ export type Action =
     | { type: "SET_WINDOW_COLOR"; payload: WindowColor }
     | { type: "SET_SECONDS"; payload: number }
     | { type: "INCREMENT_SECONDS"; }
+    | { type: "SET_CURRENT_HEALTH"; payload: number | null }
+    | { type: "SET_CURRENT_MANA"; payload: number | null }
     | { type: "SET_IS_SOUND_ENABLED"; payload: boolean }
 
 export interface ContextType extends State {

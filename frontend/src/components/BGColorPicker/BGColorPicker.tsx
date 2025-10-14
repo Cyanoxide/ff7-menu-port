@@ -3,7 +3,7 @@ import { useContext } from "../../context/context";
 import type { WindowCorner } from "../../context/types";
 
 import styles from "./BGColorPicker.module.scss";
-import ContentBox from "../contentBox/ContentBox";
+import ContentBox from "../ContentBox/ContentBox";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 

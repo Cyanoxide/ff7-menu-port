@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useContext } from "../../context/context";
 
-import ContentBox from "../contentBox/ContentBox";
+import ContentBox from "../ContentBox/ContentBox";
 import BGColorPicker from "../BGColorPicker/BGColorPicker";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
@@ -35,11 +35,11 @@ function ConfigContent() {
             <ContentBox data-label="configBody" className="h-[45.1rem]">
                 <ul>
                     <li className="ml-24 mb-5 flex" onMouseEnter={() => onMouseEnter("Select colours for the window")} onMouseLeave={onMouseLeave}>
-                        <div className="w-[24rem]">{textToSprite("Window Color", false, true)}</div>
+                        <div className="w-[24rem]">{textToSprite("Window Color", false, "blue")}</div>
                         <BGColorPicker />
                     </li>
                     <li className={`${styles.soundToggle} ml-24 mb-5 flex`} onMouseEnter={() => onMouseEnter("Enable or disable Sound")} onMouseLeave={onMouseLeave}>
-                        <div className="w-[24rem]">{textToSprite("Sound", false, true)}</div>
+                        <div className="w-[24rem]">{textToSprite("Sound", false, "blue")}</div>
                         <div className="w-[18rem] flex justify-between">
                             <button data-disabled={!isSoundEnabled} onMouseEnter={() => playSound("select", isSoundEnabled)} onClick={() => onClickHandler(true)}>{textToSprite("On")}</button>
                             <button data-disabled={isSoundEnabled} onMouseEnter={() => playSound("select", isSoundEnabled)} onClick={() => onClickHandler(false)}>{textToSprite("Off")}</button>

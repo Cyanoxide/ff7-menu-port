@@ -1,4 +1,4 @@
-import ContentBox from "../contentBox/ContentBox";
+import ContentBox from "../ContentBox/ContentBox";
 import HistorySave from "../HistorySave/HistorySave";
 import textToSprite from "../../util/textToSprite";
 import historyJSON from "../../data/history.json";

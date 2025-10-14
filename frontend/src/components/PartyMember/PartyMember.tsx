@@ -4,16 +4,49 @@ import ProgressBar from "../ProgressBar/ProgressBar.tsx";
 import ResourceCounter from "../ResourceCounter/ResourceCounter.tsx";
 import partyMemberJSON from "../../data/partyMember.json";
 import type { PartyMemberType } from "../../context/types.tsx";
+import { useState, useEffect } from "react";
+import playSound from "../../util/sounds.ts";
+import { useContext } from "../../context/context.tsx";
+import styles from "./PartyMember.module.scss";
+import ContentBox from "../ContentBox/ContentBox.tsx";
 
 interface partyMemberProps {
     memberId?: number,
-    showProgressBars?: boolean
+    showProgressBars?: boolean,
+    healthReduction?: boolean,
 }
 
-const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = false }) => {
-    if (!memberId) return;
-
+const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = false, healthReduction = false }) => {
     const partyMemberData = (partyMemberJSON as PartyMemberType[]).find((partyMember) => partyMember.id === memberId);
+    const [isAttacking, setIsAttacking] = useState(false);
+    const [isDying, setIsDying] = useState(false);
+    const [damage, setDamage] = useState(0);
+    const { isSoundEnabled, currentHealth, currentMana, dispatch } = useContext();
+
+    useEffect(() => {
+        console.log(currentHealth, currentMana)
+        if (currentHealth === null) {
+            dispatch({ type: "SET_CURRENT_HEALTH", payload: partyMemberData!.hp });
+        }
+
+        if (currentMana === null) {
+            dispatch({ type: "SET_CURRENT_MANA", payload: partyMemberData!.mp });
+        }
+    }, [])
+
+    useEffect(() => {
+        setTimeout(() => {
+            setIsAttacking(false);
+        }, 300)
+    }, [isAttacking])
+
+    useEffect(() => {
+        setTimeout(() => {
+            setIsDying(false);
+        }, 1000)
+    }, [isDying])
+
+    if (!memberId) return;
 
     function epochToDate(epoch: number): Date {
         return new Date(epoch < 1e12 ? epoch * 1000 : epoch);
@@ -48,28 +81,73 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
         return Math.ceil(diff / (1000 * 60 * 60 * 24));
     }
 
+    const handleOnClick = () => {
+        if (healthReduction && currentHealth) {
+            setIsAttacking(true);
+            const healthReduction = Math.floor(Math.random() * (35 - 15 + 1)) + 20;
+            const multiplier = (Math.random() > 0.95) ? 2 : 1;
+            setDamage(healthReduction * multiplier);
+            dispatch({ type: "SET_CURRENT_HEALTH", payload: Math.max(0, currentHealth - healthReduction) });
+
+            if (healthReduction >= currentHealth) {
+                playSound("delete", isSoundEnabled);
+                setIsDying(true);
+            } else {
+                if (healthReduction * multiplier > 50) {
+                    playSound("crit", isSoundEnabled);
+                } else {
+                    playSound("slash", isSoundEnabled);
+                }
+            }
+        } else {
+            if (!healthReduction) return;
+            playSound("error", isSoundEnabled);
+        }
+    }
+
+    const handleMouseEnter = () => {
+        if (!healthReduction || currentHealth === 0) return;
+        playSound("select", isSoundEnabled)
+    }
+
+    const handleHealClick = () => {
+        console.log(currentHealth, currentMana);
+        if (currentMana) {
+            playSound("heal", isSoundEnabled);
+            dispatch({ type: "SET_CURRENT_HEALTH", payload: partyMemberData!.hp });
+            dispatch({ type: "SET_CURRENT_MANA", payload: Math.max(0, currentMana - 34) });
+        } else {
+            playSound("error", isSoundEnabled);
+        }
+    }
+
     let content;
 
     if (partyMemberData) {
         const { name: memberName, hp, mp, limit_level, image_path, age_epoch } = partyMemberData;
 
+
         content = (
             <div className={`flex justify-between`}>
-                <img src={image_path} alt="Party Member Portrait" width={145} className="object-contain" />
+                <div className={styles.portrait} data-shake={isAttacking} data-dying={isDying} data-interactive={healthReduction} data-health={currentHealth?.toString()}>
+                    {isAttacking && <p className="absolute">{textToSprite(damage.toString(), true)}</p>}
+                    <img src={image_path} alt="Party Member Portrait" width={145} className="object-contain" onClick={handleOnClick} onMouseEnter={handleMouseEnter} />
+                    {healthReduction && currentHealth === 0 && <div onClick={handleHealClick} onMouseEnter={() => playSound("select", isSoundEnabled)} className="absolute top-full"><ContentBox data-label="healButton">{textToSprite("Revive")}</ContentBox></div>}
+                </div>
                 <div className="mt-2 ml-8">
                     <p className="mb-2">{textToSprite(memberName)}</p>
                     <p className="flex">
                         <span className="font-glyph" data-sprite="lv">lv</span>
                         {textToSprite(convertAgeEpochToLevel(new Date(age_epoch).getTime()).toFixed(0), true)}
                     </p>
-                    <ResourceCounter label="hp" maxValue={hp} currentValue={hp} accentColor="#4f8fd4" />
-                    <ResourceCounter label="mp" maxValue={mp} currentValue={mp} accentColor="#63d9c1" />
+                    <ResourceCounter label="hp" maxValue={hp} currentValue={currentHealth || 0} accentColor="#4f8fd4" />
+                    <ResourceCounter label="mp" maxValue={mp} currentValue={currentMana || 0} accentColor="#63d9c1" />
                 </div>
                 {showProgressBars && (
                     <div className="mt-12">
                         <p>{textToSprite("next level")}</p>
                         <div className="ml-7">
-                            <ProgressBar percentage={(getDaysUntilLevel(age_epoch) / 365) * 100} />
+                            <ProgressBar percentage={100 - (getDaysUntilLevel(age_epoch) / 365) * 100} />
                         </div>
                         <p>{textToSprite(`Limit level ${limit_level.toString()}`)}</p>
                         <div className="ml-7">

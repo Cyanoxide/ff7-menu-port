@@ -9,12 +9,13 @@ interface resourceCounterProps {
 }
 
 const ProgressBar: React.FC<resourceCounterProps> = ({ maxValue = 302, currentValue = 152, label = "hp", accentColor = "#4f8fd4", ...props }) => {
+    const resourceColor = (currentValue === 0) ? "red" : (currentValue <= maxValue * 0.35) ? "yellow" : "white";
     return (
         <div className={`${styles.resourceCounter} flex`} {...props}>
             <span className="font-glyph mr-2" data-sprite={label}>{label}</span>
             <div className="flex flex-col">
                 <div className="flex">
-                    <span className="w-[92px] flex justify-end">{textToSprite(currentValue.toString(), true)}</span>
+                    <span className="w-[92px] flex justify-end">{textToSprite(currentValue.toString(), true, resourceColor)}</span>
                     <span>{textToSprite("/", true)}</span>
                     <span className="w-[92px] flex justify-end">{textToSprite(maxValue.toString(), true)}</span>
                 </div>

@@ -1,4 +1,4 @@
-import ContentBox from "../contentBox/ContentBox";
+import ContentBox from "../ContentBox/ContentBox";
 import PartyMember from "../PartyMember/PartyMember";
 import Time from "../Time/Time";
 import textToSprite from "../../util/textToSprite";
@@ -7,7 +7,7 @@ function LandingContent() {
     return (
         <>
             <ContentBox className="w-[1000px] h-[720px] m-auto absolute top-[44px]" data-label="party">
-                <PartyMember memberId={1} showProgressBars={true} />
+                <PartyMember memberId={1} showProgressBars={true} healthReduction={true} />
                 <ContentBox className="absolute left-[53px] right-[220px] top-[294px] bottom-0" data-label="bio">
                     <p className="mb-2">{textToSprite("I'm a Senior Web Developer based in")}</p>
                     <p className="mb-6">{textToSprite("Gloucester, UK.")}</p>

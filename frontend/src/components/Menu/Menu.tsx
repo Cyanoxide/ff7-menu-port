@@ -1,7 +1,7 @@
 import { useContext } from "../../context/context";
 import styles from "./Menu.module.scss";
 import textToSprite from "../../util/textToSprite";
-import ContentBox from "../contentBox/ContentBox";
+import ContentBox from "../ContentBox/ContentBox";
 import playSound from "../../util/sounds";
 
 interface MenuProps {
