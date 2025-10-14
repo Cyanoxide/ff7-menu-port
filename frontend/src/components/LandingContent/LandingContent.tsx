@@ -1,4 +1,4 @@
-import ContentBox from "../contentBox/ContentBox";
+import ContentBox from "../ContentBox/ContentBox";
 import PartyMember from "../PartyMember/PartyMember";
 import Time from "../Time/Time";
 import textToSprite from "../../util/textToSprite";

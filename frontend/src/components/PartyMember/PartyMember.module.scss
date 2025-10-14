@@ -3,7 +3,7 @@
     display: flex;
     justify-content: center;
 
-    &[data-interactive=true] {
+    &[data-interactive=true]:not([data-health="0"]) {
         cursor: pointer;
     }
 
@@ -11,7 +11,7 @@
         animation: 0.3s shake linear;
     }
 
-    &[data-interactive=true]:hover:before {
+    &[data-interactive=true]:not([data-health="0"]):hover:before {
         content: "";
         position: absolute;
         margin-left: -178px;

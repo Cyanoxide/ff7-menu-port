@@ -10,6 +10,8 @@ export const reducer = (state: State, action: Action): State => {
             return { ...state, isSoundEnabled: action.payload };
         case "SET_CURRENT_HEALTH":
             return { ...state, currentHealth: action.payload };
+        case "SET_CURRENT_MANA":
+            return { ...state, currentMana: action.payload };
         case "INCREMENT_SECONDS":
             return { ...state, seconds: state.seconds + 1 };
         default:
@@ -28,4 +30,5 @@ export const initialState: State = {
     seconds: 0,
     isSoundEnabled: false,
     currentHealth: null,
+    currentMana: null,
 };

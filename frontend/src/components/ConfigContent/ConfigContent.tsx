@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useContext } from "../../context/context";
 
-import ContentBox from "../contentBox/ContentBox";
+import ContentBox from "../ContentBox/ContentBox";
 import BGColorPicker from "../BGColorPicker/BGColorPicker";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";

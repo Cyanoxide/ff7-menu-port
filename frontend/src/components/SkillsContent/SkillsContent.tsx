@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useContext } from "../../context/context";
 
-import ContentBox from "../contentBox/ContentBox";
+import ContentBox from "../ContentBox/ContentBox";
 import PartyMember from "../PartyMember/PartyMember";
 import EquipmentSlots from "../EquipmentSlots/EquipmentSlots";
 import textToSprite from "../../util/textToSprite";

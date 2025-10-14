@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import playSound from "../../util/sounds.ts";
 import { useContext } from "../../context/context.tsx";
 import styles from "./PartyMember.module.scss";
+import ContentBox from "../ContentBox/ContentBox.tsx";
 
 interface partyMemberProps {
     memberId?: number,
@@ -20,11 +21,16 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     const [isAttacking, setIsAttacking] = useState(false);
     const [isDying, setIsDying] = useState(false);
     const [damage, setDamage] = useState(0);
-    const { isSoundEnabled, currentHealth, dispatch } = useContext();
+    const { isSoundEnabled, currentHealth, currentMana, dispatch } = useContext();
 
     useEffect(() => {
+        console.log(currentHealth, currentMana)
         if (currentHealth === null) {
             dispatch({ type: "SET_CURRENT_HEALTH", payload: partyMemberData!.hp });
+        }
+
+        if (currentMana === null) {
+            dispatch({ type: "SET_CURRENT_MANA", payload: partyMemberData!.mp });
         }
     }, [])
 
@@ -100,8 +106,19 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     }
 
     const handleMouseEnter = () => {
-        if (!healthReduction) return;
+        if (!healthReduction || currentHealth === 0) return;
         playSound("select", isSoundEnabled)
+    }
+
+    const handleHealClick = () => {
+        console.log(currentHealth, currentMana);
+        if (currentMana) {
+            playSound("heal", isSoundEnabled);
+            dispatch({ type: "SET_CURRENT_HEALTH", payload: partyMemberData!.hp });
+            dispatch({ type: "SET_CURRENT_MANA", payload: Math.max(0, currentMana - 34) });
+        } else {
+            playSound("error", isSoundEnabled);
+        }
     }
 
     let content;
@@ -112,9 +129,10 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
 
         content = (
             <div className={`flex justify-between`}>
-                <div className={styles.portrait} data-shake={isAttacking} data-dying={isDying} data-interactive={healthReduction}>
+                <div className={styles.portrait} data-shake={isAttacking} data-dying={isDying} data-interactive={healthReduction} data-health={currentHealth?.toString()}>
                     {isAttacking && <p className="absolute">{textToSprite(damage.toString(), true)}</p>}
                     <img src={image_path} alt="Party Member Portrait" width={145} className="object-contain" onClick={handleOnClick} onMouseEnter={handleMouseEnter} />
+                    {healthReduction && currentHealth === 0 && <div onClick={handleHealClick} onMouseEnter={() => playSound("select", isSoundEnabled)} className="absolute top-full"><ContentBox data-label="healButton">{textToSprite("Revive")}</ContentBox></div>}
                 </div>
                 <div className="mt-2 ml-8">
                     <p className="mb-2">{textToSprite(memberName)}</p>
@@ -123,7 +141,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
                         {textToSprite(convertAgeEpochToLevel(new Date(age_epoch).getTime()).toFixed(0), true)}
                     </p>
                     <ResourceCounter label="hp" maxValue={hp} currentValue={currentHealth || 0} accentColor="#4f8fd4" />
-                    <ResourceCounter label="mp" maxValue={mp} currentValue={mp} accentColor="#63d9c1" />
+                    <ResourceCounter label="mp" maxValue={mp} currentValue={currentMana || 0} accentColor="#63d9c1" />
                 </div>
                 {showProgressBars && (
                     <div className="mt-12">

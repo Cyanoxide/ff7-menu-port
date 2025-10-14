@@ -1,6 +1,6 @@
 
 import { useContext } from "../../context/context";
-import ContentBox from "../contentBox/ContentBox";
+import ContentBox from "../ContentBox/ContentBox";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import type { HistoryType } from "../../context/types";
