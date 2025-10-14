@@ -11,21 +11,20 @@ interface equipmentSlotsProps {
     multiSlots?: number,
     singleSlots?: number,
     materia?: SkillType[],
-    materiaPositions?: (number | null)[][];
-    setSkill: (skill: SkillType) => void;
     selectedMateria: number | null;
     setSelectedMateria: (id: number | null) => void;
-    setMateriaPositions: (positions: (number | null)[][]) => void;
+    setSkill: (skill: SkillType) => void;
 }
 
 
-const EquipmentSlots: React.FC<equipmentSlotsProps> = ({ type = "Wpn.", name = "Buster Sword", multiSlots = 0, singleSlots = 0, materia = [], materiaPositions = [], setSkill, selectedMateria, setSelectedMateria, setMateriaPositions, ...props }) => {
-    const { isSoundEnabled } = useContext();
+const EquipmentSlots: React.FC<equipmentSlotsProps> = ({ type = "Wpn.", name = "Buster Sword", multiSlots = 0, singleSlots = 0, materia = [], setSkill, selectedMateria, setSelectedMateria,  ...props }) => {
+    const { isSoundEnabled, currentMateria, dispatch } = useContext();
+    const currentMateriaPositions = currentMateria;
     let counter = 0;
 
     const MateriaSlot = (i: number, materia: SkillType[]) => {
         const arrIndex = (type === "Arm.") ? 1 : 0;
-        const matchedMateria = materia.find(item => item.id === materiaPositions[arrIndex][i]);
+        const matchedMateria = materia.find(item => item.id === currentMateriaPositions[arrIndex][i]);
 
 
         const handleMouseEnter = (materia?: SkillType) => {
@@ -37,22 +36,22 @@ const EquipmentSlots: React.FC<equipmentSlotsProps> = ({ type = "Wpn.", name = "
         }
 
         const handleOnClick = (index: number) => {
-            const previousValue = materiaPositions[arrIndex][index];
+            const previousValue = currentMateriaPositions[arrIndex][index];
 
-            if (!selectedMateria && !materiaPositions[arrIndex][index]) {
+            if (!selectedMateria && !currentMateriaPositions[arrIndex][index]) {
                 playSound("error", isSoundEnabled);
             } else {
                 playSound("materia", isSoundEnabled);
             }
-            for (let i = 0; i < materiaPositions.length; i++) {
-                for (let j = 0; j < materiaPositions[i].length; j++) {
-                    if (selectedMateria === materiaPositions[i][j]) {
-                        materiaPositions[i][j] = null;
+            for (let i = 0; i < currentMateriaPositions.length; i++) {
+                for (let j = 0; j < currentMateriaPositions[i].length; j++) {
+                    if (selectedMateria === currentMateriaPositions[i][j]) {
+                        currentMateriaPositions[i][j] = null;
                     }
                 }
             }
-            materiaPositions[arrIndex][index] = selectedMateria;
-            setMateriaPositions(materiaPositions);
+            currentMateriaPositions[arrIndex][index] = selectedMateria;
+            dispatch({ type: "SET_CURRENT_MATERIA", payload: currentMateriaPositions})
             setSelectedMateria(previousValue);
 
             const skillObj = (skillsJSON as SkillType[]).find(skill => skill.id === selectedMateria);
@@ -64,7 +63,7 @@ const EquipmentSlots: React.FC<equipmentSlotsProps> = ({ type = "Wpn.", name = "
         return (
             <div key={i} onMouseEnter={() => handleMouseEnter(matchedMateria)} onClick={() => handleOnClick(i)} className={styles.materiaSlot} data-value={i}>
                 <div className={styles.skill} data-color={matchedMateria?.color || null}>
-                    {matchedMateria ? matchedMateria.name : materiaPositions[arrIndex][i]}
+                    {matchedMateria ? matchedMateria.name : currentMateriaPositions[arrIndex][i]}
                 </div>
             </div>
         )

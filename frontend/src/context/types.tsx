@@ -17,6 +17,7 @@ export interface State {
     seconds: number;
     currentHealth: number | null;
     currentMana: number | null;
+    currentMateria: (number | null)[][]
     isSoundEnabled: boolean;
 }
 
@@ -26,6 +27,7 @@ export type Action =
     | { type: "INCREMENT_SECONDS"; }
     | { type: "SET_CURRENT_HEALTH"; payload: number | null }
     | { type: "SET_CURRENT_MANA"; payload: number | null }
+    | { type: "SET_CURRENT_MATERIA"; payload: (number | null)[][] }
     | { type: "SET_IS_SOUND_ENABLED"; payload: boolean }
 
 export interface ContextType extends State {
