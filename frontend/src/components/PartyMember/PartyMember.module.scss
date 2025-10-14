@@ -1,0 +1,103 @@
+.portrait {
+    position: relative;
+    display: flex;
+    justify-content: center;
+
+    &[data-interactive=true] {
+        cursor: pointer;
+    }
+
+    &[data-shake=true][data-interactive=true] img {
+        animation: 0.3s shake linear;
+    }
+
+    &[data-interactive=true]:hover:before {
+        content: "";
+        position: absolute;
+        margin-left: -178px;
+        background-image: url("/cursor.png");
+        width: 76px;
+        height: 46px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        margin-top: 69px;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    &[data-interactive=true][data-dying=true]:after {
+        content: "";
+        position: absolute;
+        background: red;
+        height: 100%;
+        width: 100%;
+        opacity: 0.8;
+        mix-blend-mode: darken;
+        animation: death 1s linear forwards;
+    }
+
+
+    &[data-interactive=true] p {
+        top: -30px;
+        margin-left: -5px;
+        animation: fadeUp 0.4s linear forwards;
+    }
+}
+
+@keyframes death {
+
+    0% {
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes fadeUp {
+
+    0% {
+        transform: translateY(0);
+    }
+
+    70% {
+        opacity: 1;
+        transform: translateY(-15px);
+
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+}
+
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    20% {
+        transform: translateY(-5px);
+    }
+
+    40% {
+        transform: translateY(10px);
+    }
+
+    60% {
+        transform: translateY(-10px);
+    }
+
+    80% {
+        transform: translateY(5px);
+    }
+}

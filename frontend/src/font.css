@@ -16,12 +16,21 @@
     color: transparent;
 }
 
-[data-highlighted=true] .font-glyph {
+[data-text-color=blue] .font-glyph {
     background-image: url("/font-spritesheet--blue.png");
 }
 
-[data-disabled=true] .font-glyph {
+[data-disabled=true] .font-glyph,
+[data-text-color=grey] .font-glyph {
     background-image: url("/font-spritesheet--grey.png");
+}
+
+[data-text-color=yellow] .font-glyph {
+    background-image: url("/font-spritesheet--yellow.png");
+}
+
+[data-text-color=red] .font-glyph {
+    background-image: url("/font-spritesheet--red.png");
 }
 
 .font-glyph[data-sprite=" "] {

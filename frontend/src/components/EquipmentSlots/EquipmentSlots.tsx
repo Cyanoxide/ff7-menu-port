@@ -74,7 +74,7 @@ const EquipmentSlots: React.FC<equipmentSlotsProps> = ({ type = "Wpn.", name = "
     return (
         <div className="w-[550px]" {...props}>
             <p className="flex mt-1">
-                <span className="mr-3">{textToSprite(type, false, true)}</span>
+                <span className="mr-3">{textToSprite(type, false, "blue")}</span>
                 <span>{textToSprite(name)}</span>
             </p>
             <div className={`${styles.equipmentContainer} flex`}>

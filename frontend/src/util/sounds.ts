@@ -1,4 +1,4 @@
-type sounds = "select" | "back" | "error" | "materia";
+type sounds = "select" | "back" | "error" | "materia" | "slash" | "crit" | "delete";
 
 export const loadSound = (sound: sounds) => {
     if (typeof window == "undefined") return;
@@ -10,6 +10,9 @@ export const loadSound = (sound: sounds) => {
         "back": "back.mp3",
         "error": "error.mp3",
         "materia": "materia.mp3",
+        "slash": "slash.mp3",
+        "crit": "crit.mp3",
+        "delete": "delete.mp3",
     }
 
     return new Audio(`${src}${sounds[sound]}`);
