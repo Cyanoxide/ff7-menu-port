@@ -12,6 +12,8 @@ export const reducer = (state: State, action: Action): State => {
             return { ...state, currentHealth: action.payload };
         case "SET_CURRENT_MANA":
             return { ...state, currentMana: action.payload };
+        case "SET_CURRENT_MATERIA":
+            return { ...state, currentMateria: action.payload };
         case "INCREMENT_SECONDS":
             return { ...state, seconds: state.seconds + 1 };
         default:
@@ -31,4 +33,5 @@ export const initialState: State = {
     isSoundEnabled: false,
     currentHealth: null,
     currentMana: null,
+    currentMateria: [[1, null, 2, 3, 4, 9, null, 10], [5, 6, 7, 8, null]]
 };

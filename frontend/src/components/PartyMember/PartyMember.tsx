@@ -24,7 +24,6 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     const { isSoundEnabled, currentHealth, currentMana, dispatch } = useContext();
 
     useEffect(() => {
-        console.log(currentHealth, currentMana)
         if (currentHealth === null) {
             dispatch({ type: "SET_CURRENT_HEALTH", payload: partyMemberData!.hp });
         }
@@ -111,7 +110,6 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     }
 
     const handleHealClick = () => {
-        console.log(currentHealth, currentMana);
         if (currentMana) {
             playSound("heal", isSoundEnabled);
             dispatch({ type: "SET_CURRENT_HEALTH", payload: partyMemberData!.hp });
