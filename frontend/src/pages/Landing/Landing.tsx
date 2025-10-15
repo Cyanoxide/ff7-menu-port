@@ -1,6 +1,6 @@
-import ContentBox from "../ContentBox/ContentBox";
-import PartyMember from "../PartyMember/PartyMember";
-import Time from "../Time/Time";
+import ContentBox from "../../components/ContentBox/ContentBox";
+import PartyMember from "../../components/PartyMember/PartyMember";
+import Time from "../../components/Time/Time";
 import textToSprite from "../../util/textToSprite";
 
 function LandingContent() {

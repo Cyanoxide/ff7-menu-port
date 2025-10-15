@@ -1,6 +1,6 @@
 .menu {
     height: 100%;
-    
+
     li {
         position: relative;
         transition: height 0.2s ease-in;
@@ -10,9 +10,7 @@
             cursor: pointer;
         }
 
-        &>span:not(.active):hover:before,
-        &>a:not(.active):hover:before,
-        [data-label="close"]>span:hover:before {
+        &>*:not(.active):hover:before {
             content: "";
             position: absolute;
             margin-left: -81px;
@@ -25,9 +23,14 @@
             pointer-events: none;
         }
 
-        [data-label="close"]>span:hover:before {
+        a[data-label="close"]:hover:before {
             margin-top: -4px;
             margin-left: -72px;
+            z-index: 1;
         }
+    }
+
+    .active {
+        cursor: default;
     }
 }

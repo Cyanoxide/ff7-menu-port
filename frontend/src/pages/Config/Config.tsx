@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useContext } from "../../context/context";
 
-import ContentBox from "../ContentBox/ContentBox";
-import BGColorPicker from "../BGColorPicker/BGColorPicker";
+import ContentBox from "../../components/ContentBox/ContentBox";
+import BGColorPicker from "../../components/BGColorPicker/BGColorPicker";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 
-import styles from "./ConfigContent.module.scss";
+import styles from "./Config.module.scss";
 
 function ConfigContent() {
     const { dispatch, isSoundEnabled } = useContext();

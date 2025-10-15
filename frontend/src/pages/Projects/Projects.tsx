@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useContext } from "../../context/context";
 
-import ContentBox from "../ContentBox/ContentBox";
-import PartyMember from "../PartyMember/PartyMember";
+import ContentBox from "../../components/ContentBox/ContentBox";
+import PartyMember from "../../components/PartyMember/PartyMember";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 
-import styles from "./ProjectsContent.module.scss";
+import styles from "./Projects.module.scss";
 
 function ProjectsContent() {
     const { isSoundEnabled } = useContext();
