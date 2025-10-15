@@ -130,7 +130,9 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
             <div className={`flex justify-between`}>
                 <div className={styles.portrait} data-shake={isAttacking} data-dying={isDying} data-interactive={healthReduction} data-health={currentHealth?.toString()}>
                     {isAttacking && <p className="absolute">{textToSprite(damage.toString(), true)}</p>}
-                    <img src={image_path} alt="Party Member Portrait" width={145} className="object-contain" onClick={handleOnClick} onMouseEnter={handleMouseEnter} />
+                    <div className="self-center relative" onClick={handleOnClick} onMouseEnter={handleMouseEnter}>
+                        <img src={image_path} alt="Party Member Portrait" width={145} className="object-contain" />
+                    </div>
                     {healthReduction && currentHealth === 0 && <div onClick={handleHealClick} onMouseEnter={() => playSound("select", isSoundEnabled)} className="absolute top-full"><ContentBox data-label="healButton">{textToSprite("Revive", false, (!currentMana || currentMana < 34) ? "grey" : "")}</ContentBox></div>}
                 </div>
                 <div className="mt-2 ml-8">
