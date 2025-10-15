@@ -48,7 +48,7 @@ function SkillsContent() {
 
     return (
         <>
-            <ContentBox data-label="skillsHeader" className="h-[300] absolute top-0">
+            <ContentBox data-label="skillsHeader" className="h-[261px] absolute top-0">
                 <div className="flex justify-between items-end">
                     <div className="w-[447px] mb-2 ml-2">
                         <PartyMember memberId={1} />
