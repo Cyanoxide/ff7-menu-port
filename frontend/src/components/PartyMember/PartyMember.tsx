@@ -81,27 +81,28 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     }
 
     const handleOnClick = () => {
-        if (healthReduction && currentHealth) {
-            setIsAttacking(true);
-            const healthReduction = Math.floor(Math.random() * (35 - 15 + 1)) + 20;
-            const multiplier = (Math.random() > 0.95) ? 2 : 1;
-            setDamage(healthReduction * multiplier);
-            dispatch({ type: "SET_CURRENT_HEALTH", payload: Math.max(0, currentHealth - healthReduction) });
+        if (!healthReduction) return;
 
-            if (healthReduction >= currentHealth) {
-                playSound("delete", isSoundEnabled);
-                setIsDying(true);
-            } else {
-                if (healthReduction * multiplier > 50) {
-                    playSound("crit", isSoundEnabled);
-                } else {
-                    playSound("slash", isSoundEnabled);
-                }
-            }
-        } else {
-            if (!healthReduction) return;
+        const damage = Math.floor(Math.random() * (35 - 15 + 1)) + 130;
+        const multiplier = (Math.random() > 0.95) ? 2 : 1;
+
+
+        if (!currentHealth) {
             playSound("error", isSoundEnabled);
+            return;
         }
+
+        setIsAttacking(true);
+        setDamage(damage * multiplier);
+        dispatch({ type: "SET_CURRENT_HEALTH", payload: Math.max(0, currentHealth - damage) });
+
+        if (damage >= currentHealth) {
+            playSound("delete", isSoundEnabled);
+            setIsDying(true);
+        }
+
+        const sound = (damage * multiplier > 200) ? "crit" : "slash";
+        playSound(sound, isSoundEnabled);
     }
 
     const handleMouseEnter = () => {
@@ -130,7 +131,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
                 <div className={styles.portrait} data-shake={isAttacking} data-dying={isDying} data-interactive={healthReduction} data-health={currentHealth?.toString()}>
                     {isAttacking && <p className="absolute">{textToSprite(damage.toString(), true)}</p>}
                     <img src={image_path} alt="Party Member Portrait" width={145} className="object-contain" onClick={handleOnClick} onMouseEnter={handleMouseEnter} />
-                    {healthReduction && currentHealth === 0 && <div onClick={handleHealClick} onMouseEnter={() => playSound("select", isSoundEnabled)} className="absolute top-full"><ContentBox data-label="healButton">{textToSprite("Revive")}</ContentBox></div>}
+                    {healthReduction && currentHealth === 0 && <div onClick={handleHealClick} onMouseEnter={() => playSound("select", isSoundEnabled)} className="absolute top-full"><ContentBox data-label="healButton">{textToSprite("Revive", false, (!currentMana || currentMana < 34) ? "grey" : "")}</ContentBox></div>}
                 </div>
                 <div className="mt-2 ml-8">
                     <p className="mb-2">{textToSprite(memberName)}</p>
