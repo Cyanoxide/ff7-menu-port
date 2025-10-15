@@ -1,6 +1,6 @@
 import { Provider } from "./context/provider";
 import { useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import Menu from './components/Menu/Menu';
 import Landing from "./pages/Landing/Landing";
@@ -48,6 +48,7 @@ function App() {
             <Route path="/projects" element={<Projects />} />
             <Route path="/history" element={<History />} />
             <Route path="/config" element={<Config />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <Menu activePage={activePage} setActivePage={setActivePage} />
         </div>
