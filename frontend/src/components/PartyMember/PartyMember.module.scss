@@ -7,7 +7,7 @@
         cursor: pointer;
     }
 
-    &[data-shake=true][data-interactive=true] img {
+    &[data-shake=true][data-interactive=true]>div {
         animation: 0.3s shake linear;
     }
 
@@ -25,15 +25,13 @@
         pointer-events: none;
     }
 
-    &[data-interactive=true][data-dying=true]:after {
+    &[data-interactive=true][data-dying=true]>div:first-of-type:after {
         content: "";
         position: absolute;
+        inset: 0;
         background: red;
-        height: 100%;
-        width: 100%;
         opacity: 0.8;
         mix-blend-mode: darken;
-        animation: death 1s linear forwards;
     }
 
 
