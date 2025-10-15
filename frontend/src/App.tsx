@@ -1,12 +1,13 @@
-import { Provider } from "./context/context";
-import { useEffect, useState } from 'react';
+import { Provider } from "./context/provider";
+import { useEffect, useState } from "react";
+import { Routes, Route } from "react-router-dom";
 
 import Menu from './components/Menu/Menu';
-import LandingContent from './components/LandingContent/LandingContent';
-import ProjectsContent from "./components/ProjectsContent/ProjectsContent";
-import SkillsContent from "./components/SkillsContent/SkillsContent";
-import HistoryContent from './components/HistoryContent/HistoryContent';
-import ConfigContent from './components/ConfigContent/ConfigContent';
+import Landing from "./pages/Landing/Landing";
+import Projects from "./pages/Projects/Projects";
+import Skills from "./pages/Skills/SkillsContent";
+import History from "./pages/History/History";
+import Config from "./pages/Config/Config";
 
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -41,11 +42,13 @@ function App() {
     <Provider>
       <div className="flex h-screen" data-active={isLoaded}>
         <div className="w-[1100px] h-[825px] mx-auto my-[5rem] relative">
-          {activePage === "home" && <LandingContent />}
-          {(activePage === "skills" && <SkillsContent />)}
-          {(activePage === "projects" && <ProjectsContent />)}
-          {(activePage === "history" && <HistoryContent />)}
-          {(activePage === "config" && <ConfigContent />)}
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/skills" element={<Skills />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/config" element={<Config />} />
+          </Routes>
           <Menu activePage={activePage} setActivePage={setActivePage} />
         </div>
       </div>

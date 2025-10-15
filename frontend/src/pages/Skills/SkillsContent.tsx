@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useContext } from "../../context/context";
 
-import ContentBox from "../ContentBox/ContentBox";
-import PartyMember from "../PartyMember/PartyMember";
-import EquipmentSlots from "../EquipmentSlots/EquipmentSlots";
+import ContentBox from "../../components/ContentBox/ContentBox";
+import PartyMember from "../../components/PartyMember/PartyMember";
+import EquipmentSlots from "../../components/EquipmentSlots/EquipmentSlots";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import skillsJSON from "../../data/skills.json";

@@ -19,7 +19,11 @@
     &[data-label="menu"] {
         padding: 1.25rem 1.6rem 1.25rem 2.8rem;
         top: 100%;
-        transition: inset 0.35s ease-in 0.35s, height 0.2s ease-in;
+        transition: height 0.2s ease-in;
+
+        &[data-animated=true] {
+            transition: inset 0.35s ease-in 0.35s, height 0.2s ease-in;
+        }
     }
 
     &[data-label="metaInfo"] {

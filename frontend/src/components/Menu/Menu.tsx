@@ -3,6 +3,7 @@ import styles from "./Menu.module.scss";
 import textToSprite from "../../util/textToSprite";
 import ContentBox from "../ContentBox/ContentBox";
 import playSound from "../../util/sounds";
+import { Link, useLocation } from "react-router-dom";
 
 interface MenuProps {
     activePage: string;
@@ -10,6 +11,7 @@ interface MenuProps {
 }
 
 const Menu = ({ activePage, setActivePage }: MenuProps) => {
+    const location = useLocation();
     const { isSoundEnabled } = useContext();
 
     const menuItems: Record<string, string> = {
@@ -52,20 +54,23 @@ const Menu = ({ activePage, setActivePage }: MenuProps) => {
     }
 
     return (
-        <ContentBox className={`m-auto w-[270px] absolute right-0 ${(activePage !== "home") ? "h-[84px]" : "h-[530px]"}`} data-label="menu" >
+        <ContentBox className={`m-auto w-[270px] absolute right-0 ${(location.pathname !== "/") ? "h-[84px]" : "h-[530px]"}`} data-label="menu" data-animated={location.pathname === "/"} >
             <ul className={styles.menu}>
                 {Object.keys(menuItems).map((menuItem) => (
-                    <li key={menuItem} className={`${["home", menuItem].includes(activePage) ? "h-[29px] mb-4" : "h-0 invisible"} flex justify-between`}>
-                        <span onClick={() => handleOnClick(menuItem)} onMouseEnter={handleMouseEnter} className={(activePage === menuItem) ? styles.active : ""}>{textToSprite(menuItems[menuItem])}</span>
-                        {activePage !== "home" && <ContentBox className="absolute" data-label="close"><span onClick={handleClose} onMouseEnter={() => playSound("select", isSoundEnabled)}>{textToSprite("X")}</span></ContentBox>}
+                    <li key={menuItem} className={`${["/", `/${menuItem}`].includes(location.pathname) ? "h-[29px] mb-4" : "h-0 invisible"} flex justify-between`}>
+                        <Link to={`/${menuItem}`} className={`${(activePage === menuItem) ? styles.active : ""} w-100`}><span onClick={() => handleOnClick(menuItem)} onMouseEnter={handleMouseEnter}>{textToSprite(menuItems[menuItem])}</span></Link>
+                        {location.pathname !== "/" && <Link to={"/"} data-label="close"><ContentBox className="absolute" data-label="close"><span onClick={handleClose} onMouseEnter={() => playSound("select", isSoundEnabled)}>{textToSprite("X")}</span ></ContentBox></Link>}
                     </li>
-                ))}
-                {Object.keys(menuLinks).map((menuItem) => (
-                    <li key={menuItem} className={`${["home", menuItem].includes(activePage) ? "h-[29px] mb-4" : "h-0 invisible"} h-[29px] mb-4 flex justify-between`}>
-                        <a title={menuLinks[menuItem].name} href={menuLinks[menuItem].path} target="_blank" onClick={() => { playSound("select", isSoundEnabled) }} onMouseEnter={() => playSound("select", isSoundEnabled)}>{textToSprite(menuLinks[menuItem].name)}</a>
-                    </li>
-                ))}
-            </ul>
+                ))
+                }
+                {
+                    Object.keys(menuLinks).map((menuItem) => (
+                        <li key={menuItem} className={`${["/", `/${menuItem}`].includes(location.pathname) ? "h-[29px] mb-4" : "h-0 invisible"} h-[29px] mb-4 flex justify-between`}>
+                            <a title={menuLinks[menuItem].name} href={menuLinks[menuItem].path} target="_blank" onClick={() => { playSound("select", isSoundEnabled) }} onMouseEnter={() => playSound("select", isSoundEnabled)}>{textToSprite(menuLinks[menuItem].name)}</a>
+                        </li>
+                    ))
+                }
+            </ul >
         </ContentBox >
     );
 }

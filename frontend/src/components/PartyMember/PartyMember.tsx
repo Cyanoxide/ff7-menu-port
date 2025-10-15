@@ -31,7 +31,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
         if (currentMana === null) {
             dispatch({ type: "SET_CURRENT_MANA", payload: partyMemberData!.mp });
         }
-    }, [])
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         setTimeout(() => {
