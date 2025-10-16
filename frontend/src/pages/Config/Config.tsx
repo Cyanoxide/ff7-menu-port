@@ -28,8 +28,8 @@ function ConfigContent() {
         }
 
         return (
-            <li className="ml-24 mb-5 flex" onMouseEnter={() => onMouseEnter(desc)} onMouseLeave={onMouseLeave}>
-                <div className="w-[24rem]">{textToSprite(title, false, "blue")}</div>
+            <li className="ml-24 mb-8 flex" onMouseEnter={() => onMouseEnter(desc)} onMouseLeave={onMouseLeave}>
+                <div className="w-[24rem] flex items-end pb-1">{textToSprite(title, false, "blue")}</div>
                 <div className="w-[18rem] flex justify-between">
                     <button data-disabled={!stateValue} onMouseEnter={() => playSound("select", isSoundEnabled)} onClick={() => callback(true)}>{textToSprite(onText)}</button>
                     <button data-disabled={stateValue} onMouseEnter={() => playSound("select", isSoundEnabled)} onClick={() => callback(false)}>{textToSprite(offText)}</button>
@@ -45,8 +45,8 @@ function ConfigContent() {
             </div>
             <ContentBox data-label="configBody" className="h-[45.1rem]">
                 <ul>
-                    <li className="ml-24 mb-5 flex" onMouseEnter={() => onMouseEnter("Select colours for the window")} onMouseLeave={onMouseLeave}>
-                        <div className="w-[24rem]">{textToSprite("Window Color", false, "blue")}</div>
+                    <li className="ml-24 mb-8 flex" onMouseEnter={() => onMouseEnter("Select colours for the window")} onMouseLeave={onMouseLeave}>
+                        <div className="w-[24rem] flex items-end pb-1">{textToSprite("Window Color", false, "blue")}</div>
                         <BGColorPicker />
                     </li>
                     {createToggleOption(isSoundEnabled, "Sound", "Enable or disable Sound", "isSoundEnabled", { type: "SET_IS_SOUND_ENABLED", payload: !isSoundEnabled })}
