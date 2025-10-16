@@ -11,7 +11,6 @@ import Config from "./pages/Config/Config";
 
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [activePage, setActivePage] = useState("home");
 
   useEffect(() => {
     setIsLoaded(true);
@@ -50,7 +49,7 @@ function App() {
             <Route path="/config" element={<Config />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-          <Menu activePage={activePage} setActivePage={setActivePage} />
+          <Menu />
         </div>
       </div>
     </Provider>
