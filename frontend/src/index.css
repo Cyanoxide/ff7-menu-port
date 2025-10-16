@@ -4,20 +4,21 @@ body {
   background: #000;
   color: #fff;
   font-family: sans-serif;
-  filter: blur(0.6px);
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+body.crt-effect {
+  filter: blur(0.6px);
+}
+
 body.crt-effect::after {
   content: '';
   position: absolute;
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
+  inset: 0;
+  height: 100vh;
   background: repeating-linear-gradient(0deg, #111 0px, #111 1px, transparent 2px, transparent 5px);
   background-size: 100% 30px;
   animation: lines 3s ease-out infinite;
