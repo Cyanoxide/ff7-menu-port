@@ -23,6 +23,19 @@
             pointer-events: none;
         }
 
+        &>*:not(.active) {
+            & [data-sprite=external-link-icon] {
+                transition: opacity 0.3s ease;
+                opacity: 0;
+            }
+
+            &:hover {
+                & [data-sprite=external-link-icon] {
+                    opacity: 0.7;
+                }
+            }
+        }
+
         a[data-label="close"]:hover:before {
             margin-top: -4px;
             margin-left: -72px;
