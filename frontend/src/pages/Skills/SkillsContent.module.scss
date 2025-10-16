@@ -65,8 +65,10 @@
     width: 3.5rem;
     height: 3.5rem;
     margin-right: 0.3rem;
-    image-rendering: crisp-edges;
-    filter: blur(0.7px);
+
+    &[data-crt=true] {
+        filter: blur(0.7px);
+    }
 
     &[data-star="true"] {
         background-position-y: 0;

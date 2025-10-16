@@ -8,22 +8,22 @@ import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 
 const BGColorPicker = () => {
-    const { windowColor, isSoundEnabled, dispatch } = useContext();
+    const { windowColor, isSoundEnabled, isCRTEnabled, dispatch } = useContext();
     const [activeColorPicker, setActiveColorPicker] = useState<WindowCorner | null>(null);
 
     const RGBSliders = activeColorPicker ? (
         <ContentBox className={styles.RGBSliders}>
             <div className={styles.red}>
                 <span className="mr-3">{textToSprite(windowColor[activeColorPicker][0].toString().padStart(3, '0'), true)}</span>
-                <input onChange={(e) => onChangeHandler(e, "red")} type="range" min={0} max={255} value={windowColor[activeColorPicker][0]} className={styles.RGBSlider} />
+                <input onChange={(e) => onChangeHandler(e, "red")} type="range" min={0} max={255} value={windowColor[activeColorPicker][0]} className={styles.RGBSlider} data-crt={isCRTEnabled} />
             </div>
             <div className={styles.green}>
                 <span className="mr-3">{textToSprite(windowColor[activeColorPicker][1].toString().padStart(3, '0'), true)}</span>
-                <input onChange={(e) => onChangeHandler(e, "green")} type="range" min={0} max={255} value={windowColor[activeColorPicker][1]} className={styles.RGBSlider} />
+                <input onChange={(e) => onChangeHandler(e, "green")} type="range" min={0} max={255} value={windowColor[activeColorPicker][1]} className={styles.RGBSlider} data-crt={isCRTEnabled} />
             </div>
             <div className={styles.blue}>
                 <span className="mr-3">{textToSprite(windowColor[activeColorPicker][2].toString().padStart(3, '0'), true)}</span>
-                <input onChange={(e) => onChangeHandler(e, "blue")} type="range" min={0} max={255} value={windowColor[activeColorPicker][2]} className={styles.RGBSlider} />
+                <input onChange={(e) => onChangeHandler(e, "blue")} type="range" min={0} max={255} value={windowColor[activeColorPicker][2]} className={styles.RGBSlider} data-crt={isCRTEnabled} />
             </div>
         </ContentBox>
     ) : null;

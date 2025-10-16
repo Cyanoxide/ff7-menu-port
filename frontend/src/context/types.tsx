@@ -20,6 +20,7 @@ export interface State {
     currentMana: number | null;
     currentMateria: (number | null)[][]
     isSoundEnabled: boolean;
+    isCRTEnabled: boolean;
 }
 
 export type Action =
@@ -30,6 +31,7 @@ export type Action =
     | { type: "SET_CURRENT_MANA"; payload: number | null }
     | { type: "SET_CURRENT_MATERIA"; payload: (number | null)[][] }
     | { type: "SET_IS_SOUND_ENABLED"; payload: boolean }
+    | { type: "SET_IS_CRT_ENABLED"; payload: boolean }
 
 export interface ContextType extends State {
     dispatch: React.Dispatch<Action>;

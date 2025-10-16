@@ -12,7 +12,7 @@ import type { SkillType } from "../../context/types";
 import styles from "./SkillsContent.module.scss";
 
 function SkillsContent() {
-    const { isSoundEnabled } = useContext();
+    const { isSoundEnabled, isCRTEnabled } = useContext();
     const skillPlaceholder = {
         id: 0,
         name: "",
@@ -65,7 +65,7 @@ function SkillsContent() {
                     <p className={`${styles.skill} flex`} data-color={skill.color}>{textToSprite(skill.name)}</p>
                     {skill.id !== 0 && <ul className="flex">
                         {Array.from({ length: 5 }).map((_, index) => (
-                            <li key={index} className={styles.star} data-color={skill.color} data-star={index < skill.score}></li>
+                            <li key={index} className={styles.star} data-color={skill.color} data-star={index < skill.score} data-crt={isCRTEnabled}></li>
                         ))}
                     </ul>}
                 </div>

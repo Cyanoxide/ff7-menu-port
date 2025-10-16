@@ -1,23 +1,15 @@
 import { useState } from "react";
 import { useContext } from "../../context/context";
+import type { Action } from "../../context/types";
 
 import ContentBox from "../../components/ContentBox/ContentBox";
 import BGColorPicker from "../../components/BGColorPicker/BGColorPicker";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 
-import styles from "./Config.module.scss";
-
 function ConfigContent() {
-    const { dispatch, isSoundEnabled } = useContext();
+    const { dispatch, isSoundEnabled, isCRTEnabled } = useContext();
     const [windowDescription, setWindowDescription] = useState("");
-
-    const onClickHandler = (isSoundEnabled: boolean) => {
-        playSound("select", isSoundEnabled);
-
-        dispatch({ type: "SET_IS_SOUND_ENABLED", payload: isSoundEnabled });
-        localStorage.setItem("isSoundEnabled", JSON.stringify(isSoundEnabled));
-    }
 
     const onMouseEnter = (description: string) => {
         setWindowDescription(description);
@@ -27,6 +19,25 @@ function ConfigContent() {
         setWindowDescription("");
     }
 
+    const createToggleOption = (stateValue: boolean, title: string, desc: string, varName: string, action: Action, onText: string = "On", offText: string = "Off") => {
+        const callback = (stateValue: boolean) => {
+            playSound("select", isSoundEnabled);
+
+            dispatch(action);
+            localStorage.setItem(varName, JSON.stringify(stateValue));
+        }
+
+        return (
+            <li className="ml-24 mb-8 flex" onMouseEnter={() => onMouseEnter(desc)} onMouseLeave={onMouseLeave}>
+                <div className="w-[24rem] flex items-end pb-1">{textToSprite(title, false, "blue")}</div>
+                <div className="w-[18rem] flex justify-between">
+                    <button data-disabled={!stateValue} onMouseEnter={() => playSound("select", isSoundEnabled)} onClick={() => callback(true)}>{textToSprite(onText)}</button>
+                    <button data-disabled={stateValue} onMouseEnter={() => playSound("select", isSoundEnabled)} onClick={() => callback(false)}>{textToSprite(offText)}</button>
+                </div>
+            </li>
+        )
+    }
+
     return (
         <>
             <div className="relative h-[84px] mb-[10px]">
@@ -34,18 +45,13 @@ function ConfigContent() {
             </div>
             <ContentBox data-label="configBody" className="h-[45.1rem]">
                 <ul>
-                    <li className="ml-24 mb-5 flex" onMouseEnter={() => onMouseEnter("Select colours for the window")} onMouseLeave={onMouseLeave}>
-                        <div className="w-[24rem]">{textToSprite("Window Color", false, "blue")}</div>
+                    <li className="ml-24 mb-8 flex" onMouseEnter={() => onMouseEnter("Select colours for the window")} onMouseLeave={onMouseLeave}>
+                        <div className="w-[24rem] flex items-end pb-1">{textToSprite("Window Color", false, "blue")}</div>
                         <BGColorPicker />
                     </li>
-                    <li className={`${styles.soundToggle} ml-24 mb-5 flex`} onMouseEnter={() => onMouseEnter("Enable or disable Sound")} onMouseLeave={onMouseLeave}>
-                        <div className="w-[24rem]">{textToSprite("Sound", false, "blue")}</div>
-                        <div className="w-[18rem] flex justify-between">
-                            <button data-disabled={!isSoundEnabled} onMouseEnter={() => playSound("select", isSoundEnabled)} onClick={() => onClickHandler(true)}>{textToSprite("On")}</button>
-                            <button data-disabled={isSoundEnabled} onMouseEnter={() => playSound("select", isSoundEnabled)} onClick={() => onClickHandler(false)}>{textToSprite("Off")}</button>
-                        </div>
-                    </li>
-                </ul>{isSoundEnabled}
+                    {createToggleOption(isSoundEnabled, "Sound", "Enable or disable Sound", "isSoundEnabled", { type: "SET_IS_SOUND_ENABLED", payload: !isSoundEnabled })}
+                    {createToggleOption(isCRTEnabled, "CRT Effect", "Enable or disable CRT Effects", "isCRTEnabled", { type: "SET_IS_CRT_ENABLED", payload: !isCRTEnabled })}
+                </ul>
             </ContentBox>
         </>
     );

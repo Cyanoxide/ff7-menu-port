@@ -42,6 +42,14 @@ body.crt-effect #root:before {
   z-index: 1;
 }
 
+body * {
+  image-rendering: crisp-edges;
+}
+
+body.crt-effect * {
+  image-rendering: auto;
+}
+
 #root {
   width: 1250px;
   height: 975px;
