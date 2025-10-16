@@ -6,6 +6,7 @@ import ContentBox from "../../components/ContentBox/ContentBox";
 import BGColorPicker from "../../components/BGColorPicker/BGColorPicker";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
+import styles from "./Config.module.scss";
 
 function ConfigContent() {
     const { dispatch, isSoundEnabled, isCRTEnabled } = useContext();
@@ -28,13 +29,13 @@ function ConfigContent() {
         }
 
         return (
-            <li className="ml-24 mb-8 flex" onMouseEnter={() => onMouseEnter(desc)} onMouseLeave={onMouseLeave}>
+            <li className={`${styles.optionToggle} ml-24 mb-8 flex`} onMouseEnter={() => onMouseEnter(desc)} onMouseLeave={onMouseLeave}>
                 <div className="w-[24rem] flex items-end pb-1">{textToSprite(title, false, "blue")}</div>
                 <div className="w-[18rem] flex justify-between">
                     <button data-disabled={!stateValue} onMouseEnter={() => playSound("select", isSoundEnabled)} onClick={() => callback(true)}>{textToSprite(onText)}</button>
                     <button data-disabled={stateValue} onMouseEnter={() => playSound("select", isSoundEnabled)} onClick={() => callback(false)}>{textToSprite(offText)}</button>
                 </div>
-            </li>
+            </li >
         )
     }
 
