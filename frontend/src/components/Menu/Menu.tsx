@@ -7,29 +7,22 @@ import { Link, useLocation } from "react-router-dom";
 import menuJSON from "../../data/menu.json";
 import type { MenuItem } from "../../context/types";
 
-interface MenuProps {
-    activePage: string;
-    setActivePage: (page: string) => void;
-}
-
-const Menu = ({ activePage, setActivePage }: MenuProps) => {
+const Menu = () => {
     const location = useLocation();
     const { isSoundEnabled } = useContext();
     const menuItems = (menuJSON as MenuItem[]);
 
     const handleClose = () => {
-        setActivePage("home");
         playSound("back", isSoundEnabled);
     }
 
     const handleMouseEnter = () => {
-        if (activePage !== "home") return;
+        if (location.pathname !== "/") return;
         playSound("select", isSoundEnabled)
     }
 
-    const handleOnClick = (menuItem: string) => {
-        if (activePage !== "home") return;
-        setActivePage(menuItem);
+    const handleOnClick = () => {
+        if (location.pathname !== "/") return;
         playSound("select", isSoundEnabled);
     }
 
@@ -47,7 +40,7 @@ const Menu = ({ activePage, setActivePage }: MenuProps) => {
 
         return (
             <>
-                <Link to={`/${menuItem.id}`} className={`${(activePage === menuItem.id) ? styles.active : ""} w-100`}><span onClick={() => handleOnClick(menuItem.id)} onMouseEnter={handleMouseEnter}>{textToSprite(menuItem.name)}</span></Link>
+                <Link to={`/${menuItem.id}`} className={`${(location.pathname === `/${menuItem.id}`) ? styles.active : ""} w-100`}><span onClick={() => handleOnClick()} onMouseEnter={handleMouseEnter}>{textToSprite(menuItem.name)}</span></Link>
                 {location.pathname !== "/" && <Link to={"/"} data-label="close"><ContentBox className="absolute" data-label="close"><span onClick={handleClose} onMouseEnter={() => playSound("select", isSoundEnabled)}>{textToSprite("X")}</span ></ContentBox></Link>}
             </>
         )
@@ -59,7 +52,7 @@ const Menu = ({ activePage, setActivePage }: MenuProps) => {
                 {Array.from({ length: 11 }).map((_, position) => {
                     const menuItem = menuItems.find((item) => item.position === position);
                     return (
-                        <li key={position} className={`${["/", `/${menuItem}`].includes(location.pathname) ? "h-[29px] mb-4" : "h-0 invisible"} flex justify-between`}>
+                        <li key={position} className={`${["/", `/${menuItem && menuItem.id}`].includes(location.pathname) ? "h-[29px] mb-4" : "h-0 invisible"} flex justify-between`}>
                             {menuItemContent(menuItem)}
                         </li>
                     )
