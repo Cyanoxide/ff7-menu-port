@@ -31,7 +31,7 @@ const Menu = () => {
 
         if (menuItem.path) {
             return (
-                <a className="flex" title={menuItem.title || menuItem.name} href={menuItem.path} target="_blank" onClick={() => { playSound("select", isSoundEnabled) }} onMouseEnter={() => playSound("select", isSoundEnabled)}>
+                <a className="flex w-100" title={menuItem.title || menuItem.name} href={menuItem.path} target="_blank" onClick={() => { playSound("select", isSoundEnabled) }} onMouseEnter={() => playSound("select", isSoundEnabled)}>
                     {textToSprite(menuItem.name)}
                     <span className="font-glyph ml-2" data-sprite="external-link-icon"></span>
                 </a>
@@ -41,7 +41,7 @@ const Menu = () => {
         return (
             <>
                 <Link to={`/${menuItem.id}`} className={`${(location.pathname === `/${menuItem.id}`) ? styles.active : ""} w-100`}><span onClick={() => handleOnClick()} onMouseEnter={handleMouseEnter}>{textToSprite(menuItem.name)}</span></Link>
-                {location.pathname !== "/" && <Link to={"/"} data-label="close"><ContentBox className="absolute" data-label="close"><span onClick={handleClose} onMouseEnter={() => playSound("select", isSoundEnabled)}>{textToSprite("X")}</span ></ContentBox></Link>}
+                {location.pathname !== "/" && <Link to={"/"} data-label="close" onClick={handleClose} onMouseEnter={() => playSound("select", isSoundEnabled)}><ContentBox className="absolute" data-label="close" >{textToSprite("X")}</ContentBox></Link>}
             </>
         )
     }
