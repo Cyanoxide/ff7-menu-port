@@ -4,6 +4,8 @@ import textToSprite from "../../util/textToSprite";
 import ContentBox from "../ContentBox/ContentBox";
 import playSound from "../../util/sounds";
 import { Link, useLocation } from "react-router-dom";
+import menuJSON from "../../data/menu.json";
+import type { MenuItem } from "../../context/types";
 
 interface MenuProps {
     activePage: string;
@@ -13,29 +15,7 @@ interface MenuProps {
 const Menu = ({ activePage, setActivePage }: MenuProps) => {
     const location = useLocation();
     const { isSoundEnabled } = useContext();
-
-    const menuItems: Record<string, string> = {
-        "projects": "Projects",
-        "skills": "Skills",
-        "history": "History",
-        "config": "Config",
-    }
-
-    const menuLinks: Record<string, { name: string; path: string; download?: boolean }> = {
-        "resume": {
-            name: "Résumé",
-            path: "/Jamie_Pates_Resume_2025.pdf",
-        },
-        "github": {
-            name: "Github",
-            path: "https://github.com/Cyanoxide",
-        },
-        "donate": {
-            name: "Donate",
-            path: "https://ko-fi.com/cyanoxide",
-
-        }
-    }
+    const menuItems = (menuJSON as MenuItem[]);
 
     const handleClose = () => {
         setActivePage("home");
@@ -53,23 +33,37 @@ const Menu = ({ activePage, setActivePage }: MenuProps) => {
         playSound("select", isSoundEnabled);
     }
 
+    const menuItemContent = (menuItem?: MenuItem) => {
+        if (!menuItem) return;
+
+        if (menuItem.path) {
+            return (
+                <a className="flex" title={menuItem.title || menuItem.name} href={menuItem.path} target="_blank" onClick={() => { playSound("select", isSoundEnabled) }} onMouseEnter={() => playSound("select", isSoundEnabled)}>
+                    {textToSprite(menuItem.name)}
+                    <span className="font-glyph ml-2" data-sprite="external-link-icon"></span>
+                </a>
+            )
+        }
+
+        return (
+            <>
+                <Link to={`/${menuItem.id}`} className={`${(activePage === menuItem.id) ? styles.active : ""} w-100`}><span onClick={() => handleOnClick(menuItem.id)} onMouseEnter={handleMouseEnter}>{textToSprite(menuItem.name)}</span></Link>
+                {location.pathname !== "/" && <Link to={"/"} data-label="close"><ContentBox className="absolute" data-label="close"><span onClick={handleClose} onMouseEnter={() => playSound("select", isSoundEnabled)}>{textToSprite("X")}</span ></ContentBox></Link>}
+            </>
+        )
+    }
+
     return (
         <ContentBox className={`m-auto w-[270px] absolute right-0 ${(location.pathname !== "/") ? "h-[84px]" : "h-[530px]"}`} data-label="menu" data-animated={location.pathname === "/"} >
             <ul className={styles.menu}>
-                {Object.keys(menuItems).map((menuItem) => (
-                    <li key={menuItem} className={`${["/", `/${menuItem}`].includes(location.pathname) ? "h-[29px] mb-4" : "h-0 invisible"} flex justify-between`}>
-                        <Link to={`/${menuItem}`} className={`${(activePage === menuItem) ? styles.active : ""} w-100`}><span onClick={() => handleOnClick(menuItem)} onMouseEnter={handleMouseEnter}>{textToSprite(menuItems[menuItem])}</span></Link>
-                        {location.pathname !== "/" && <Link to={"/"} data-label="close"><ContentBox className="absolute" data-label="close"><span onClick={handleClose} onMouseEnter={() => playSound("select", isSoundEnabled)}>{textToSprite("X")}</span ></ContentBox></Link>}
-                    </li>
-                ))
-                }
-                {
-                    Object.keys(menuLinks).map((menuItem) => (
-                        <li key={menuItem} className={`${["/", `/${menuItem}`].includes(location.pathname) ? "h-[29px] mb-4" : "h-0 invisible"} h-[29px] mb-4 flex justify-between`}>
-                            <a title={menuLinks[menuItem].name} href={menuLinks[menuItem].path} target="_blank" onClick={() => { playSound("select", isSoundEnabled) }} onMouseEnter={() => playSound("select", isSoundEnabled)}>{textToSprite(menuLinks[menuItem].name)}</a>
+                {Array.from({ length: 11 }).map((_, position) => {
+                    const menuItem = menuItems.find((item) => item.position === position);
+                    return (
+                        <li key={position} className={`${["/", `/${menuItem}`].includes(location.pathname) ? "h-[29px] mb-4" : "h-0 invisible"} flex justify-between`}>
+                            {menuItemContent(menuItem)}
                         </li>
-                    ))
-                }
+                    )
+                })}
             </ul >
         </ContentBox >
     );

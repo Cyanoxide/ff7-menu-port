@@ -497,7 +497,11 @@
 .font-glyph[data-sprite="/"] {
     background-position: -789px -184px;
     width: 19px;
+}
 
+.font-glyph[data-sprite="external-link-icon"] {
+    background-position: -819px -184px;
+    width: 30px;
 }
 
 .font-glyph[data-sprite="<"] {
@@ -533,7 +537,6 @@
 .font-glyph[data-sprite="#"] {
     background-position: -155px -232px;
     width: 32px;
-
 }
 
 [data-label="resourceValue"] .font-glyph[data-sprite="0"] {

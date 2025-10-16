@@ -1,0 +1,43 @@
+[
+    {
+        "id": "projects",
+        "name": "Projects",
+        "position": 0
+    },
+    {
+        "id": "skills",
+        "name": "Skills",
+        "position": 1
+    },
+    {
+        "id": "history",
+        "name": "History",
+        "position": 2
+    },
+    {
+        "id": "config",
+        "name": "Config",
+        "position": 3
+    },
+    {
+        "id": "resume",
+        "name": "Resume",
+        "title": "My Resume PDF",
+        "path": "/Jamie_Pates_Resume_2025.pdf",
+        "position": 5
+    },
+    {
+        "id": "github",
+        "name": "Github",
+        "title": "My Github Page",
+        "path": "https://github.com/Cyanoxide",
+        "position": 6
+    },
+    {
+        "id": "donate",
+        "name": "Donate",
+        "title": "My Ko-Fi Donation Page",
+        "path": "https://ko-fi.com/cyanoxide",
+        "position": 7
+    }
+]
