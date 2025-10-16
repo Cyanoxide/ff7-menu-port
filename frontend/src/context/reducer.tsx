@@ -8,6 +8,8 @@ export const reducer = (state: State, action: Action): State => {
             return { ...state, seconds: action.payload };
         case "SET_IS_SOUND_ENABLED":
             return { ...state, isSoundEnabled: action.payload };
+        case "SET_IS_CRT_ENABLED":
+            return { ...state, isCRTEnabled: action.payload };
         case "SET_CURRENT_HEALTH":
             return { ...state, currentHealth: action.payload };
         case "SET_CURRENT_MANA":
@@ -31,6 +33,7 @@ export const initialState: State = {
     windowCorner: null,
     seconds: 0,
     isSoundEnabled: false,
+    isCRTEnabled: true,
     currentHealth: null,
     currentMana: null,
     currentMateria: [[1, null, 2, 3, 4, 9, null, 10], [5, 6, 7, 8, null]]

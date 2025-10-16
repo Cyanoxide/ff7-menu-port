@@ -40,6 +40,17 @@ export const Provider = ({ children }: { children: ReactNode }) => {
             }
         }
         setInitialized(true);
+
+        const isCRTEnabledJSON = localStorage.getItem("isCRTEnabled");
+        if (isCRTEnabledJSON) {
+            try {
+                const isCRTEnabled = JSON.parse(isCRTEnabledJSON);
+                dispatch({ type: "SET_IS_CRT_ENABLED", payload: isCRTEnabled });
+            } catch (error) {
+                console.error("Failed to parse isCRTEnabled from localStorage", error);
+            }
+        }
+        setInitialized(true);
     }, []);
 
     useEffect(() => {
@@ -56,6 +67,14 @@ export const Provider = ({ children }: { children: ReactNode }) => {
         if (!initialized) return;
         localStorage.setItem("seconds", JSON.stringify(state.seconds));
     }, [state.seconds, initialized]);
+
+    useEffect(() => {
+        if (state.isCRTEnabled) {
+            document.body.classList.add("crt-effect");
+        } else {
+            document.body.classList.remove("crt-effect");
+        }
+    }, [state.isCRTEnabled])
 
     return (
         <Context value={{ ...state, dispatch }}>
