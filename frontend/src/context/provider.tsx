@@ -65,6 +65,12 @@ export const Provider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         if (!initialized) return;
+
+        const secondsLimit = 360_000;
+        if (state.seconds >= secondsLimit) {
+            dispatch({ type: "SET_SECONDS", payload: 0 });
+        }
+
         localStorage.setItem("seconds", JSON.stringify(state.seconds));
     }, [state.seconds, initialized]);
 
