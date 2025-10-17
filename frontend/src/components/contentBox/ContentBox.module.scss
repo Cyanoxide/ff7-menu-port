@@ -8,12 +8,12 @@
         0 0 0 5px #a4a0a0;
     opacity: 0;
     animation: fadeIn 0.25s ease-in 0.2s forwards;
-    transition: inset 0.35s ease-in 0.2s;
+    transition: inset 0.5s ease-in 0.2s;
     margin-bottom: 0.6rem;
 
     &[data-label="pageInfo"] {
         padding: 1.9rem 1.1rem;
-        top: -100%;
+        top: 0;
     }
 
     &[data-label="menu"] {
@@ -22,7 +22,7 @@
         transition: height 0.2s ease-in;
 
         &[data-animated=true] {
-            transition: inset 0.35s ease-in 0.35s, height 0.2s ease-in;
+            transition: inset 0.5s ease-in 0.35s, height 0.2s ease-in;
         }
     }
 
@@ -128,7 +128,7 @@
 
 [data-active="true"] {
     [data-label="pageInfo"] {
-        top: 45.4rem;
+        top: 44.8rem;
     }
 
     [data-label="menu"] {

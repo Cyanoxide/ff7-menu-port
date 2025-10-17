@@ -31,7 +31,7 @@ function LandingContent() {
                     </li>
                 </ul>
             </ContentBox>
-            <ContentBox className="w-[535px] h-[95px] m-auto absolute right-0 bottom-0" data-label="pageInfo">{textToSprite("Homepage")}</ContentBox>
+            <ContentBox className="w-[535px] h-[95px] m-auto absolute right-0 top-0" data-label="pageInfo">{textToSprite("Homepage")}</ContentBox>
         </>
     );
 }
