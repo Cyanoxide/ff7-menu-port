@@ -6,6 +6,7 @@ import styles from "./BGColorPicker.module.scss";
 import ContentBox from "../ContentBox/ContentBox";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
+import { defaultWindowColor } from "../../context/defaults";
 
 const BGColorPicker = () => {
     const { windowColor, isSoundEnabled, isCRTEnabled, dispatch } = useContext();
@@ -42,6 +43,18 @@ const BGColorPicker = () => {
         playSound("back", isSoundEnabled);
     }
 
+    const onResetClickHandler = () => {
+        playSound("select", isSoundEnabled);
+        if (!activeColorPicker) return;
+
+        const updatedWindowColor = structuredClone(windowColor);
+        updatedWindowColor[activeColorPicker] = structuredClone(defaultWindowColor)[activeColorPicker];
+
+        dispatch({ type: "SET_WINDOW_COLOR", payload: updatedWindowColor });
+    };
+
+    const isDefaultWindowColor = (activeColorPicker && JSON.stringify(windowColor[activeColorPicker]) === JSON.stringify(defaultWindowColor[activeColorPicker]));
+
     const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>, color: "red" | "green" | "blue") => {
         const index = (color === "red") ? "0" : (color === "green") ? "1" : (color === "blue") ? "2" : null;
         playSound("select", isSoundEnabled);
@@ -67,6 +80,7 @@ const BGColorPicker = () => {
                     </div>
                 </div>
                 {activeColorPicker && RGBPreview}
+                {activeColorPicker && <div className={styles.RGBReset} data-active={!isDefaultWindowColor} onClick={onResetClickHandler}><ContentBox data-label="reset"><span className="font-glyph" data-sprite="reset-icon"></span></ContentBox></div>}
                 {activeColorPicker && RGBSliders}
             </ContentBox>
         </>
