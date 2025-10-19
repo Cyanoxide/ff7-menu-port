@@ -1,4 +1,5 @@
 import type { State, Action } from "./types";
+import { defaultWindowColor, defaultMateriaLoadout } from "./defaults";
 
 export const reducer = (state: State, action: Action): State => {
     switch (action.type) {
@@ -24,17 +25,12 @@ export const reducer = (state: State, action: Action): State => {
 };
 
 export const initialState: State = {
-    windowColor: {
-        topLeft: [2, 34, 186],
-        topRight: [2, 24, 145],
-        bottomLeft: [0, 15, 105],
-        bottomRight: [0, 3, 50],
-    },
+    windowColor: defaultWindowColor,
     windowCorner: null,
     seconds: 0,
     isSoundEnabled: false,
     isCRTEnabled: true,
     currentHealth: null,
     currentMana: null,
-    currentMateria: [[1, null, 2, 3, 4, 9, null, 10], [5, 6, 7, 8, null]]
+    currentMateria: structuredClone(defaultMateriaLoadout),
 };

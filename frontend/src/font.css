@@ -503,6 +503,12 @@
     width: 30px;
 }
 
+.font-glyph[data-sprite="reset-icon"] {
+    background-position: -863px -184px;
+    width: 35px;
+    height: 33px;
+}
+
 .font-glyph[data-sprite="<"] {
     background-position: 1px -232px;
     width: 20px;

@@ -24,6 +24,40 @@
     top: 0;
 }
 
+.RGBReset {
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity 0.2s ease-in;
+
+    &[data-active=true] {
+        opacity: 1;
+    }
+
+    &>div {
+        position: absolute;
+        left: calc(100% + 7rem);
+        padding: 0.5rem 0.7rem 0.5rem 0.55rem;
+        opacity: 0.3;
+        display: flex;
+        top: 0;
+        opacity: 0;
+
+        &:hover:before {
+            content: "";
+            position: absolute;
+            margin-left: -68px;
+            background-image: url("/cursor.png");
+            width: 76px;
+            height: 46px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            margin-top: -7px;
+            z-index: 1;
+            pointer-events: none;
+        }
+    }
+}
+
 .RGBSliders {
     top: calc(100% + 15px);
     position: absolute;
