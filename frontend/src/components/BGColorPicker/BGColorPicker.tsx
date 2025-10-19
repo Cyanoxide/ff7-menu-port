@@ -51,6 +51,7 @@ const BGColorPicker = () => {
         updatedWindowColor[activeColorPicker] = structuredClone(defaultWindowColor)[activeColorPicker];
 
         dispatch({ type: "SET_WINDOW_COLOR", payload: updatedWindowColor });
+        localStorage.setItem("windowColor", JSON.stringify(windowColor));
     };
 
     const isDefaultWindowColor = (activeColorPicker && JSON.stringify(windowColor[activeColorPicker]) === JSON.stringify(defaultWindowColor[activeColorPicker]));
