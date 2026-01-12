@@ -43,7 +43,7 @@ function ProjectsContent() {
             <ContentBox className="absolute top-[190px] right-0 bottom-0" data-label="contentRight">
                 <ul>
                     <li className={styles.item} onMouseEnter={() => handleMouseEnter("tripleTriad")} onMouseLeave={handleMouseLeave} onClick={() => playSound("select", isSoundEnabled)}>
-                        <a href="https://triple-triad.jamiepates.com" className="flex justify-between items-center" target="_blank">
+                        <a href="https://triple-triad.jamiepates.com" className="flex justify-between items-center">
                             <span className="flex items-center">
                                 <img src="/cardicon.gif" alt="Card Icon" width="36" height="36" className="mr-2" />
                                 <span>{textToSprite("Triple Triad")}</span>

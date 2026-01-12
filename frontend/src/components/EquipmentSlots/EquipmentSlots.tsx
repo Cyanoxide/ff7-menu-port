@@ -69,7 +69,6 @@ const EquipmentSlots: React.FC<equipmentSlotsProps> = ({ type = "Wpn.", name = "
         )
     };
 
-
     return (
         <div className="w-[550px]" {...props}>
             <p className="flex mt-1">
