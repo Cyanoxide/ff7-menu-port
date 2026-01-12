@@ -23,7 +23,6 @@ function ConfigContent() {
     const createToggleOption = (stateValue: boolean, title: string, desc: string, varName: string, action: Action, onText: string = "On", offText: string = "Off") => {
         const callback = (stateValue: boolean) => {
             playSound("select", isSoundEnabled);
-
             dispatch(action);
             localStorage.setItem(varName, JSON.stringify(stateValue));
         }

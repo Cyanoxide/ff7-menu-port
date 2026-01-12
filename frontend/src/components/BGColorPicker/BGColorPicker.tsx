@@ -12,25 +12,32 @@ const BGColorPicker = () => {
     const { windowColor, isSoundEnabled, isCRTEnabled, dispatch } = useContext();
     const [activeColorPicker, setActiveColorPicker] = useState<WindowCorner | null>(null);
 
-    const RGBSliders = activeColorPicker ? (
+    const currentColor: number[] | null = (activeColorPicker) ? windowColor[activeColorPicker] : null;
+
+    const generateSlider = (name: "red" | "green" | "blue", index: number) => {
+        if (!currentColor) return;
+
+        return (<div className={styles[name]}>
+            <span className="mr-3">{textToSprite(currentColor[index].toString().padStart(3, '0'), true)}</span>
+            <input onChange={(e) => onChangeHandler(e, name)} type="range" min={0} max={255} value={currentColor[index]} className={styles.RGBSlider} data-crt={isCRTEnabled} />
+        </div>
+        )
+    };
+
+    const generateButton = (corner: WindowCorner) => (
+        <button onClick={() => onClickHandler(corner)} onMouseEnter={() => playSound("select", isSoundEnabled)} className="w-1/2" data-active={activeColorPicker === corner} />
+    );
+
+    const RGBSliders = currentColor ? (
         <ContentBox className={styles.RGBSliders}>
-            <div className={styles.red}>
-                <span className="mr-3">{textToSprite(windowColor[activeColorPicker][0].toString().padStart(3, '0'), true)}</span>
-                <input onChange={(e) => onChangeHandler(e, "red")} type="range" min={0} max={255} value={windowColor[activeColorPicker][0]} className={styles.RGBSlider} data-crt={isCRTEnabled} />
-            </div>
-            <div className={styles.green}>
-                <span className="mr-3">{textToSprite(windowColor[activeColorPicker][1].toString().padStart(3, '0'), true)}</span>
-                <input onChange={(e) => onChangeHandler(e, "green")} type="range" min={0} max={255} value={windowColor[activeColorPicker][1]} className={styles.RGBSlider} data-crt={isCRTEnabled} />
-            </div>
-            <div className={styles.blue}>
-                <span className="mr-3">{textToSprite(windowColor[activeColorPicker][2].toString().padStart(3, '0'), true)}</span>
-                <input onChange={(e) => onChangeHandler(e, "blue")} type="range" min={0} max={255} value={windowColor[activeColorPicker][2]} className={styles.RGBSlider} data-crt={isCRTEnabled} />
-            </div>
+            {generateSlider("red", 0)}
+            {generateSlider("green", 1)}
+            {generateSlider("blue", 2)}
         </ContentBox>
     ) : null;
 
-    const RGBPreview = activeColorPicker ? (
-        <ContentBox className={styles.RGBPreview} style={{ backgroundColor: `rgb(${windowColor[activeColorPicker][0]}, ${windowColor[activeColorPicker][1]}, ${windowColor[activeColorPicker][2]})` }} />
+    const RGBPreview = currentColor ? (
+        <ContentBox className={styles.RGBPreview} style={{ backgroundColor: `rgb(${currentColor[0]}, ${currentColor[1]}, ${currentColor[2]})` }} />
     ) : null;
 
     const onClickHandler = (corner: WindowCorner) => {
@@ -54,14 +61,14 @@ const BGColorPicker = () => {
         localStorage.setItem("windowColor", JSON.stringify(updatedWindowColor));
     };
 
-    const isDefaultWindowColor = (activeColorPicker && JSON.stringify(windowColor[activeColorPicker]) === JSON.stringify(defaultWindowColor[activeColorPicker]));
+    const isDefaultWindowColor = (activeColorPicker && JSON.stringify(windowColor[activeColorPicker]) === JSON.stringify(defaultWindowColor));
 
     const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>, color: "red" | "green" | "blue") => {
         const index = (color === "red") ? "0" : (color === "green") ? "1" : (color === "blue") ? "2" : null;
         playSound("select", isSoundEnabled);
-        if (!activeColorPicker || !index) return;
+        if (!currentColor || !index) return;
 
-        windowColor[activeColorPicker][index] = parseInt(e.target.value, 10);
+        currentColor[index] = parseInt(e.target.value, 10);
         dispatch({ type: "SET_WINDOW_COLOR", payload: windowColor });
         localStorage.setItem("windowColor", JSON.stringify(windowColor));
     }
@@ -72,17 +79,17 @@ const BGColorPicker = () => {
             <ContentBox data-label="configColorPreview" className={`${styles.colorPicker} w-[14rem] h-[5rem] relative`}>
                 <div>
                     <div className="flex justify-between absolute left-0 top-0 right-0 h-1/2">
-                        <button onClick={() => onClickHandler("topLeft")} onMouseEnter={() => playSound("select", isSoundEnabled)} className="w-1/2" data-active={activeColorPicker === "topLeft"} />
-                        <button onClick={() => onClickHandler("topRight")} onMouseEnter={() => playSound("select", isSoundEnabled)} className="w-1/2" data-active={activeColorPicker === "topRight"} />
+                        {generateButton("topLeft")}
+                        {generateButton("topRight")}
                     </div>
                     <div className="flex justify-between absolute left-0 bottom-0 right-0 h-1/2">
-                        <button onClick={() => onClickHandler("bottomLeft")} onMouseEnter={() => playSound("select", isSoundEnabled)} className="w-1/2" data-active={activeColorPicker === "bottomLeft"} />
-                        <button onClick={() => onClickHandler("bottomRight")} onMouseEnter={() => playSound("select", isSoundEnabled)} className="w-1/2" data-active={activeColorPicker === "bottomRight"} />
+                        {generateButton("bottomLeft")}
+                        {generateButton("bottomRight")}
                     </div>
                 </div>
-                {activeColorPicker && RGBPreview}
-                {activeColorPicker && <div className={styles.RGBReset} data-active={!isDefaultWindowColor} onClick={onResetClickHandler}><ContentBox data-label="reset"><span className="font-glyph" data-sprite="reset-icon"></span></ContentBox></div>}
-                {activeColorPicker && RGBSliders}
+                {RGBPreview}
+                {currentColor && <div className={styles.RGBReset} data-active={!isDefaultWindowColor} onClick={onResetClickHandler}><ContentBox data-label="reset"><span className="font-glyph" data-sprite="reset-icon"></span></ContentBox></div>}
+                {RGBSliders}
             </ContentBox>
         </>
     );
