@@ -1,5 +1,6 @@
 import ContentBox from "../../components/ContentBox/ContentBox";
 import HistorySave from "../../components/HistorySave/HistorySave";
+import MemCardSelector from "../../components/MemCardSelector/MemCardSelector";
 import textToSprite from "../../util/textToSprite";
 import historyJSON from "../../data/history.json";
 import type { HistoryType } from "../../context/types";
