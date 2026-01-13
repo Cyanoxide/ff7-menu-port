@@ -9,15 +9,16 @@ import styles from "./HistorySave.module.scss";
 
 interface historySaveProps {
     historyItem: HistoryType;
+    historyType: string;
 };
 
-const HistorySave: React.FC<historySaveProps> = ({ historyItem, ...props }) => {
+const HistorySave: React.FC<historySaveProps> = ({ historyItem, historyType, ...props }) => {
     const { isSoundEnabled } = useContext();
     if (!historyItem) return;
 
     return (
         <>
-            <a href={historyItem.link} onMouseEnter={() => playSound("select", isSoundEnabled)} onClick={() => playSound("select", isSoundEnabled)} title={historyItem.name} target="_blank" className={`${styles.historySave} cursor-pointer`} {...props}>
+            <a href={historyItem.link} onMouseEnter={() => playSound("select", isSoundEnabled)} onClick={() => playSound("saveSelect", isSoundEnabled)} title={historyItem.name} target="_blank" className={`${styles.historySave} cursor-pointer`} {...props}>
                 <ContentBox data-label="historySave" className="h-[235px] relative">
                     <div className="mr-[414px] flex gap-5">
                         <img className="h-[11.5rem] w-auto" src={historyItem.image_path} />
@@ -30,7 +31,7 @@ const HistorySave: React.FC<historySaveProps> = ({ historyItem, ...props }) => {
                     <ContentBox data-label="historySaveMeta" className="absolute w-[27rem] h-[7rem] top-[31px] right-[-2px]">
                         <ul>
                             <li className="flex justify-between mb-3">
-                                <span>{textToSprite("Role")}</span>
+                                {historyType !== "education" && <span>{textToSprite("Role")}</span>}
                                 <span>{textToSprite(historyItem.role)}</span>
                             </li>
                             <li className="flex justify-between">
