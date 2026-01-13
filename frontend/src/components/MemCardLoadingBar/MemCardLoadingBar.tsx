@@ -1,8 +1,8 @@
 
-// import styles from "./LoadingBar.module.scss";
+import styles from "./MemCardLoadingBar.module.scss";
 import ContentBox from "../ContentBox/ContentBox";
-// import playSound from "../../util/sounds";
-// import { useContext } from "../../context/context";
+import playSound from "../../util/sounds";
+import { useContext } from "../../context/context";
 import { useEffect } from "react";
 import textToSprite from "../../util/textToSprite";
 
@@ -13,15 +13,19 @@ interface MemCardLoadingBarProps {
 
 
 const MemCardLoadingBar: React.FC<MemCardLoadingBarProps> = ({ memoryCardProgress, setMemoryCardProgress }) => {
-    // const { isSoundEnabled } = useContext();
+    const { isSoundEnabled } = useContext();
 
     useEffect(() => {
         if (memoryCardProgress >= 110) return;
 
+        if (memoryCardProgress == 100) {
+            playSound("save", isSoundEnabled);
+        }
+
         setTimeout(() => {
             setMemoryCardProgress(memoryCardProgress + 10);
-        }, 100);
-    }, [memoryCardProgress, setMemoryCardProgress]);
+        }, 80);
+    }, [isSoundEnabled, memoryCardProgress, setMemoryCardProgress]);
 
     return (
         <>

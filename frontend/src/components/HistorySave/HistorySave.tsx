@@ -17,7 +17,7 @@ const HistorySave: React.FC<historySaveProps> = ({ historyItem, ...props }) => {
 
     return (
         <>
-            <a href={historyItem.link} onMouseEnter={() => playSound("select", isSoundEnabled)} onClick={() => playSound("select", isSoundEnabled)} title={historyItem.name} target="_blank" className={`${styles.historySave} cursor-pointer`} {...props}>
+            <a href={historyItem.link} onMouseEnter={() => playSound("select", isSoundEnabled)} onClick={() => playSound("saveSelect", isSoundEnabled)} title={historyItem.name} target="_blank" className={`${styles.historySave} cursor-pointer`} {...props}>
                 <ContentBox data-label="historySave" className="h-[235px] relative">
                     <div className="mr-[414px] flex gap-5">
                         <img className="h-[11.5rem] w-auto" src={historyItem.image_path} />

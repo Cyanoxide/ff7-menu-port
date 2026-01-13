@@ -15,11 +15,19 @@ const MemCardSelector = () => {
     const { isSoundEnabled } = useContext();
     const [memoryCardLoaded, setMemoryCardLoaded] = useState(false);
     const [optionSelected, setOptionSelected] = useState(false);
+    const [selectedHistoryType, setSelectedHistoryType] = useState("work");
     const [memoryCardProgress, setMemoryCardProgress] = useState(0);
 
-    const onClickHandler = () => {
+    const onClickHandler = (historyType: string) => {
         playSound("select", isSoundEnabled);
-        setOptionSelected(true)
+        setOptionSelected(true);
+        setSelectedHistoryType(historyType)
+
+    }
+
+    const onMouseEnterHandler = () => {
+        if (!memoryCardLoaded) return;
+        playSound("select", isSoundEnabled);
     }
 
     useEffect(() => {
