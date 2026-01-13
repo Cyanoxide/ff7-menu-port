@@ -112,6 +112,10 @@
         }
     }
 
+    &[data-label="memCardSelector"] {
+        padding: 0.5rem 1.5rem;
+    }
+
     &[data-label="close"] {
         margin-top: -7px;
         height: 52px;

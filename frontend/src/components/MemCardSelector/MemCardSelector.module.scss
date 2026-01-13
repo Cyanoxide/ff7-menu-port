@@ -1,0 +1,15 @@
+.historyOptions {
+    li:hover:before {
+        content: "";
+        position: absolute;
+        margin-left: -81px;
+        background-image: url("/cursor.png");
+        width: 76px;
+        height: 46px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        margin-top: 0px;
+        pointer-events: none;
+        left: 25px;
+    }
+}

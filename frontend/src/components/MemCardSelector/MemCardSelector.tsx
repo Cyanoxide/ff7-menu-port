@@ -39,17 +39,21 @@ const MemCardSelector = () => {
     return (
         <>
             {!optionSelected && <div className="relative h-[84px] mb-[10px]">
-                <ContentBox data-label="MemCardHeader" className="h-full absolute top-0 left-0 right-0">{textToSprite("Checking Save Data File.")}</ContentBox>
+                <ContentBox data-label="MemCardHeader" className="h-full absolute top-0 left-0 right-0">{textToSprite("Select a Save Data File.")}</ContentBox>
             </div>}
-            {!optionSelected && <ContentBox data-label="memCardSelector" className={`w-[30rem] h-[5.5rem] absolute z-1 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2`}>
-                <div className="flex justify-around">
-                    <p onClick={onClickHandler}>{textToSprite("Work", undefined, memoryCardLoaded ? "white" : "grey")}</p>
-                    <p onClick={onClickHandler}>{textToSprite("Education", undefined, memoryCardLoaded ? "white" : "grey")}</p>
-                </div>
+            {!optionSelected && <ContentBox data-label="memCardSelector" className="absolute z-1 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                <ul className={`${styles.historyOptions} flex flex-col items-center gap-1`}>
+                    <li className="w-full flex justify-center mr-1" onMouseEnter={onMouseEnterHandler} onClick={() => { onClickHandler("work") }}>
+                        <button>{textToSprite("Work", undefined, memoryCardLoaded ? "white" : "grey")}</button>
+                    </li>
+                    <li className="w-full flex justify-center mr-1" onMouseEnter={onMouseEnterHandler} onClick={() => { onClickHandler("education") }}>
+                        <button>{textToSprite("Education", undefined, memoryCardLoaded ? "white" : "grey")}</button>
+                    </li>
+                </ul>
             </ContentBox>}
 
             {optionSelected && memoryCardProgress <= 100 && <MemCardLoadingBar memoryCardProgress={memoryCardProgress} setMemoryCardProgress={setMemoryCardProgress} />}
-            {optionSelected && memoryCardProgress > 100 && <History />}
+            {optionSelected && memoryCardProgress > 100 && <History historyType={selectedHistoryType} />}
         </>
     );
 };
