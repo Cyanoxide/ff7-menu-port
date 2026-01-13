@@ -33,7 +33,7 @@ const MemCardLoadingBar: React.FC<MemCardLoadingBarProps> = ({ memoryCardProgres
                 <ContentBox data-label="MemCardHeader" className="h-full absolute top-0 left-0 right-0">{textToSprite("Checking Save Data File.")}</ContentBox>
             </div>
             <ContentBox data-label="memCardLoadingBar" className={`w-[27rem] h-[6rem] absolute z-2 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2`}>
-                <div className={`${memoryCardProgress < 100 ? "bg-blue-500" : "bg-red-500"} h-[3rem]`} style={{ width: memoryCardProgress + "%" }} />
+                <div className={`${styles.memCardLoadingBar} h-[3rem]`} style={{ width: memoryCardProgress + "%" }} data-progress={memoryCardProgress} />
             </ContentBox>
         </>
     );

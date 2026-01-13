@@ -1,0 +1,11 @@
+.memCardLoadingBar {
+    &[data-progress] {
+        background: #2500CF;
+        background: linear-gradient(360deg, rgba(37, 0, 207, 1) 0%, rgba(104, 82, 255, 1) 43%, rgba(72, 49, 247, 1) 55%, rgba(36, 0, 211, 1) 60%, rgba(29, 0, 244, 0.5) 76%, rgba(14, 0, 188, 0) 100%);
+    }
+
+    &[data-progress="100"] {
+        background: #BA6FB0;
+        background: linear-gradient(360deg, rgba(186, 111, 176, 1) 0%, rgba(182, 104, 155, 1) 43%, rgba(142, 101, 221, 1) 55%, rgba(158, 97, 178, 1) 60%, rgba(129, 70, 148, 0.5) 76%, rgba(55, 27, 137, 0) 100%);
+    }
+}

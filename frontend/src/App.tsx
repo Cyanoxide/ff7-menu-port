@@ -6,6 +6,7 @@ import Menu from './components/Menu/Menu';
 import Landing from "./pages/Landing/Landing";
 import Projects from "./pages/Projects/Projects";
 import Skills from "./pages/Skills/SkillsContent";
+// import History from "./pages/History/History";
 import MemCardSelector from "./components/MemCardSelector/MemCardSelector";
 import Config from "./pages/Config/Config";
 

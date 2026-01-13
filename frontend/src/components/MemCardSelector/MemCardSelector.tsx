@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-// import styles from "./MemCardSelector.module.scss";
+import styles from "./MemCardSelector.module.scss";
 import MemCardLoadingBar from "../../components/MemCardLoadingBar/MemCardLoadingBar";
 import History from "../../pages/History/History";
 
