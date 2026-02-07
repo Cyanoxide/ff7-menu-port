@@ -14,6 +14,11 @@ function ProjectsContent() {
     const [moreInfo, setmoreInfo] = useState<string[]>([]);
 
     const handleMouseEnter = (item: string) => {
+        if (item === "reactXP") {
+            setDescription("An authentic recreation of Windows XP");
+            setmoreInfo(["This is still a work in", "progress, but I'm", "currently working on", "recreating Windows XP", "from scratch using", "React and Typescript"]);
+            playSound("select", isSoundEnabled);
+        }
         if (item === "tripleTriad") {
             setDescription("Let's play a game of cards!");
             setmoreInfo(["This is a React project", "I built to authentically", "recreate the FF8", "version of Triple Triad", "to be playable in a", "web browser."]);
@@ -42,10 +47,22 @@ function ProjectsContent() {
             </ContentBox>
             <ContentBox className="absolute top-[190px] right-0 bottom-0" data-label="contentRight">
                 <ul>
+                    <li className={`${styles.item} mb-2.5`} onMouseEnter={() => handleMouseEnter("reactXP")} onMouseLeave={handleMouseLeave} onClick={() => playSound("select", isSoundEnabled)}>
+                        <a href="https://react-xp.jamiepates.com" className="flex justify-between items-center">
+                            <span className="flex items-center">
+                                <img src="/xpicon.png" alt="Card Icon" width="36" height="36" className="mr-3" />
+                                <span>{textToSprite("React XP")}</span>
+                            </span>
+                            <span className="flex">
+                                <span className="mr-2">{textToSprite(":")}</span>
+                                <span className="mt-1">{textToSprite("1", true)}</span>
+                            </span>
+                        </a>
+                    </li>
                     <li className={styles.item} onMouseEnter={() => handleMouseEnter("tripleTriad")} onMouseLeave={handleMouseLeave} onClick={() => playSound("select", isSoundEnabled)}>
                         <a href="https://triple-triad.jamiepates.com" className="flex justify-between items-center">
                             <span className="flex items-center">
-                                <img src="/cardicon.gif" alt="Card Icon" width="36" height="36" className="mr-2" />
+                                <img src="/cardicon.png" alt="Card Icon" width="36" height="36" className="mr-3" />
                                 <span>{textToSprite("Triple Triad")}</span>
                             </span>
                             <span className="flex">
