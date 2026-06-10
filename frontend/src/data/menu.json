@@ -10,34 +10,39 @@
         "position": 1
     },
     {
+        "id": "equip",
+        "name": "Equip",
+        "position": 2
+    },
+    {
         "id": "history",
         "name": "History",
-        "position": 2
+        "position": 3
     },
     {
         "id": "config",
         "name": "Config",
-        "position": 3
+        "position": 4
     },
     {
         "id": "resume",
         "name": "Resume",
         "title": "My Resume PDF",
         "path": "/Jamie_Pates_Resume_2025.pdf",
-        "position": 5
+        "position": 6
     },
     {
         "id": "github",
         "name": "Github",
         "title": "My Github Page",
         "path": "https://github.com/Cyanoxide",
-        "position": 6
+        "position": 7
     },
     {
         "id": "donate",
         "name": "Donate",
         "title": "My Ko-Fi Donation Page",
         "path": "https://ko-fi.com/cyanoxide",
-        "position": 7
+        "position": 8
     }
 ]

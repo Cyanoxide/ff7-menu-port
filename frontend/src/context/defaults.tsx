@@ -1,4 +1,4 @@
-import type { WindowColor } from "./types";
+import type { WindowColor, CurrentEquipment } from "./types";
 
 export const defaultWindowColor: WindowColor = {
     topLeft: [2, 34, 186],
@@ -9,5 +9,11 @@ export const defaultWindowColor: WindowColor = {
 
 export const defaultMateriaLoadout: (number | null)[][] = [
     [1, null, 2, 3, 4, 9, null, 10],
-    [5, 6, 7, 8, null],
+    [5, 6, 7, 8, null, null],
 ];
+
+export const defaultEquipment: CurrentEquipment = {
+    weapon: 1,
+    armor: 101,
+    accessory: null,
+};
