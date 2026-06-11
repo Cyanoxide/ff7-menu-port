@@ -49,7 +49,8 @@ const MemCardSelector = () => {
             { id: "saves", size: saveSlotCount },
             { id: "close", size: 1 },
         ],
-        initial: { group: "options", index: 0 },
+        initial: null,
+        fallback: isLoading ? undefined : (isListShown ? { group: "saves", index: 0 } : { group: "options", index: 0 }),
         enabled: true,
         resolveMove: (current, dir) => {
             if (isLoading || (dir !== "up" && dir !== "down")) return null;
@@ -105,7 +106,7 @@ const MemCardSelector = () => {
                 playSound("back", isSoundEnabled);
                 setOptionSelected(false);
                 setMemoryCardProgress(0);
-                setPosSilently({ group: "options", index: 0 });
+                setPosSilently(pos ? { group: "options", index: 0 } : null);
                 return true;
             }
             return false;
@@ -120,9 +121,10 @@ const MemCardSelector = () => {
 
     useEffect(() => () => closeNav.setFocus(false), []);
 
-    // Move the cursor onto the save list once the memory card has loaded it
+    // If keyboard navigation was in progress, move the cursor onto the save
+    // list once the memory card has loaded it (mouse flows keep no cursor)
     useEffect(() => {
-        if (isListShown && pos?.group !== "saves") {
+        if (isListShown && pos && pos.group !== "saves") {
             setPosSilently({ group: "saves", index: 0 });
         }
     }, [isListShown]); // eslint-disable-line react-hooks/exhaustive-deps

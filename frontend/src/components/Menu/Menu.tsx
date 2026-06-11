@@ -28,7 +28,8 @@ const Menu = () => {
             { id: "avatar", size: 1 },
             { id: "revive", size: 1 },
         ],
-        initial: { group: "menu", index: 0 },
+        initial: null,
+        fallback: { group: "menu", index: lastMenuIndexRef.current },
         enabled: isLanding,
         resolveMove: (current, dir, { wrap }) => {
             if (current.group === "menu") {
@@ -85,11 +86,13 @@ const Menu = () => {
 
     useKonamiCode(() => playSound("fanfare", isSoundEnabled), isLanding);
 
-    // FF7 cursor memory: while on a page, park the cursor on that page's menu item
+    // FF7 cursor memory: remember the page you left so the cursor reappears
+    // there on the next keypress; the cursor itself hides on navigation
     useEffect(() => {
         if (isLanding) return;
         const index = navItems.findIndex((item) => `/${item.id}` === location.pathname);
-        if (index !== -1) setPosSilently({ group: "menu", index });
+        if (index !== -1) lastMenuIndexRef.current = index;
+        setPosSilently(null);
         landingNav.setFocus(null);
     }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 

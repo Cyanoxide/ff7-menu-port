@@ -125,9 +125,9 @@ function SkillsContent() {
 
     const { pos, focus, setPosSilently, isFocused } = useCursorNav({
         groups: [...groupCycle, { id: "close", size: 1 }],
-        initial: { group: "materia", index: 0 },
+        initial: null,
+        fallback: { group: groupCycle[0].id, index: 0 },
         enabled: true,
-        memoryKey: "skills",
         resolveMove: (current, dir, { wrap }) => {
             // The close "X" sits at the seam of the vertical cycle, between the
             // end of the materia list and the first slot row
@@ -178,7 +178,7 @@ function SkillsContent() {
             if (current.group === "close") {
                 playSound("back", isSoundEnabled);
                 closeNav.setFocus(false);
-                setPosSilently({ group: "materia", index: 0 });
+                setPosSilently(null);
                 navigate("/");
                 return;
             }

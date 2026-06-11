@@ -12,6 +12,7 @@ import { defaultWindowColor } from "../../context/defaults";
 interface bgColorPickerProps {
     activeColorPicker: WindowCorner | null;
     setActiveColorPicker: (corner: WindowCorner | null) => void;
+    focusSlidersOnOpen: boolean;
     focusedCorner: WindowCorner | null;
     onCornerEnter: (corner: WindowCorner) => void;
     onCornerClick: (corner: WindowCorner) => void;
@@ -19,7 +20,7 @@ interface bgColorPickerProps {
 
 const CHANNELS: ("red" | "green" | "blue")[] = ["red", "green", "blue"];
 
-const BGColorPicker: React.FC<bgColorPickerProps> = ({ activeColorPicker, setActiveColorPicker, focusedCorner, onCornerEnter, onCornerClick }) => {
+const BGColorPicker: React.FC<bgColorPickerProps> = ({ activeColorPicker, setActiveColorPicker, focusSlidersOnOpen, focusedCorner, onCornerEnter, onCornerClick }) => {
     const { windowColor, isSoundEnabled, isCRTEnabled, dispatch } = useContext();
 
     const currentColor: number[] | null = (activeColorPicker) ? windowColor[activeColorPicker] : null;
@@ -59,7 +60,8 @@ const BGColorPicker: React.FC<bgColorPickerProps> = ({ activeColorPicker, setAct
             { id: "sliders", size: CHANNELS.length },
             { id: "reset", size: 1, isDisabled: () => isDefaultWindowColor },
         ],
-        initial: { group: "sliders", index: 0 },
+        initial: null,
+        fallback: { group: "sliders", index: 0 },
         enabled: !!activeColorPicker,
         resolveMove: (current, dir) => {
             if (dir === "left" || dir === "right") {
@@ -93,9 +95,10 @@ const BGColorPicker: React.FC<bgColorPickerProps> = ({ activeColorPicker, setAct
         },
     });
 
-    // Reset the picker cursor to the red slider each time the picker opens
+    // Each time the picker opens: keyboard flows land on the red slider,
+    // mouse flows start with no cursor
     useEffect(() => {
-        if (activeColorPicker) setPosSilently({ group: "sliders", index: 0 });
+        if (activeColorPicker) setPosSilently(focusSlidersOnOpen ? { group: "sliders", index: 0 } : null);
     }, [activeColorPicker]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const generateSlider = (name: "red" | "green" | "blue", index: number) => {

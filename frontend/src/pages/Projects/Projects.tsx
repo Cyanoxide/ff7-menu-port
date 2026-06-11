@@ -39,9 +39,9 @@ function ProjectsContent() {
 
     const { focus, setPosSilently, isFocused } = useCursorNav({
         groups: [{ id: "items", size: PROJECTS.length }, { id: "close", size: 1 }],
-        initial: { group: "items", index: 0 },
+        initial: null,
+        fallback: { group: "items", index: 0 },
         enabled: true,
-        memoryKey: "projects",
         resolveMove: (pos, dir) => {
             if (dir !== "up" && dir !== "down") return null;
             if (pos.group === "close") return { group: "items", index: (dir === "down") ? 0 : PROJECTS.length - 1 };
@@ -59,7 +59,7 @@ function ProjectsContent() {
             if (pos.group === "close") {
                 playSound("back", isSoundEnabled);
                 closeNav.setFocus(false);
-                setPosSilently({ group: "items", index: 0 });
+                setPosSilently(null);
                 navigate("/");
                 return;
             }

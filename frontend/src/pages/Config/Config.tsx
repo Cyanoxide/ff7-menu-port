@@ -24,9 +24,11 @@ function ConfigContent() {
     const navigate = useNavigate();
     const [windowDescription, setWindowDescription] = useState("");
     const [activeColorPicker, setActiveColorPicker] = useState<WindowCorner | null>(null);
+    const [pickerOpenedByKeyboard, setPickerOpenedByKeyboard] = useState(false);
 
-    const openColorPicker = (corner: WindowCorner) => {
+    const openColorPicker = (corner: WindowCorner, viaKeyboard: boolean = false) => {
         playSound("select", isSoundEnabled);
+        setPickerOpenedByKeyboard(viaKeyboard);
         setActiveColorPicker(corner);
     };
 
@@ -49,9 +51,9 @@ function ConfigContent() {
             { id: "crt", size: 2 },
             { id: "close", size: 1 },
         ],
-        initial: { group: "corners", index: 0 },
+        initial: null,
+        fallback: { group: "corners", index: 0 },
         enabled: !activeColorPicker,
-        memoryKey: "config",
         resolveMove: (current, dir, { wrap }) => {
             if (current.group === "close") {
                 if (dir === "down") return { group: "corners", index: 0 };
@@ -90,12 +92,12 @@ function ConfigContent() {
             if (current.group === "close") {
                 playSound("back", isSoundEnabled);
                 closeNav.setFocus(false);
-                setPosSilently({ group: "corners", index: 0 });
+                setPosSilently(null);
                 navigate("/");
                 return;
             }
             if (current.group === "corners") {
-                openColorPicker(CORNERS[current.index]);
+                openColorPicker(CORNERS[current.index], true);
             } else if (current.group === "sound") {
                 setSoundEnabled(current.index === 0);
             } else {
@@ -128,9 +130,10 @@ function ConfigContent() {
                         <BGColorPicker
                             activeColorPicker={activeColorPicker}
                             setActiveColorPicker={setActiveColorPicker}
+                            focusSlidersOnOpen={pickerOpenedByKeyboard}
                             focusedCorner={!activeColorPicker ? CORNERS.find((_, index) => isFocused("corners", index)) ?? null : null}
                             onCornerEnter={(corner) => focus({ group: "corners", index: CORNERS.indexOf(corner) })}
-                            onCornerClick={openColorPicker}
+                            onCornerClick={(corner) => openColorPicker(corner, false)}
                         />
                     </li>
                     {toggleOption("sound", isSoundEnabled, "Sound", setSoundEnabled)}
