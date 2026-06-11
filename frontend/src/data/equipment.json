@@ -3,92 +3,72 @@
         "id": 1,
         "name": "Mouse",
         "type": "weapon",
-        "description": "Standard issue pointing device. Reliable, if uninspiring.",
+        "description": "A standard issue 800dpi Mouse.",
         "stats": { "attack": 18, "attackPct": 96 },
         "slots": { "multiSlots": 3, "singleSlots": 2 }
     },
     {
         "id": 2,
-        "name": "Trackball",
+        "name": "Stylus",
         "type": "weapon",
-        "description": "Precise thumb-driven aim. Never needs a mousepad.",
+        "description": "A precision pointing device made to emulate a pen or pencil.",
         "stats": { "attack": 24, "attackPct": 92, "magicAtk": 4 },
         "slots": { "multiSlots": 2, "singleSlots": 2 }
-    },
-    {
-        "id": 3,
-        "name": "Gaming Mouse",
-        "type": "weapon",
-        "description": "16000 DPI and RGB underglow. Casts Haste on click events.",
-        "stats": { "attack": 33, "attackPct": 99 },
-        "slots": { "multiSlots": 4, "singleSlots": 0 }
-    },
-    {
-        "id": 4,
-        "name": "Graphics Tablet",
-        "type": "weapon",
-        "description": "Pressure-sensitive stylus. Strong against pixels.",
-        "stats": { "attack": 21, "attackPct": 90, "magicAtk": 12 },
-        "slots": { "multiSlots": 1, "singleSlots": 4 }
     },
     {
         "id": 101,
         "name": "Keyboard",
         "type": "armor",
-        "description": "Trusty membrane board. Gets the job done.",
+        "description": "A standard issue QWERTY Keyboard",
         "stats": { "defense": 20, "defensePct": 6, "magicDefPct": 3 },
         "slots": { "multiSlots": 2, "singleSlots": 2 }
     },
     {
         "id": 102,
-        "name": "Mech Keyboard",
+        "name": "Graphics Tablet",
         "type": "armor",
-        "description": "Clicky blue switches. Nearby coworkers take 10 sanity damage.",
+        "description": "A pressure-sensitive screen interface",
         "stats": { "defense": 32, "defensePct": 8, "magicDefPct": 5 },
         "slots": { "multiSlots": 3, "singleSlots": 1 }
     },
     {
-        "id": 103,
-        "name": "Split Ergo",
-        "type": "armor",
-        "description": "Ortholinear split board. Wrists fully shielded.",
-        "stats": { "defense": 26, "defensePct": 14, "magicDefPct": 10 },
-        "slots": { "multiSlots": 1, "singleSlots": 3 }
-    },
-    {
-        "id": 104,
-        "name": "60% Keyboard",
-        "type": "armor",
-        "description": "No arrow keys, no function row, no fear.",
-        "stats": { "defense": 16, "defensePct": 18, "magicDefPct": 8 },
-        "slots": { "multiSlots": 2, "singleSlots": 0 }
-    },
-    {
         "id": 201,
-        "name": "Headset",
+        "name": "Audio Headset",
         "type": "accessory",
-        "description": "Noise cancelling. Grants immunity to open office chatter.",
-        "stats": { "magicDefPct": 8 }
+        "description": "Applies [Silence]",
+        "stats": {},
+        "slots": { "multiSlots": 0, "singleSlots": 0 }
     },
     {
         "id": 202,
         "name": "Wrist Rest",
         "type": "accessory",
-        "description": "Memory foam support. Prevents fatigue on long coding sessions.",
-        "stats": { "defensePct": 4, "defense": 5 }
+        "description": "Raises [Comfort]",
+        "stats": {},
+        "slots": { "multiSlots": 0, "singleSlots": 0 }
     },
     {
         "id": 203,
-        "name": "4K Monitor",
+        "name": "Dual Monitors",
         "type": "accessory",
-        "description": "Doubles field of vision. Casts Sense on hidden bugs.",
-        "stats": { "attackPct": 2, "magicAtk": 6 }
+        "description": "Removes [Darkness]",
+        "stats": {},
+        "slots": { "multiSlots": 0, "singleSlots": 0 }
     },
     {
         "id": 204,
         "name": "Standing Desk",
         "type": "accessory",
-        "description": "Raises Evade. Mostly used in the sitting position.",
-        "stats": { "attack": 4, "defense": 4 }
+        "description": "Raises [Evade]",
+        "stats": {},
+        "slots": { "multiSlots": 0, "singleSlots": 0 }
+    },
+        {
+        "id": 205,
+        "name": "Ergonomic Chair",
+        "type": "accessory",
+        "description": "Raises [Comfort]",
+        "stats": {},
+        "slots": { "multiSlots": 0, "singleSlots": 0 }
     }
 ]
