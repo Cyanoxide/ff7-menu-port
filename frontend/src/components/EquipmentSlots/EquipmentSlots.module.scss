@@ -32,6 +32,31 @@
         z-index: 1;
         pointer-events: none;
     }
+
+    &[data-active=true]:before {
+        content: "";
+        position: absolute;
+        margin-left: -62px;
+        background-image: url("/cursor.png");
+        width: 76px;
+        height: 46px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        margin-top: 5px;
+        z-index: 1;
+        pointer-events: none;
+        animation: blinking 0.15s linear infinite;
+    }
+}
+
+@keyframes blinking {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
 }
 
 .materiaSlot+.materiaSlot:after {

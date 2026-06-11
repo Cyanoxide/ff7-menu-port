@@ -10,11 +10,12 @@ interface equipmentSlotsProps {
     singleSlots?: number,
     materia?: SkillType[],
     focusedSlot?: number | null;
+    activeSlot?: number | null;
     onSlotEnter?: (index: number) => void;
     onSlotClick?: (index: number) => void;
 }
 
-const EquipmentSlots: React.FC<equipmentSlotsProps> = ({ type = "Wpn.", name = "Buster Sword", multiSlots = 0, singleSlots = 0, materia = [], focusedSlot = null, onSlotEnter, onSlotClick, ...props }) => {
+const EquipmentSlots: React.FC<equipmentSlotsProps> = ({ type = "Wpn.", name = "Buster Sword", multiSlots = 0, singleSlots = 0, materia = [], focusedSlot = null, activeSlot = null, onSlotEnter, onSlotClick, ...props }) => {
     const { currentMateria } = useContext();
     const arrIndex = (type === "Arm.") ? 1 : 0;
     let counter = 0;
@@ -23,7 +24,7 @@ const EquipmentSlots: React.FC<equipmentSlotsProps> = ({ type = "Wpn.", name = "
         const matchedMateria = materia.find(item => item.id === currentMateria[arrIndex][i]);
 
         return (
-            <div key={i} onMouseEnter={() => onSlotEnter?.(i)} onClick={() => onSlotClick?.(i)} className={styles.materiaSlot} data-value={i} data-focused={focusedSlot === i}>
+            <div key={i} onMouseEnter={() => onSlotEnter?.(i)} onClick={() => onSlotClick?.(i)} className={styles.materiaSlot} data-value={i} data-focused={focusedSlot === i} data-active={activeSlot === i}>
                 <div className={styles.skill} data-color={matchedMateria?.color || null}>
                     {matchedMateria ? matchedMateria.name : currentMateria[arrIndex][i]}
                 </div>

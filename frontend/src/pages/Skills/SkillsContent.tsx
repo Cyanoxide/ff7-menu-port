@@ -32,6 +32,7 @@ function SkillsContent() {
 
     const [skill, setSkill] = useState<SkillType>(skillPlaceholder);
     const [selectedMateria, setSelectedMateria] = useState<number | null>(null);
+    const [targetSlot, setTargetSlot] = useState<{ arrIndex: 0 | 1; slotIndex: number } | null>(null);
 
     const weaponSlotCount = weapon ? slotCount(weapon) : 0;
     const armorSlotCount = armor ? slotCount(armor) : 0;
@@ -50,30 +51,39 @@ function SkillsContent() {
     };
 
     const handleSlotConfirm = (arrIndex: 0 | 1, slotIndex: number) => {
-        const nextMateria = currentMateria.map(row => [...row]);
-        const previousValue = nextMateria[arrIndex][slotIndex] ?? null;
+        if (selectedMateria) {
+            // A materia picked from the list is being placed into this slot
+            const nextMateria = currentMateria.map(row => [...row]);
+            const previousValue = nextMateria[arrIndex][slotIndex] ?? null;
 
-        if (!selectedMateria && !previousValue) {
-            playSound("error", isSoundEnabled);
-            return;
-        }
-        playSound("materia", isSoundEnabled);
+            playSound("materia", isSoundEnabled);
 
-        for (let i = 0; i < nextMateria.length; i++) {
-            for (let j = 0; j < nextMateria[i].length; j++) {
-                if (selectedMateria === nextMateria[i][j]) {
-                    nextMateria[i][j] = null;
+            for (let i = 0; i < nextMateria.length; i++) {
+                for (let j = 0; j < nextMateria[i].length; j++) {
+                    if (selectedMateria === nextMateria[i][j]) {
+                        nextMateria[i][j] = null;
+                    }
                 }
             }
-        }
-        nextMateria[arrIndex][slotIndex] = selectedMateria;
-        dispatch({ type: "SET_CURRENT_MATERIA", payload: nextMateria });
-        setSelectedMateria(previousValue);
+            nextMateria[arrIndex][slotIndex] = selectedMateria;
+            dispatch({ type: "SET_CURRENT_MATERIA", payload: nextMateria });
+            setSelectedMateria(previousValue);
 
-        const skillObj = skills.find(item => item.id === selectedMateria);
-        if (skillObj) {
-            setSkill(skillObj);
+            const skillObj = skills.find(item => item.id === selectedMateria);
+            if (skillObj) {
+                setSkill(skillObj);
+            }
+            return;
         }
+
+        // FF7 flow: choose the slot first, then pick its materia from the list
+        playSound("select", isSoundEnabled);
+        setTargetSlot({ arrIndex, slotIndex });
+        const slottedId = currentMateria[arrIndex]?.[slotIndex];
+        const listIndex = Math.max(0, skills.findIndex(item => item.id === slottedId));
+        setPosSilently({ group: "materia", index: listIndex });
+        const skillObj = skills[listIndex];
+        if (skillObj) setSkill(skillObj);
     };
 
     const handleMateriaFocus = (index: number) => {
@@ -89,12 +99,30 @@ function SkillsContent() {
             return;
         }
 
+        if (targetSlot) {
+            // Socket the chosen materia into the slot picked earlier
+            const nextMateria = currentMateria.map(row => [...row]);
+            for (let i = 0; i < nextMateria.length; i++) {
+                for (let j = 0; j < nextMateria[i].length; j++) {
+                    if (nextMateria[i][j] === id) {
+                        nextMateria[i][j] = null;
+                    }
+                }
+            }
+            nextMateria[targetSlot.arrIndex][targetSlot.slotIndex] = id;
+            dispatch({ type: "SET_CURRENT_MATERIA", payload: nextMateria });
+            playSound("materia", isSoundEnabled);
+            setPosSilently({ group: (targetSlot.arrIndex === 0) ? "wpnSlots" : "armSlots", index: targetSlot.slotIndex });
+            setTargetSlot(null);
+            return;
+        }
+
         const value = (id !== selectedMateria) ? id : null;
         setSelectedMateria(value);
         playSound("select", isSoundEnabled);
     };
 
-    const { pos, focus, isFocused } = useCursorNav({
+    const { pos, focus, setPosSilently, isFocused } = useCursorNav({
         groups: groupCycle,
         initial: { group: "materia", index: 0 },
         enabled: true,
@@ -137,6 +165,13 @@ function SkillsContent() {
             else handleSlotConfirm(current.group === "wpnSlots" ? 0 : 1, current.index);
         },
         onCancel: () => {
+            if (targetSlot) {
+                // Back out of materia selection, returning the cursor to the slot
+                playSound("back", isSoundEnabled);
+                setPosSilently({ group: (targetSlot.arrIndex === 0) ? "wpnSlots" : "armSlots", index: targetSlot.slotIndex });
+                setTargetSlot(null);
+                return true;
+            }
             if (selectedMateria !== null) {
                 // FF7 drops the held materia on cancel
                 setSelectedMateria(null);
@@ -156,8 +191,8 @@ function SkillsContent() {
                         <PartyMember memberId={1} />
                     </div>
                     <div className="mt-9 mr-2">
-                        <EquipmentSlots type="Wpn." name={weapon?.name} multiSlots={weapon?.slots?.multiSlots} singleSlots={weapon?.slots?.singleSlots} materia={skills} focusedSlot={pos?.group === "wpnSlots" ? pos.index : null} onSlotEnter={(index) => focus({ group: "wpnSlots", index })} onSlotClick={(index) => handleSlotConfirm(0, index)} />
-                        <EquipmentSlots type="Arm." name={armor?.name} multiSlots={armor?.slots?.multiSlots} singleSlots={armor?.slots?.singleSlots} materia={skills} focusedSlot={pos?.group === "armSlots" ? pos.index : null} onSlotEnter={(index) => focus({ group: "armSlots", index })} onSlotClick={(index) => handleSlotConfirm(1, index)} />
+                        <EquipmentSlots type="Wpn." name={weapon?.name} multiSlots={weapon?.slots?.multiSlots} singleSlots={weapon?.slots?.singleSlots} materia={skills} focusedSlot={pos?.group === "wpnSlots" ? pos.index : null} activeSlot={targetSlot?.arrIndex === 0 ? targetSlot.slotIndex : null} onSlotEnter={(index) => focus({ group: "wpnSlots", index })} onSlotClick={(index) => handleSlotConfirm(0, index)} />
+                        <EquipmentSlots type="Arm." name={armor?.name} multiSlots={armor?.slots?.multiSlots} singleSlots={armor?.slots?.singleSlots} materia={skills} focusedSlot={pos?.group === "armSlots" ? pos.index : null} activeSlot={targetSlot?.arrIndex === 1 ? targetSlot.slotIndex : null} onSlotEnter={(index) => focus({ group: "armSlots", index })} onSlotClick={(index) => handleSlotConfirm(1, index)} />
                     </div>
                 </div>
             </ContentBox>

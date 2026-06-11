@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useContext } from "../../context/context";
 import styles from "./Menu.module.scss";
 import textToSprite from "../../util/textToSprite";
@@ -6,29 +6,62 @@ import ContentBox from "../ContentBox/ContentBox";
 import playSound from "../../util/sounds";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCursorNav } from "../../hooks/useCursorNav";
+import { landingNav } from "../../hooks/landingNav";
 import menuJSON from "../../data/menu.json";
 import type { MenuItem } from "../../context/types";
 
 const Menu = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { isSoundEnabled } = useContext();
+    const { isSoundEnabled, currentHealth } = useContext();
     const menuItems = (menuJSON as MenuItem[]);
     const navItems = menuItems.slice().sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
     const isLanding = location.pathname === "/";
+    const lastMenuIndexRef = useRef(0);
 
-    const { focus, setPosSilently, isFocused } = useCursorNav({
-        groups: [{ id: "menu", size: navItems.length }],
+    const { pos, focus, setPosSilently, isFocused } = useCursorNav({
+        groups: [
+            { id: "menu", size: navItems.length },
+            { id: "avatar", size: 1 },
+            { id: "revive", size: 1 },
+        ],
         initial: { group: "menu", index: 0 },
         enabled: isLanding,
-        resolveMove: (pos, dir, { wrap }) => {
-            if (dir === "up") return { group: "menu", index: wrap(pos.index, -1, navItems.length) };
-            if (dir === "down") return { group: "menu", index: wrap(pos.index, 1, navItems.length) };
+        resolveMove: (current, dir, { wrap }) => {
+            if (current.group === "menu") {
+                if (dir === "up") return { group: "menu", index: wrap(current.index, -1, navItems.length) };
+                if (dir === "down") return { group: "menu", index: wrap(current.index, 1, navItems.length) };
+                if (dir === "left") return { group: "avatar", index: 0 };
+                return null;
+            }
+            if (current.group === "avatar") {
+                if (dir === "right") return { group: "menu", index: lastMenuIndexRef.current };
+                if (dir === "down" && currentHealth === 0) return { group: "revive", index: 0 };
+                return null;
+            }
+            // revive
+            if (dir === "up") return { group: "avatar", index: 0 };
+            if (dir === "right") return { group: "menu", index: lastMenuIndexRef.current };
             return null;
         },
-        onFocus: () => { },
-        onConfirm: (pos) => {
-            const menuItem = navItems[pos.index];
+        onFocus: (current) => {
+            if (current.group === "menu") {
+                lastMenuIndexRef.current = current.index;
+                landingNav.setFocus(null);
+            } else {
+                landingNav.setFocus(current.group === "avatar" ? "avatar" : "revive");
+            }
+        },
+        onConfirm: (current) => {
+            if (current.group === "avatar") {
+                landingNav.actions.attack?.();
+                return;
+            }
+            if (current.group === "revive") {
+                landingNav.actions.revive?.();
+                return;
+            }
+            const menuItem = navItems[current.index];
             if (!menuItem) return;
             playSound("select", isSoundEnabled);
             if (menuItem.path) {
@@ -37,7 +70,14 @@ const Menu = () => {
                 navigate(`/${menuItem.id}`);
             }
         },
-        onCancel: () => true,
+        onCancel: () => {
+            if (pos?.group === "avatar" || pos?.group === "revive") {
+                playSound("back", isSoundEnabled);
+                setPosSilently({ group: "menu", index: lastMenuIndexRef.current });
+                landingNav.setFocus(null);
+            }
+            return true;
+        },
     });
 
     // FF7 cursor memory: while on a page, park the cursor on that page's menu item
@@ -45,7 +85,16 @@ const Menu = () => {
         if (isLanding) return;
         const index = navItems.findIndex((item) => `/${item.id}` === location.pathname);
         if (index !== -1) setPosSilently({ group: "menu", index });
+        landingNav.setFocus(null);
     }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // If the party member is revived while the cursor sits on the vanished revive button
+    useEffect(() => {
+        if (pos?.group === "revive" && currentHealth !== 0) {
+            setPosSilently({ group: "avatar", index: 0 });
+            landingNav.setFocus("avatar");
+        }
+    }, [currentHealth]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleClose = () => {
         playSound("back", isSoundEnabled);
