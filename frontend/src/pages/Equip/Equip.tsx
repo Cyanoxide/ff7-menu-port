@@ -8,7 +8,7 @@ import MateriaSlotPreview from "../../components/MateriaSlotPreview/MateriaSlotP
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { getEquipmentById, getDerivedStats, slotCount, resizeMateriaRow } from "../../util/equipment";
-import { useCursorNav } from "../../hooks/useCursorNav";
+import { useCursorNav, markKeyboardNavigation } from "../../hooks/useCursorNav";
 import { closeNav } from "../../hooks/closeNav";
 import equipmentJSON from "../../data/equipment.json";
 import type { EquipmentItemType, EquipmentStats } from "../../context/types";
@@ -139,6 +139,7 @@ function Equip() {
                 playSound("back", isSoundEnabled);
                 closeNav.setFocus(false);
                 setPosSilently(null);
+                markKeyboardNavigation();
                 navigate("/");
                 return;
             }

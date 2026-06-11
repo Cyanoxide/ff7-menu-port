@@ -9,7 +9,7 @@ import playSound from "../../util/sounds";
 import { useContext } from "../../context/context";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCursorNav } from "../../hooks/useCursorNav";
+import { useCursorNav, markKeyboardNavigation } from "../../hooks/useCursorNav";
 import { closeNav } from "../../hooks/closeNav";
 import educationJSON from "../../data/education.json";
 import historyJSON from "../../data/history.json";
@@ -83,6 +83,7 @@ const MemCardSelector = () => {
             if (current.group === "close") {
                 playSound("back", isSoundEnabled);
                 closeNav.setFocus(false);
+                markKeyboardNavigation();
                 navigate("/");
                 return;
             }

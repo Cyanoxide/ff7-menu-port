@@ -7,7 +7,7 @@ import ContentBox from "../../components/ContentBox/ContentBox";
 import BGColorPicker from "../../components/BGColorPicker/BGColorPicker";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
-import { useCursorNav } from "../../hooks/useCursorNav";
+import { useCursorNav, markKeyboardNavigation } from "../../hooks/useCursorNav";
 import { closeNav } from "../../hooks/closeNav";
 import styles from "./Config.module.scss";
 
@@ -93,6 +93,7 @@ function ConfigContent() {
                 playSound("back", isSoundEnabled);
                 closeNav.setFocus(false);
                 setPosSilently(null);
+                markKeyboardNavigation();
                 navigate("/");
                 return;
             }

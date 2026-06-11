@@ -10,7 +10,7 @@ import playSound from "../../util/sounds";
 import skillsJSON from "../../data/skills.json";
 import type { SkillType } from "../../context/types";
 import { getEquipmentById, slotCount } from "../../util/equipment";
-import { useCursorNav } from "../../hooks/useCursorNav";
+import { useCursorNav, markKeyboardNavigation } from "../../hooks/useCursorNav";
 import { closeNav } from "../../hooks/closeNav";
 
 import styles from "./SkillsContent.module.scss";
@@ -174,6 +174,7 @@ function SkillsContent() {
                 playSound("back", isSoundEnabled);
                 closeNav.setFocus(false);
                 setPosSilently(null);
+                markKeyboardNavigation();
                 navigate("/");
                 return;
             }

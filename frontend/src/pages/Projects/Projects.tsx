@@ -6,7 +6,7 @@ import ContentBox from "../../components/ContentBox/ContentBox";
 import PartyMember from "../../components/PartyMember/PartyMember";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
-import { useCursorNav } from "../../hooks/useCursorNav";
+import { useCursorNav, markKeyboardNavigation } from "../../hooks/useCursorNav";
 import { closeNav } from "../../hooks/closeNav";
 
 import styles from "./Projects.module.scss";
@@ -60,6 +60,7 @@ function ProjectsContent() {
                 playSound("back", isSoundEnabled);
                 closeNav.setFocus(false);
                 setPosSilently(null);
+                markKeyboardNavigation();
                 navigate("/");
                 return;
             }

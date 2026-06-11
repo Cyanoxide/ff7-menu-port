@@ -5,7 +5,7 @@ import textToSprite from "../../util/textToSprite";
 import ContentBox from "../ContentBox/ContentBox";
 import playSound from "../../util/sounds";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useCursorNav } from "../../hooks/useCursorNav";
+import { useCursorNav, markKeyboardNavigation, consumeKeyboardNavIntent } from "../../hooks/useCursorNav";
 import { useKonamiCode } from "../../hooks/useKonamiCode";
 import { landingNav } from "../../hooks/landingNav";
 import { closeNav } from "../../hooks/closeNav";
@@ -71,6 +71,7 @@ const Menu = () => {
             if (menuItem.path) {
                 window.open(menuItem.path, "_blank");
             } else {
+                markKeyboardNavigation();
                 navigate(`/${menuItem.id}`);
             }
         },
@@ -89,7 +90,11 @@ const Menu = () => {
     // FF7 cursor memory: remember the page you left so the cursor reappears
     // there on the next keypress; the cursor itself hides on navigation
     useEffect(() => {
-        if (isLanding) return;
+        if (isLanding) {
+            // Keyboard-driven return to the main menu restores the cursor
+            if (consumeKeyboardNavIntent()) setPosSilently({ group: "menu", index: lastMenuIndexRef.current });
+            return;
+        }
         const index = navItems.findIndex((item) => `/${item.id}` === location.pathname);
         if (index !== -1) lastMenuIndexRef.current = index;
         setPosSilently(null);

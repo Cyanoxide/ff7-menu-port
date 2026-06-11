@@ -50,6 +50,20 @@ const wrap = (index: number, delta: 1 | -1, size: number) => (index + delta + si
 
 const cursorMemory = new Map<string, CursorPos>();
 
+// When navigation is triggered by keyboard, the destination surface starts
+// with its first item focused; mouse navigation starts with no cursor.
+let keyboardNavIntent = false;
+
+export const markKeyboardNavigation = () => {
+    keyboardNavIntent = true;
+};
+
+export const consumeKeyboardNavIntent = () => {
+    const intent = keyboardNavIntent;
+    keyboardNavIntent = false;
+    return intent;
+};
+
 const isEditableTarget = (target: EventTarget | null) => {
     if (!(target instanceof HTMLElement)) return false;
     if (target.isContentEditable || target.tagName === "TEXTAREA") return true;
@@ -63,6 +77,9 @@ export function useCursorNav(options: CursorNavOptions) {
     const [pos, setPos] = useState<CursorPos | null>(() => {
         if (options.memoryKey && cursorMemory.has(options.memoryKey)) {
             return cursorMemory.get(options.memoryKey)!;
+        }
+        if (consumeKeyboardNavIntent()) {
+            return options.fallback ?? options.initial;
         }
         return options.initial;
     });
@@ -142,6 +159,7 @@ export function useCursorNav(options: CursorNavOptions) {
             if (action === "cancel") {
                 if (opts.onCancel?.()) return;
                 playSound("back", sound);
+                markKeyboardNavigation();
                 nav("/");
                 return;
             }
@@ -163,6 +181,7 @@ export function useCursorNav(options: CursorNavOptions) {
             if (!SWITCH_CODES.includes(e.code) || ctrlComboUsedRef.current) return;
             if (opts.onSwitch) {
                 playSound("select", sound);
+                markKeyboardNavigation();
                 opts.onSwitch();
             }
         };
