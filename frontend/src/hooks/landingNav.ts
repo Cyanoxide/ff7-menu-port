@@ -7,7 +7,12 @@ let currentFocus: LandingFocus = null;
 const listeners = new Set<() => void>();
 
 export const landingNav = {
-    actions: {} as { attack?: () => void; revive?: () => void },
+    actions: {} as {
+        attack?: () => void;
+        revive?: () => void;
+        /** Registered by the Menu so mouse hover on the avatar/revive moves the shared cursor */
+        focusTarget?: (target: "avatar" | "revive") => void;
+    },
 
     getFocus(): LandingFocus {
         return currentFocus;

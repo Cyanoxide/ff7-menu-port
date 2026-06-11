@@ -123,8 +123,8 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     }
 
     const handleMouseEnter = () => {
-        if (!healthReduction || currentHealth === 0) return;
-        playSound("select", isSoundEnabled)
+        if (!healthReduction) return;
+        landingNav.actions.focusTarget?.("avatar");
     }
 
     const handleHealClick = () => {
@@ -153,7 +153,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
                     <div className="self-center relative" onClick={handleOnClick} onMouseEnter={handleMouseEnter}>
                         <img src={image_path} alt="Party Member Portrait" width={145} className="object-contain" />
                     </div>
-                    {healthReduction && currentHealth === 0 && <div onClick={handleHealClick} onMouseEnter={() => playSound("select", isSoundEnabled)} className="absolute top-full"><ContentBox data-label="healButton" data-focused={keyboardFocus === "revive"}>{textToSprite("Revive", false, (!currentMana || currentMana < 34) ? "grey" : "")}</ContentBox></div>}
+                    {healthReduction && currentHealth === 0 && <div onClick={handleHealClick} onMouseEnter={() => landingNav.actions.focusTarget?.("revive")} className="absolute top-full"><ContentBox data-label="healButton" data-focused={keyboardFocus === "revive"}>{textToSprite("Revive", false, (!currentMana || currentMana < 34) ? "grey" : "")}</ContentBox></div>}
                 </div>
                 <div className="mt-2 ml-8">
                     <p className="mb-2">{textToSprite(memberName)}</p>

@@ -87,6 +87,14 @@ const Menu = () => {
 
     useKonamiCode(() => playSound("fanfare", isSoundEnabled), isLanding);
 
+    // Mouse hover on the landing avatar/revive moves the shared cursor
+    useEffect(() => {
+        landingNav.actions.focusTarget = (target) => focus({ group: target, index: 0 });
+        return () => {
+            landingNav.actions.focusTarget = undefined;
+        };
+    }, [focus]);
+
     // FF7 cursor memory: remember the page you left so the cursor reappears
     // there on the next keypress; the cursor itself hides on navigation
     useEffect(() => {
