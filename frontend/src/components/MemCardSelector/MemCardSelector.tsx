@@ -8,7 +8,9 @@ import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { useContext } from "../../context/context";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCursorNav } from "../../hooks/useCursorNav";
+import { closeNav } from "../../hooks/closeNav";
 import educationJSON from "../../data/education.json";
 import historyJSON from "../../data/history.json";
 import type { HistoryType } from "../../context/types";
@@ -18,6 +20,7 @@ const OPTIONS = ["work", "education"];
 
 const MemCardSelector = () => {
     const { isSoundEnabled } = useContext();
+    const navigate = useNavigate();
     const [memoryCardLoaded, setMemoryCardLoaded] = useState(false);
     const [optionSelected, setOptionSelected] = useState(false);
     const [selectedHistoryType, setSelectedHistoryType] = useState("work");
@@ -44,17 +47,26 @@ const MemCardSelector = () => {
         groups: [
             { id: "options", size: OPTIONS.length, isDisabled: () => !memoryCardLoaded },
             { id: "saves", size: saveSlotCount },
+            { id: "close", size: 1 },
         ],
         initial: { group: "options", index: 0 },
         enabled: true,
-        resolveMove: (current, dir, { wrap }) => {
+        resolveMove: (current, dir) => {
             if (isLoading || (dir !== "up" && dir !== "down")) return null;
-            const delta = (dir === "down") ? 1 : -1;
+            if (current.group === "close") {
+                const group = isListShown ? "saves" : "options";
+                const size = isListShown ? saveSlotCount : OPTIONS.length;
+                return { group, index: (dir === "down") ? 0 : size - 1 };
+            }
             if (current.group === "options" && !optionSelected) {
-                return { group: "options", index: wrap(current.index, delta, OPTIONS.length) };
+                if (dir === "up" && current.index === 0) return { group: "close", index: 0 };
+                if (dir === "down" && current.index === OPTIONS.length - 1) return { group: "close", index: 0 };
+                return { group: "options", index: current.index + ((dir === "down") ? 1 : -1) };
             }
             if (current.group === "saves" && isListShown) {
-                return { group: "saves", index: wrap(current.index, delta, saveSlotCount) };
+                if (dir === "up" && current.index === 0) return { group: "close", index: 0 };
+                if (dir === "down" && current.index === saveSlotCount - 1) return { group: "close", index: 0 };
+                return { group: "saves", index: current.index + ((dir === "down") ? 1 : -1) };
             }
             return null;
         },
@@ -62,9 +74,17 @@ const MemCardSelector = () => {
             if (current.group !== "saves" || !isListShown) return null;
             return { group: "saves", index: (dir === "pageUp") ? 0 : saveSlotCount - 1 };
         },
-        onFocus: () => { },
+        onFocus: (current) => {
+            closeNav.setFocus(current.group === "close");
+        },
         onConfirm: (current) => {
             if (isLoading) return;
+            if (current.group === "close") {
+                playSound("back", isSoundEnabled);
+                closeNav.setFocus(false);
+                navigate("/");
+                return;
+            }
             if (current.group === "options" && !optionSelected) {
                 onClickHandler(OPTIONS[current.index]);
                 return;
@@ -97,6 +117,8 @@ const MemCardSelector = () => {
             setMemoryCardLoaded(true);
         }, 800);
     }, []);
+
+    useEffect(() => () => closeNav.setFocus(false), []);
 
     // Move the cursor onto the save list once the memory card has loaded it
     useEffect(() => {

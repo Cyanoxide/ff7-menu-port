@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "../../context/context";
 
@@ -9,6 +9,7 @@ import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { getEquipmentById, getDerivedStats, slotCount, resizeMateriaRow } from "../../util/equipment";
 import { useCursorNav } from "../../hooks/useCursorNav";
+import { closeNav } from "../../hooks/closeNav";
 import equipmentJSON from "../../data/equipment.json";
 import type { EquipmentItemType, EquipmentStats } from "../../context/types";
 
@@ -99,33 +100,48 @@ function Equip() {
         groups: [
             { id: "categories", size: CATEGORIES.length },
             { id: "items", size: categoryItems.length },
+            { id: "close", size: 1 },
         ],
         initial: null,
         fallback: { group: "categories", index: 0 },
         enabled: true,
         resolveMove: (current, dir, { wrap }) => {
             if (dir !== "up" && dir !== "down") return null;
-            const delta = (dir === "down") ? 1 : -1;
-            const size = (current.group === "categories") ? CATEGORIES.length : categoryItems.length;
-            if (size === 0) return null;
-            return { group: current.group, index: wrap(current.index, delta, size) };
+            if (current.group === "close") {
+                return { group: "categories", index: (dir === "down") ? 0 : CATEGORIES.length - 1 };
+            }
+            if (current.group === "categories") {
+                if (dir === "up" && current.index === 0) return { group: "close", index: 0 };
+                if (dir === "down" && current.index === CATEGORIES.length - 1) return { group: "close", index: 0 };
+                return { group: "categories", index: current.index + ((dir === "down") ? 1 : -1) };
+            }
+            if (categoryItems.length === 0) return null;
+            return { group: "items", index: wrap(current.index, (dir === "down") ? 1 : -1, categoryItems.length) };
         },
         resolvePageJump: (current, dir) => {
             if (current.group !== "items" || categoryItems.length === 0) return null;
             return { group: "items", index: (dir === "pageUp") ? 0 : categoryItems.length - 1 };
         },
         onFocus: (current) => {
+            closeNav.setFocus(current.group === "close");
             if (current.group === "categories") {
                 const category = CATEGORIES[current.index].key;
                 setHoveredCategory(category);
                 setHoveredItem(null);
                 setLastEquipped(getEquipmentById(currentEquipment[category]) ?? null);
-            } else {
+            } else if (current.group === "items") {
                 const item = categoryItems[current.index];
                 if (item) setHoveredItem(item);
             }
         },
         onConfirm: (current) => {
+            if (current.group === "close") {
+                playSound("back", isSoundEnabled);
+                closeNav.setFocus(false);
+                setPosSilently(null);
+                navigate("/");
+                return;
+            }
             if (current.group === "categories") {
                 const category = CATEGORIES[current.index].key;
                 selectCategory(category);
@@ -151,6 +167,8 @@ function Equip() {
         },
         onSwitch: () => navigate("/skills"),
     });
+
+    useEffect(() => () => closeNav.setFocus(false), []);
 
     return (
         <>

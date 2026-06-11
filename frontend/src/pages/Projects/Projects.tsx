@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useContext } from "../../context/context";
 
 import ContentBox from "../../components/ContentBox/ContentBox";
@@ -6,6 +7,7 @@ import PartyMember from "../../components/PartyMember/PartyMember";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { useCursorNav } from "../../hooks/useCursorNav";
+import { closeNav } from "../../hooks/closeNav";
 
 import styles from "./Projects.module.scss";
 
@@ -30,30 +32,43 @@ const PROJECTS = [
 
 function ProjectsContent() {
     const { isSoundEnabled } = useContext();
+    const navigate = useNavigate();
     const [description, setDescription] = useState("");
     const [moreInfo, setmoreInfo] = useState<string[]>([]);
     const anchorRefs = useRef<(HTMLAnchorElement | null)[]>([]);
 
-    const { focus, isFocused } = useCursorNav({
-        groups: [{ id: "items", size: PROJECTS.length }],
+    const { focus, setPosSilently, isFocused } = useCursorNav({
+        groups: [{ id: "items", size: PROJECTS.length }, { id: "close", size: 1 }],
         initial: { group: "items", index: 0 },
         enabled: true,
         memoryKey: "projects",
-        resolveMove: (pos, dir, { wrap }) => {
-            if (dir === "up") return { group: "items", index: wrap(pos.index, -1, PROJECTS.length) };
-            if (dir === "down") return { group: "items", index: wrap(pos.index, 1, PROJECTS.length) };
-            return null;
+        resolveMove: (pos, dir) => {
+            if (dir !== "up" && dir !== "down") return null;
+            if (pos.group === "close") return { group: "items", index: (dir === "down") ? 0 : PROJECTS.length - 1 };
+            if (dir === "up") return (pos.index === 0) ? { group: "close", index: 0 } : { group: "items", index: pos.index - 1 };
+            return (pos.index === PROJECTS.length - 1) ? { group: "close", index: 0 } : { group: "items", index: pos.index + 1 };
         },
         onFocus: (pos) => {
+            closeNav.setFocus(pos.group === "close");
+            if (pos.group !== "items") return;
             const project = PROJECTS[pos.index];
             setDescription(project.description);
             setmoreInfo(project.moreInfo);
         },
         onConfirm: (pos) => {
+            if (pos.group === "close") {
+                playSound("back", isSoundEnabled);
+                closeNav.setFocus(false);
+                setPosSilently({ group: "items", index: 0 });
+                navigate("/");
+                return;
+            }
             playSound("select", isSoundEnabled);
             anchorRefs.current[pos.index]?.click();
         },
     });
+
+    useEffect(() => () => closeNav.setFocus(false), []);
 
     return (
         <>

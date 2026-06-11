@@ -11,7 +11,8 @@
         }
 
         &>*:not(.active)[data-focused=true]:before,
-        a[data-label="close"]:hover:before {
+        a[data-label="close"]:hover:before,
+        a[data-label="close"][data-focused=true]:before {
             content: "";
             position: absolute;
             margin-left: -81px;
@@ -37,7 +38,8 @@
             }
         }
 
-        a[data-label="close"]:hover:before {
+        a[data-label="close"]:hover:before,
+        a[data-label="close"][data-focused=true]:before {
             margin-top: -4px;
             margin-left: -72px;
             z-index: 1;

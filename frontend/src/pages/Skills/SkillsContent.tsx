@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "../../context/context";
 
@@ -11,6 +11,7 @@ import skillsJSON from "../../data/skills.json";
 import type { SkillType } from "../../context/types";
 import { getEquipmentById, slotCount } from "../../util/equipment";
 import { useCursorNav } from "../../hooks/useCursorNav";
+import { closeNav } from "../../hooks/closeNav";
 
 import styles from "./SkillsContent.module.scss";
 
@@ -123,11 +124,22 @@ function SkillsContent() {
     };
 
     const { pos, focus, setPosSilently, isFocused } = useCursorNav({
-        groups: groupCycle,
+        groups: [...groupCycle, { id: "close", size: 1 }],
         initial: { group: "materia", index: 0 },
         enabled: true,
         memoryKey: "skills",
         resolveMove: (current, dir, { wrap }) => {
+            // The close "X" sits at the seam of the vertical cycle, between the
+            // end of the materia list and the first slot row
+            if (current.group === "close") {
+                if (dir === "down") {
+                    const firstGroup = groupCycle[0];
+                    return { group: firstGroup.id, index: Math.min(lastIndexRef.current[firstGroup.id] ?? 0, firstGroup.size - 1) };
+                }
+                if (dir === "up") return { group: "materia", index: skills.length - 1 };
+                return null;
+            }
+
             const cycleIndex = groupCycle.findIndex(group => group.id === current.group);
             if (cycleIndex === -1) return { group: "materia", index: 0 };
             const group = groupCycle[cycleIndex];
@@ -142,13 +154,13 @@ function SkillsContent() {
 
             if (current.group === "materia") {
                 if (dir === "up") return (current.index === 0) ? enterGroup(-1) : { group: "materia", index: current.index - 1 };
-                if (dir === "down") return (current.index === group.size - 1) ? enterGroup(1) : { group: "materia", index: current.index + 1 };
+                if (dir === "down") return (current.index === group.size - 1) ? { group: "close", index: 0 } : { group: "materia", index: current.index + 1 };
                 return null;
             }
 
             if (dir === "left") return { group: current.group, index: wrap(current.index, -1, group.size) };
             if (dir === "right") return { group: current.group, index: wrap(current.index, 1, group.size) };
-            if (dir === "up") return enterGroup(-1);
+            if (dir === "up") return (cycleIndex === 0) ? { group: "close", index: 0 } : enterGroup(-1);
             return enterGroup(1);
         },
         resolvePageJump: (current, dir) => {
@@ -156,11 +168,20 @@ function SkillsContent() {
             return { group: "materia", index: (dir === "pageUp") ? 0 : skills.length - 1 };
         },
         onFocus: (current) => {
+            closeNav.setFocus(current.group === "close");
+            if (current.group === "close") return;
             lastIndexRef.current[current.group] = current.index;
             if (current.group === "materia") handleMateriaFocus(current.index);
             else handleSlotFocus(current.group === "wpnSlots" ? 0 : 1, current.index);
         },
         onConfirm: (current) => {
+            if (current.group === "close") {
+                playSound("back", isSoundEnabled);
+                closeNav.setFocus(false);
+                setPosSilently({ group: "materia", index: 0 });
+                navigate("/");
+                return;
+            }
             if (current.group === "materia") handleMateriaConfirm(skills[current.index]?.id);
             else handleSlotConfirm(current.group === "wpnSlots" ? 0 : 1, current.index);
         },
@@ -182,6 +203,8 @@ function SkillsContent() {
         },
         onSwitch: () => navigate("/equip"),
     });
+
+    useEffect(() => () => closeNav.setFocus(false), []);
 
     return (
         <>

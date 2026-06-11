@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { useContext } from "../../context/context";
 import styles from "./Menu.module.scss";
 import textToSprite from "../../util/textToSprite";
@@ -8,6 +8,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCursorNav } from "../../hooks/useCursorNav";
 import { useKonamiCode } from "../../hooks/useKonamiCode";
 import { landingNav } from "../../hooks/landingNav";
+import { closeNav } from "../../hooks/closeNav";
 import menuJSON from "../../data/menu.json";
 import type { MenuItem } from "../../context/types";
 
@@ -19,6 +20,7 @@ const Menu = () => {
     const navItems = menuItems.slice().sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
     const isLanding = location.pathname === "/";
     const lastMenuIndexRef = useRef(0);
+    const closeFocused = useSyncExternalStore(closeNav.subscribe, closeNav.getFocus);
 
     const { pos, focus, setPosSilently, isFocused } = useCursorNav({
         groups: [
@@ -129,7 +131,7 @@ const Menu = () => {
         return (
             <>
                 <Link to={`/${menuItem.id}`} className={`${(location.pathname === `/${menuItem.id}`) ? styles.active : ""} w-100`} data-focused={focused && isLanding}><span onClick={() => handleOnClick()} onMouseEnter={() => handleMouseEnter(menuItem)}>{textToSprite(menuItem.name)}</span></Link>
-                {!isLanding && <Link to={"/"} data-label="close" onClick={handleClose} onMouseEnter={() => playSound("select", isSoundEnabled)}><ContentBox className="absolute" data-label="close" >{textToSprite("X")}</ContentBox></Link>}
+                {!isLanding && <Link to={"/"} data-label="close" data-focused={closeFocused} onClick={handleClose} onMouseEnter={() => playSound("select", isSoundEnabled)}><ContentBox className="absolute" data-label="close" >{textToSprite("X")}</ContentBox></Link>}
             </>
         )
     }

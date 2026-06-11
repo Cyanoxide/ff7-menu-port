@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useContext } from "../../context/context";
 import type { WindowCorner } from "../../context/types";
 
@@ -7,6 +8,7 @@ import BGColorPicker from "../../components/BGColorPicker/BGColorPicker";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { useCursorNav } from "../../hooks/useCursorNav";
+import { closeNav } from "../../hooks/closeNav";
 import styles from "./Config.module.scss";
 
 const CORNERS: WindowCorner[] = ["topLeft", "topRight", "bottomLeft", "bottomRight"];
@@ -19,6 +21,7 @@ const ROW_DESCRIPTIONS: Record<string, string> = {
 
 function ConfigContent() {
     const { dispatch, isSoundEnabled, isCRTEnabled } = useContext();
+    const navigate = useNavigate();
     const [windowDescription, setWindowDescription] = useState("");
     const [activeColorPicker, setActiveColorPicker] = useState<WindowCorner | null>(null);
 
@@ -39,16 +42,23 @@ function ConfigContent() {
         localStorage.setItem("isCRTEnabled", JSON.stringify(value));
     };
 
-    const { focus, isFocused } = useCursorNav({
+    const { focus, setPosSilently, isFocused } = useCursorNav({
         groups: [
             { id: "corners", size: CORNERS.length },
             { id: "sound", size: 2 },
             { id: "crt", size: 2 },
+            { id: "close", size: 1 },
         ],
         initial: { group: "corners", index: 0 },
         enabled: !activeColorPicker,
         memoryKey: "config",
         resolveMove: (current, dir, { wrap }) => {
+            if (current.group === "close") {
+                if (dir === "down") return { group: "corners", index: 0 };
+                if (dir === "up") return { group: "crt", index: 0 };
+                return null;
+            }
+
             const column = current.index % 2;
 
             if (dir === "left" || dir === "right") {
@@ -63,19 +73,27 @@ function ConfigContent() {
                 if (current.group === "corners" && current.index < 2) return { group: "corners", index: current.index + 2 };
                 if (current.group === "corners") return { group: "sound", index: column };
                 if (current.group === "sound") return { group: "crt", index: column };
-                return { group: "corners", index: column };
+                return { group: "close", index: 0 };
             }
 
             // up
             if (current.group === "corners" && current.index >= 2) return { group: "corners", index: current.index - 2 };
-            if (current.group === "corners") return { group: "crt", index: column };
+            if (current.group === "corners") return { group: "close", index: 0 };
             if (current.group === "sound") return { group: "corners", index: column + 2 };
             return { group: "sound", index: column };
         },
         onFocus: (current) => {
+            closeNav.setFocus(current.group === "close");
             setWindowDescription(ROW_DESCRIPTIONS[current.group] ?? "");
         },
         onConfirm: (current) => {
+            if (current.group === "close") {
+                playSound("back", isSoundEnabled);
+                closeNav.setFocus(false);
+                setPosSilently({ group: "corners", index: 0 });
+                navigate("/");
+                return;
+            }
             if (current.group === "corners") {
                 openColorPicker(CORNERS[current.index]);
             } else if (current.group === "sound") {
@@ -85,6 +103,8 @@ function ConfigContent() {
             }
         },
     });
+
+    useEffect(() => () => closeNav.setFocus(false), []);
 
     const toggleOption = (groupId: "sound" | "crt", stateValue: boolean, title: string, activate: (value: boolean) => void, onText: string = "On", offText: string = "Off") => (
         <li className={`${styles.optionToggle} ml-24 mb-8 flex`} onMouseEnter={() => setWindowDescription(ROW_DESCRIPTIONS[groupId])}>
