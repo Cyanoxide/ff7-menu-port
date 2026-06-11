@@ -16,7 +16,7 @@ export const loadSound = (sound: sounds) => {
         "heal": "heal.mp3",
         "save": "save.mp3",
         "saveSelect": "saveSelect.mp3",
-        "fanfare": "save.mp3", // placeholder until the victory fanfare track is added (fanfare.mp3)
+        "fanfare": "fanfare.mp3",
     }
 
     return new Audio(`${src}${sounds[sound]}`);
