@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "../../context/context";
 
@@ -43,8 +43,6 @@ function SkillsContent() {
         { id: "armSlots", size: armorSlotCount },
         { id: "materia", size: skills.length },
     ].filter(group => group.size > 0);
-
-    const lastIndexRef = useRef<Record<string, number>>({});
 
     const handleSlotFocus = (arrIndex: 0 | 1, slotIndex: number) => {
         const matchedMateria = skills.find(item => item.id === currentMateria[arrIndex]?.[slotIndex]);
@@ -132,10 +130,7 @@ function SkillsContent() {
             // The close "X" sits at the seam of the vertical cycle, between the
             // end of the materia list and the first slot row
             if (current.group === "close") {
-                if (dir === "down") {
-                    const firstGroup = groupCycle[0];
-                    return { group: firstGroup.id, index: Math.min(lastIndexRef.current[firstGroup.id] ?? 0, firstGroup.size - 1) };
-                }
+                if (dir === "down") return { group: groupCycle[0].id, index: 0 };
                 if (dir === "up") return { group: "materia", index: skills.length - 1 };
                 return null;
             }
@@ -146,9 +141,10 @@ function SkillsContent() {
 
             const enterGroup = (offset: 1 | -1) => {
                 const nextGroup = groupCycle[(cycleIndex + offset + groupCycle.length) % groupCycle.length];
+                // Slot rows keep the same slot number, clamped to the row's size
                 const index = (nextGroup.id === "materia")
                     ? ((offset === 1) ? 0 : nextGroup.size - 1)
-                    : Math.min(lastIndexRef.current[nextGroup.id] ?? 0, nextGroup.size - 1);
+                    : Math.min(current.index, nextGroup.size - 1);
                 return { group: nextGroup.id, index };
             };
 
@@ -170,7 +166,6 @@ function SkillsContent() {
         onFocus: (current) => {
             closeNav.setFocus(current.group === "close");
             if (current.group === "close") return;
-            lastIndexRef.current[current.group] = current.index;
             if (current.group === "materia") handleMateriaFocus(current.index);
             else handleSlotFocus(current.group === "wpnSlots" ? 0 : 1, current.index);
         },
