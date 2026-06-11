@@ -6,6 +6,7 @@ import ContentBox from "../ContentBox/ContentBox";
 import playSound from "../../util/sounds";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCursorNav } from "../../hooks/useCursorNav";
+import { useKonamiCode } from "../../hooks/useKonamiCode";
 import { landingNav } from "../../hooks/landingNav";
 import menuJSON from "../../data/menu.json";
 import type { MenuItem } from "../../context/types";
@@ -79,6 +80,8 @@ const Menu = () => {
             return true;
         },
     });
+
+    useKonamiCode(() => playSound("fanfare", isSoundEnabled), isLanding);
 
     // FF7 cursor memory: while on a page, park the cursor on that page's menu item
     useEffect(() => {

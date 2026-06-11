@@ -1,4 +1,4 @@
-type sounds = "select" | "back" | "error" | "materia" | "slash" | "crit" | "delete" | "heal" | "save" | "saveSelect";
+type sounds = "select" | "back" | "error" | "materia" | "slash" | "crit" | "delete" | "heal" | "save" | "saveSelect" | "fanfare";
 
 export const loadSound = (sound: sounds) => {
     if (typeof window == "undefined") return;
@@ -16,6 +16,7 @@ export const loadSound = (sound: sounds) => {
         "heal": "heal.mp3",
         "save": "save.mp3",
         "saveSelect": "saveSelect.mp3",
+        "fanfare": "save.mp3", // placeholder until the victory fanfare track is added (fanfare.mp3)
     }
 
     return new Audio(`${src}${sounds[sound]}`);
