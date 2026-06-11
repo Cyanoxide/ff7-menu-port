@@ -1,7 +1,6 @@
 .colorPicker {
 
-    &>div:first-child button:hover:before,
-    &>div:first-child:not(:hover) button[data-active="true"]:before {
+    &>div:first-child button[data-focused=true]:before {
         content: "";
         position: absolute;
         margin-left: -102px;
@@ -42,19 +41,20 @@
         top: 0;
         opacity: 0;
 
-        &:hover:before {
-            content: "";
-            position: absolute;
-            margin-left: -68px;
-            background-image: url("/cursor.png");
-            width: 76px;
-            height: 46px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            margin-top: -7px;
-            z-index: 1;
-            pointer-events: none;
-        }
+    }
+
+    &[data-focused=true]>div:before {
+        content: "";
+        position: absolute;
+        margin-left: -68px;
+        background-image: url("/cursor.png");
+        width: 76px;
+        height: 46px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        margin-top: -7px;
+        z-index: 1;
+        pointer-events: none;
     }
 }
 
@@ -64,6 +64,20 @@
     left: -1px;
     padding: 0.35rem 1.3rem 0.35rem 1rem;
     width: 34rem;
+
+    &>div[data-focused=true]:after {
+        content: "";
+        position: absolute;
+        margin-left: -110px;
+        background-image: url("/cursor.png");
+        width: 76px;
+        height: 46px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        margin-top: -4px;
+        z-index: 1;
+        pointer-events: none;
+    }
 
     &>div {
         padding-left: 2rem;

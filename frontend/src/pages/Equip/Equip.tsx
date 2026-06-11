@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useContext } from "../../context/context";
 
 import ContentBox from "../../components/ContentBox/ContentBox";
@@ -7,6 +8,7 @@ import MateriaSlotPreview from "../../components/MateriaSlotPreview/MateriaSlotP
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { getEquipmentById, getDerivedStats, slotCount, resizeMateriaRow } from "../../util/equipment";
+import { useCursorNav } from "../../hooks/useCursorNav";
 import equipmentJSON from "../../data/equipment.json";
 import type { EquipmentItemType, EquipmentStats } from "../../context/types";
 
@@ -29,8 +31,12 @@ const STAT_ROWS: { key: keyof EquipmentStats; label: string }[] = [
     { key: "magicDefPct", label: "Magic def%" },
 ];
 
+const itemsOfCategory = (category: EquipmentCategory) =>
+    (equipmentJSON as EquipmentItemType[]).filter(item => item.type === category);
+
 function Equip() {
     const { isSoundEnabled, currentMateria, currentEquipment, dispatch } = useContext();
+    const navigate = useNavigate();
 
     const [selectedCategory, setSelectedCategory] = useState<EquipmentCategory | null>(null);
     const [hoveredCategory, setHoveredCategory] = useState<EquipmentCategory | null>(null);
@@ -45,27 +51,17 @@ function Equip() {
     const currentStats = getDerivedStats(currentEquipment);
     const newStats = hoveredItem ? getDerivedStats({ ...currentEquipment, [hoveredItem.type]: hoveredItem.id }) : currentStats;
 
-    const categoryItems = activeCategory ? (equipmentJSON as EquipmentItemType[]).filter(item => item.type === activeCategory) : [];
+    const categoryItems = activeCategory ? itemsOfCategory(activeCategory) : [];
+    const itemListInteractive = selectedCategory !== null && activeCategory === selectedCategory;
 
-    const handleCategoryEnter = (category: EquipmentCategory) => {
-        playSound("select", isSoundEnabled);
+    const parkCursorOnCategory = (category: EquipmentCategory) => {
+        const index = Math.max(0, CATEGORIES.findIndex(c => c.key === category));
+        setPosSilently({ group: "categories", index });
         setHoveredCategory(category);
         setHoveredItem(null);
-        setLastEquipped(getEquipmentById(currentEquipment[category]) ?? null);
     };
 
-    const handleCategoryClick = (category: EquipmentCategory) => {
-        playSound("select", isSoundEnabled);
-        setSelectedCategory(category);
-        setHoveredItem(null);
-    };
-
-    const handleItemEnter = (item: EquipmentItemType) => {
-        playSound("select", isSoundEnabled);
-        setHoveredItem(item);
-    };
-
-    const handleEquip = (item: EquipmentItemType) => {
+    const handleEquip = (item: EquipmentItemType, source: "mouse" | "keyboard" = "mouse") => {
         if (currentEquipment[item.type] === item.id) {
             playSound("error", isSoundEnabled);
             return;
@@ -81,9 +77,80 @@ function Equip() {
         dispatch({ type: "SET_CURRENT_EQUIPMENT", payload: { ...currentEquipment, [item.type]: item.id } });
         playSound("materia", isSoundEnabled);
         setSelectedCategory(null);
-        setHoveredItem(null);
         setLastEquipped(item);
+
+        if (source === "keyboard") {
+            // FF7: the cursor returns to the equip row of what was just equipped
+            parkCursorOnCategory(item.type);
+        } else {
+            setHoveredCategory(null);
+            setHoveredItem(null);
+            setPosSilently(null);
+        }
     };
+
+    const selectCategory = (category: EquipmentCategory) => {
+        playSound("select", isSoundEnabled);
+        setSelectedCategory(category);
+        setHoveredItem(null);
+    };
+
+    const { pos, focus, setPosSilently, isFocused } = useCursorNav({
+        groups: [
+            { id: "categories", size: CATEGORIES.length },
+            { id: "items", size: categoryItems.length },
+        ],
+        initial: null,
+        fallback: { group: "categories", index: 0 },
+        enabled: true,
+        resolveMove: (current, dir, { wrap }) => {
+            if (dir !== "up" && dir !== "down") return null;
+            const delta = (dir === "down") ? 1 : -1;
+            const size = (current.group === "categories") ? CATEGORIES.length : categoryItems.length;
+            if (size === 0) return null;
+            return { group: current.group, index: wrap(current.index, delta, size) };
+        },
+        resolvePageJump: (current, dir) => {
+            if (current.group !== "items" || categoryItems.length === 0) return null;
+            return { group: "items", index: (dir === "pageUp") ? 0 : categoryItems.length - 1 };
+        },
+        onFocus: (current) => {
+            if (current.group === "categories") {
+                const category = CATEGORIES[current.index].key;
+                setHoveredCategory(category);
+                setHoveredItem(null);
+                setLastEquipped(getEquipmentById(currentEquipment[category]) ?? null);
+            } else {
+                const item = categoryItems[current.index];
+                if (item) setHoveredItem(item);
+            }
+        },
+        onConfirm: (current) => {
+            if (current.group === "categories") {
+                const category = CATEGORIES[current.index].key;
+                selectCategory(category);
+                // FF7: the cursor dives into the list, landing on the currently equipped item
+                const items = itemsOfCategory(category);
+                const equippedIndex = Math.max(0, items.findIndex(item => item.id === currentEquipment[category]));
+                setPosSilently({ group: "items", index: equippedIndex });
+                setHoveredItem(items[equippedIndex] ?? null);
+            } else {
+                const item = categoryItems[current.index];
+                if (item) handleEquip(item, "keyboard");
+            }
+        },
+        onCancel: () => {
+            if (pos?.group === "items") {
+                const category = selectedCategory ?? "weapon";
+                setSelectedCategory(null);
+                playSound("back", isSoundEnabled);
+                parkCursorOnCategory(category);
+                return true;
+            }
+            return false;
+        },
+        onSwitch: () => navigate("/skills"),
+    });
 
     return (
         <>
@@ -92,11 +159,11 @@ function Equip() {
                     <div className="w-[447px] mb-2 ml-2 shrink-0">
                         <PartyMember memberId={1} />
                     </div>
-                    <ul className="grow mt-2 ml-6 mr-[270px]" onMouseLeave={() => setHoveredCategory(null)}>
-                        {CATEGORIES.map(({ key, label }) => {
+                    <ul className="grow mt-2 ml-6 mr-[270px]">
+                        {CATEGORIES.map(({ key, label }, index) => {
                             const equipped = getEquipmentById(currentEquipment[key]);
                             return (
-                                <li key={key} onMouseEnter={() => handleCategoryEnter(key)} onClick={() => handleCategoryClick(key)} className={`${styles.equipRow} flex mb-[26px]`} data-active={key === selectedCategory}>
+                                <li key={key} onMouseEnter={() => focus({ group: "categories", index })} onClick={() => selectCategory(key)} className={`${styles.equipRow} flex mb-[26px]`} data-active={key === selectedCategory} data-focused={isFocused("categories", index)}>
                                     <span className="w-[90px] mr-3 shrink-0">{textToSprite(label, false, "blue")}</span>
                                     <span className="flex">{textToSprite(equipped?.name ?? "")}</span>
                                 </li>
@@ -139,10 +206,10 @@ function Equip() {
                 </ul>
             </ContentBox>
             <ContentBox data-label="equipContentRight" className="absolute top-[323px] right-0 bottom-0">
-                <ul onMouseLeave={() => setHoveredItem(null)}>
-                    {categoryItems.map((item) => (
-                        <li key={item.id} onMouseEnter={() => handleItemEnter(item)} onClick={() => handleEquip(item)} className="mb-3">
-                            <span className={`${styles.equipmentItem} flex`}>{textToSprite(item.name)}</span>
+                <ul>
+                    {categoryItems.map((item, index) => (
+                        <li key={item.id} onMouseEnter={() => { if (itemListInteractive) focus({ group: "items", index }); }} onClick={() => { if (itemListInteractive) handleEquip(item); }} className="mb-3">
+                            <span className={`${styles.equipmentItem} flex`} data-focused={isFocused("items", index)}>{textToSprite(item.name)}</span>
                         </li>
                     ))}
                 </ul>

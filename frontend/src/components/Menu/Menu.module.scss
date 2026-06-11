@@ -10,7 +10,8 @@
             cursor: pointer;
         }
 
-        &>*:not(.active):hover:before {
+        &>*:not(.active)[data-focused=true]:before,
+        a[data-label="close"]:hover:before {
             content: "";
             position: absolute;
             margin-left: -81px;
@@ -29,7 +30,7 @@
                 opacity: 0;
             }
 
-            &:hover {
+            &[data-focused=true] {
                 & [data-sprite=external-link-icon] {
                     opacity: 0.7;
                 }

@@ -19,7 +19,7 @@
     width: 40px;
     margin-right: 0.5rem;
 
-    &:hover:before {
+    &[data-focused=true]:before {
         content: "";
         position: absolute;
         margin-left: -62px;

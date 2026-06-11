@@ -10,15 +10,17 @@ import styles from "./HistorySave.module.scss";
 interface historySaveProps {
     historyItem: HistoryType;
     historyType: string;
+    focused?: boolean;
+    onEnter?: () => void;
 };
 
-const HistorySave: React.FC<historySaveProps> = ({ historyItem, historyType, ...props }) => {
+const HistorySave: React.FC<historySaveProps> = ({ historyItem, historyType, focused = false, onEnter, ...props }) => {
     const { isSoundEnabled } = useContext();
     if (!historyItem) return;
 
     return (
         <>
-            <a href={historyItem.link} onMouseEnter={() => playSound("select", isSoundEnabled)} onClick={() => playSound("saveSelect", isSoundEnabled)} title={historyItem.name} target="_blank" className={`${styles.historySave} cursor-pointer`} {...props}>
+            <a href={historyItem.link} onMouseEnter={() => onEnter?.()} onClick={() => playSound("saveSelect", isSoundEnabled)} title={historyItem.name} target="_blank" className={`${styles.historySave} cursor-pointer`} data-focused={focused} {...props}>
                 <ContentBox data-label="historySave" className="h-[235px] relative">
                     <div className="mr-[414px] flex gap-5">
                         <img className="h-[11.5rem] w-auto" src={historyItem.image_path} />

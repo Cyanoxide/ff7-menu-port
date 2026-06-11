@@ -2,7 +2,7 @@
 .equipmentItem {
     cursor: pointer;
 
-    &:hover:after {
+    &[data-focused=true]:after {
         content: "";
         position: absolute;
         margin-left: -73px;

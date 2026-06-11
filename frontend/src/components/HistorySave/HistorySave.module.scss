@@ -1,5 +1,5 @@
 .historySave {
-    &:hover:before {
+    &[data-focused=true]:before {
         content: "";
         position: absolute;
         background-image: url("/cursor.png");

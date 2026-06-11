@@ -1,5 +1,5 @@
 .optionToggle {
-    button:hover:before {
+    button[data-focused=true]:before {
         content: "";
         position: absolute;
         margin-left: -110px;
