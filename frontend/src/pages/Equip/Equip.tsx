@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "../../context/context";
 
@@ -43,6 +43,7 @@ function Equip() {
     const [hoveredCategory, setHoveredCategory] = useState<EquipmentCategory | null>(null);
     const [hoveredItem, setHoveredItem] = useState<EquipmentItemType | null>(null);
     const [lastEquipped, setLastEquipped] = useState<EquipmentItemType | null>(null);
+    const pendingEquipRef = useRef(false);
 
     const activeCategory = hoveredCategory ?? selectedCategory;
     const equippedItem = activeCategory ? getEquipmentById(currentEquipment[activeCategory]) : undefined;
@@ -52,8 +53,10 @@ function Equip() {
     const currentStats = getDerivedStats(currentEquipment);
     const newStats = hoveredItem ? getDerivedStats({ ...currentEquipment, [hoveredItem.type]: hoveredItem.id }) : currentStats;
 
-    const categoryItems = activeCategory ? itemsOfCategory(activeCategory) : [];
-    const itemListInteractive = selectedCategory !== null && activeCategory === selectedCategory;
+    // Once a slot is selected the list is locked to it; hovering other slots only previews them
+    const listCategory = selectedCategory ?? hoveredCategory;
+    const categoryItems = listCategory ? itemsOfCategory(listCategory) : [];
+    const itemListInteractive = selectedCategory !== null;
 
     const parkCursorOnCategory = (category: EquipmentCategory) => {
         const index = Math.max(0, CATEGORIES.findIndex(c => c.key === category));
@@ -94,6 +97,16 @@ function Equip() {
         playSound("select", isSoundEnabled);
         setSelectedCategory(category);
         setHoveredItem(null);
+    };
+
+    // Clicking the already-selected slot unselects it
+    const toggleCategory = (category: EquipmentCategory) => {
+        if (selectedCategory === category) {
+            playSound("back", isSoundEnabled);
+            setSelectedCategory(null);
+            return;
+        }
+        selectCategory(category);
     };
 
     const { pos, focus, setPosSilently, isFocused } = useCursorNav({
@@ -182,7 +195,7 @@ function Equip() {
                         {CATEGORIES.map(({ key, label }, index) => {
                             const equipped = getEquipmentById(currentEquipment[key]);
                             return (
-                                <li key={key} onMouseEnter={() => focus({ group: "categories", index })} onClick={() => selectCategory(key)} className={`${styles.equipRow} flex mb-[26px]`} data-active={key === selectedCategory} data-focused={isFocused("categories", index)}>
+                                <li key={key} onPointerEnter={(event) => { if (event.pointerType === "mouse") focus({ group: "categories", index }); }} onClick={() => toggleCategory(key)} className={`${styles.equipRow} flex mb-[26px]`} data-active={key === selectedCategory} data-focused={isFocused("categories", index)}>
                                     <span className="w-[90px] mr-3 shrink-0">{textToSprite(label, false, "blue")}</span>
                                     <span className="flex">{textToSprite(equipped?.name ?? "")}</span>
                                 </li>
@@ -227,7 +240,14 @@ function Equip() {
             <ContentBox data-label="equipContentRight" className="absolute top-[323px] right-0 bottom-0">
                 <ul>
                     {categoryItems.map((item, index) => (
-                        <li key={item.id} onMouseEnter={() => { if (itemListInteractive) focus({ group: "items", index }); }} onClick={() => { if (itemListInteractive) handleEquip(item); }} className="mb-3">
+                        <li key={item.id} onPointerEnter={(event) => { if (event.pointerType === "mouse" && itemListInteractive) focus({ group: "items", index }); }} onClick={() => {
+                            if (!itemListInteractive || pendingEquipRef.current) return;
+                            if (isFocused("items", index)) return handleEquip(item);
+                            // Touch presses haven't hovered, so flash the cursor on the row first
+                            focus({ group: "items", index });
+                            pendingEquipRef.current = true;
+                            window.setTimeout(() => { pendingEquipRef.current = false; handleEquip(item); }, 150);
+                        }} className="mb-3">
                             <span className={`${styles.equipmentItem} flex`} data-focused={isFocused("items", index)}>{textToSprite(item.name)}</span>
                         </li>
                     ))}
