@@ -8,6 +8,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  touch-action: manipulation; /* no double-tap zoom; the app scales itself */
 }
 
 /* Blur the scaled canvas rather than the body so the CRT softness

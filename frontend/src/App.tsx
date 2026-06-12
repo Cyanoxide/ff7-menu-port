@@ -21,22 +21,40 @@ function App() {
     function scaleApp() {
       const app = document.getElementById("root");
       if (app) {
+        // The layout viewport stays stable while pinch-zooming, unlike innerWidth/innerHeight
+        const viewportWidth = document.documentElement.clientWidth;
+        const viewportHeight = document.documentElement.clientHeight;
         const scale = Math.min(
-          window.innerWidth / 1250,
-          window.innerHeight / 975
+          viewportWidth / 1250,
+          viewportHeight / 975
         );
-        const offsetY = Math.max(0, (window.innerHeight - 975 * scale) / 2);
+        const offsetY = Math.max(0, (viewportHeight - 975 * scale) / 2);
         app.style.transform = `translateY(${offsetY}px) scale(${scale})`;
       }
     }
+
+    // iOS ignores user-scalable=no, so block pinch zoom; the app scales itself anyway
+    const preventGesture = (event: Event) => event.preventDefault();
 
     window.addEventListener("load", scaleApp);
     window.addEventListener("resize", scaleApp);
     window.addEventListener("orientationchange", scaleApp);
     window.visualViewport?.addEventListener("resize", scaleApp);
     window.visualViewport?.addEventListener("scroll", scaleApp);
+    document.addEventListener("gesturestart", preventGesture);
+    document.addEventListener("gesturechange", preventGesture);
 
     scaleApp();
+
+    return () => {
+      window.removeEventListener("load", scaleApp);
+      window.removeEventListener("resize", scaleApp);
+      window.removeEventListener("orientationchange", scaleApp);
+      window.visualViewport?.removeEventListener("resize", scaleApp);
+      window.visualViewport?.removeEventListener("scroll", scaleApp);
+      document.removeEventListener("gesturestart", preventGesture);
+      document.removeEventListener("gesturechange", preventGesture);
+    };
   }, []);
 
   return (
