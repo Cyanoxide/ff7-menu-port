@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "../../context/context";
 
@@ -43,6 +43,7 @@ function Equip() {
     const [hoveredCategory, setHoveredCategory] = useState<EquipmentCategory | null>(null);
     const [hoveredItem, setHoveredItem] = useState<EquipmentItemType | null>(null);
     const [lastEquipped, setLastEquipped] = useState<EquipmentItemType | null>(null);
+    const pendingEquipRef = useRef(false);
 
     const activeCategory = hoveredCategory ?? selectedCategory;
     const equippedItem = activeCategory ? getEquipmentById(currentEquipment[activeCategory]) : undefined;
@@ -239,7 +240,14 @@ function Equip() {
             <ContentBox data-label="equipContentRight" className="absolute top-[323px] right-0 bottom-0">
                 <ul>
                     {categoryItems.map((item, index) => (
-                        <li key={item.id} onPointerEnter={(event) => { if (event.pointerType === "mouse" && itemListInteractive) focus({ group: "items", index }); }} onClick={() => { if (itemListInteractive) handleEquip(item); }} className="mb-3">
+                        <li key={item.id} onPointerEnter={(event) => { if (event.pointerType === "mouse" && itemListInteractive) focus({ group: "items", index }); }} onClick={() => {
+                            if (!itemListInteractive || pendingEquipRef.current) return;
+                            if (isFocused("items", index)) return handleEquip(item);
+                            // Touch presses haven't hovered, so flash the cursor on the row first
+                            focus({ group: "items", index });
+                            pendingEquipRef.current = true;
+                            window.setTimeout(() => { pendingEquipRef.current = false; handleEquip(item); }, 150);
+                        }} className="mb-3">
                             <span className={`${styles.equipmentItem} flex`} data-focused={isFocused("items", index)}>{textToSprite(item.name)}</span>
                         </li>
                     ))}
