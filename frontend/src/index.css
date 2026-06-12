@@ -8,7 +8,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  touch-action: manipulation; /* no double-tap zoom; the app scales itself */
+}
+
+/* No double-tap or pinch zoom; the app scales itself. Safari only honours
+   touch-action on the element actually touched, so apply it everywhere */
+html,
+body,
+body * {
+  touch-action: manipulation;
 }
 
 /* Blur the scaled canvas rather than the body so the CRT softness

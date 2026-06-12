@@ -35,6 +35,9 @@ function App() {
 
     // iOS ignores user-scalable=no, so block pinch zoom; the app scales itself anyway
     const preventGesture = (event: Event) => event.preventDefault();
+    const preventPinch = (event: TouchEvent) => {
+      if (event.touches.length > 1) event.preventDefault();
+    };
 
     window.addEventListener("load", scaleApp);
     window.addEventListener("resize", scaleApp);
@@ -43,6 +46,7 @@ function App() {
     window.visualViewport?.addEventListener("scroll", scaleApp);
     document.addEventListener("gesturestart", preventGesture);
     document.addEventListener("gesturechange", preventGesture);
+    document.addEventListener("touchmove", preventPinch, { passive: false });
 
     scaleApp();
 
@@ -54,6 +58,7 @@ function App() {
       window.visualViewport?.removeEventListener("scroll", scaleApp);
       document.removeEventListener("gesturestart", preventGesture);
       document.removeEventListener("gesturechange", preventGesture);
+      document.removeEventListener("touchmove", preventPinch);
     };
   }, []);
 
