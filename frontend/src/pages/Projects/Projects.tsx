@@ -1,35 +1,75 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useContext } from "../../context/context";
 
 import ContentBox from "../../components/ContentBox/ContentBox";
 import PartyMember from "../../components/PartyMember/PartyMember";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
+import { useCursorNav, markKeyboardNavigation } from "../../hooks/useCursorNav";
+import { closeNav } from "../../hooks/closeNav";
 
 import styles from "./Projects.module.scss";
 
+const PROJECTS = [
+    {
+        key: "reactXP",
+        name: "React XP",
+        icon: "/xpicon.png",
+        link: "https://react-xp.jamiepates.com",
+        description: "An authentic recreation of Windows XP",
+        moreInfo: ["This is still a work in", "progress, but I'm", "currently working on", "recreating Windows XP", "from scratch using", "React and Typescript"],
+    },
+    {
+        key: "tripleTriad",
+        name: "Triple Triad",
+        icon: "/cardicon.png",
+        link: "https://triple-triad.jamiepates.com",
+        description: "Let's play a game of cards!",
+        moreInfo: ["This is a React project", "I built to authentically", "recreate the FF8", "version of Triple Triad", "to be playable in a", "web browser."],
+    },
+];
+
 function ProjectsContent() {
     const { isSoundEnabled } = useContext();
+    const navigate = useNavigate();
     const [description, setDescription] = useState("");
     const [moreInfo, setmoreInfo] = useState<string[]>([]);
+    const anchorRefs = useRef<(HTMLAnchorElement | null)[]>([]);
 
-    const handleMouseEnter = (item: string) => {
-        if (item === "reactXP") {
-            setDescription("An authentic recreation of Windows XP");
-            setmoreInfo(["This is still a work in", "progress, but I'm", "currently working on", "recreating Windows XP", "from scratch using", "React and Typescript"]);
+    const { focus, setPosSilently, isFocused } = useCursorNav({
+        groups: [{ id: "items", size: PROJECTS.length }, { id: "close", size: 1 }],
+        initial: null,
+        fallback: { group: "items", index: 0 },
+        enabled: true,
+        resolveMove: (pos, dir) => {
+            if (dir !== "up" && dir !== "down") return null;
+            if (pos.group === "close") return { group: "items", index: (dir === "down") ? 0 : PROJECTS.length - 1 };
+            if (dir === "up") return (pos.index === 0) ? { group: "close", index: 0 } : { group: "items", index: pos.index - 1 };
+            return (pos.index === PROJECTS.length - 1) ? { group: "close", index: 0 } : { group: "items", index: pos.index + 1 };
+        },
+        onFocus: (pos) => {
+            closeNav.setFocus(pos.group === "close");
+            if (pos.group !== "items") return;
+            const project = PROJECTS[pos.index];
+            setDescription(project.description);
+            setmoreInfo(project.moreInfo);
+        },
+        onConfirm: (pos) => {
+            if (pos.group === "close") {
+                playSound("back", isSoundEnabled);
+                closeNav.setFocus(false);
+                setPosSilently(null);
+                markKeyboardNavigation();
+                navigate("/");
+                return;
+            }
             playSound("select", isSoundEnabled);
-        }
-        if (item === "tripleTriad") {
-            setDescription("Let's play a game of cards!");
-            setmoreInfo(["This is a React project", "I built to authentically", "recreate the FF8", "version of Triple Triad", "to be playable in a", "web browser."]);
-            playSound("select", isSoundEnabled);
-        }
-    }
+            anchorRefs.current[pos.index]?.click();
+        },
+    });
 
-    const handleMouseLeave = () => {
-        setDescription("");
-        setmoreInfo([]);
-    }
+    useEffect(() => () => closeNav.setFocus(false), []);
 
     return (
         <>
@@ -47,30 +87,20 @@ function ProjectsContent() {
             </ContentBox>
             <ContentBox className="absolute top-[190px] right-0 bottom-0" data-label="contentRight">
                 <ul>
-                    <li className={`${styles.item} mb-2.5`} onMouseEnter={() => handleMouseEnter("reactXP")} onMouseLeave={handleMouseLeave} onClick={() => playSound("select", isSoundEnabled)}>
-                        <a href="https://react-xp.jamiepates.com" className="flex justify-between items-center">
-                            <span className="flex items-center">
-                                <img src="/xpicon.png" alt="Card Icon" width="36" height="36" className="mr-3" />
-                                <span>{textToSprite("React XP")}</span>
-                            </span>
-                            <span className="flex">
-                                <span className="mr-2">{textToSprite(":")}</span>
-                                <span className="mt-1">{textToSprite("1", true)}</span>
-                            </span>
-                        </a>
-                    </li>
-                    <li className={styles.item} onMouseEnter={() => handleMouseEnter("tripleTriad")} onMouseLeave={handleMouseLeave} onClick={() => playSound("select", isSoundEnabled)}>
-                        <a href="https://triple-triad.jamiepates.com" className="flex justify-between items-center">
-                            <span className="flex items-center">
-                                <img src="/cardicon.png" alt="Card Icon" width="36" height="36" className="mr-3" />
-                                <span>{textToSprite("Triple Triad")}</span>
-                            </span>
-                            <span className="flex">
-                                <span className="mr-2">{textToSprite(":")}</span>
-                                <span className="mt-1">{textToSprite("1", true)}</span>
-                            </span>
-                        </a>
-                    </li>
+                    {PROJECTS.map((project, index) => (
+                        <li key={project.key} className={`${styles.item} ${index < PROJECTS.length - 1 ? "mb-2.5" : ""}`} data-focused={isFocused("items", index)} onMouseEnter={() => focus({ group: "items", index })} onClick={() => playSound("select", isSoundEnabled)}>
+                            <a href={project.link} ref={(el) => { anchorRefs.current[index] = el; }} className="flex justify-between items-center">
+                                <span className="flex items-center">
+                                    <img src={project.icon} alt="Card Icon" width="36" height="36" className="mr-3" />
+                                    <span>{textToSprite(project.name)}</span>
+                                </span>
+                                <span className="flex">
+                                    <span className="mr-2">{textToSprite(":")}</span>
+                                    <span className="mt-1">{textToSprite("1", true)}</span>
+                                </span>
+                            </a>
+                        </li>
+                    ))}
                 </ul>
             </ContentBox>
         </>

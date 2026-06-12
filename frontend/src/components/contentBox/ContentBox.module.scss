@@ -117,7 +117,7 @@
         animation: fadeIn 0.2s linear forwards;
         cursor: pointer;
 
-        &:hover:before {
+        &[data-focused=true]:before {
             content: "";
             position: absolute;
             margin-left: -78px;

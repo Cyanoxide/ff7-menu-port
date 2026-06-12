@@ -1,5 +1,5 @@
 .historyOptions {
-    li:hover:before {
+    li[data-focused=true]:before {
         content: "";
         position: absolute;
         margin-left: -81px;

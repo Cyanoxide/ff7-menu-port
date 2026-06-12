@@ -1,4 +1,4 @@
-.item:hover:before {
+.item[data-focused=true]:before {
     content: "";
     position: absolute;
     margin-left: -81px;

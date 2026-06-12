@@ -4,9 +4,10 @@ import ProgressBar from "../ProgressBar/ProgressBar.tsx";
 import ResourceCounter from "../ResourceCounter/ResourceCounter.tsx";
 import partyMemberJSON from "../../data/partyMember.json";
 import type { PartyMemberType } from "../../context/types.tsx";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import playSound from "../../util/sounds.ts";
 import { useContext } from "../../context/context.tsx";
+import { landingNav } from "../../hooks/landingNav.ts";
 import styles from "./PartyMember.module.scss";
 import ContentBox from "../ContentBox/ContentBox.tsx";
 
@@ -22,6 +23,22 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     const [isDying, setIsDying] = useState(false);
     const [damage, setDamage] = useState(0);
     const { isSoundEnabled, currentHealth, currentMana, dispatch } = useContext();
+    const landingFocus = useSyncExternalStore(landingNav.subscribe, landingNav.getFocus);
+    const keyboardFocus = healthReduction ? landingFocus : null;
+    const attackRef = useRef<() => void>(() => { });
+    const reviveRef = useRef<() => void>(() => { });
+
+    // Expose the avatar interactions to the landing page keyboard cursor
+    useEffect(() => {
+        if (!healthReduction) return;
+        landingNav.actions.attack = () => attackRef.current();
+        landingNav.actions.revive = () => reviveRef.current();
+        return () => {
+            landingNav.actions.attack = undefined;
+            landingNav.actions.revive = undefined;
+            landingNav.setFocus(null);
+        };
+    }, [healthReduction]);
 
     useEffect(() => {
         if (currentHealth === null) {
@@ -106,8 +123,8 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     }
 
     const handleMouseEnter = () => {
-        if (!healthReduction || currentHealth === 0) return;
-        playSound("select", isSoundEnabled)
+        if (!healthReduction) return;
+        landingNav.actions.focusTarget?.("avatar");
     }
 
     const handleHealClick = () => {
@@ -120,6 +137,9 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
         }
     }
 
+    attackRef.current = handleOnClick;
+    reviveRef.current = handleHealClick;
+
     let content;
 
     if (partyMemberData) {
@@ -128,12 +148,12 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
 
         content = (
             <div className={`flex justify-between`}>
-                <div className={styles.portrait} data-shake={isAttacking} data-dying={isDying} data-interactive={healthReduction} data-health={currentHealth?.toString()}>
+                <div className={styles.portrait} data-shake={isAttacking} data-dying={isDying} data-interactive={healthReduction} data-health={currentHealth?.toString()} data-focused={keyboardFocus === "avatar"}>
                     {isAttacking && <p className="absolute">{textToSprite(damage.toString(), true)}</p>}
                     <div className="self-center relative" onClick={handleOnClick} onMouseEnter={handleMouseEnter}>
                         <img src={image_path} alt="Party Member Portrait" width={145} className="object-contain" />
                     </div>
-                    {healthReduction && currentHealth === 0 && <div onClick={handleHealClick} onMouseEnter={() => playSound("select", isSoundEnabled)} className="absolute top-full"><ContentBox data-label="healButton">{textToSprite("Revive", false, (!currentMana || currentMana < 34) ? "grey" : "")}</ContentBox></div>}
+                    {healthReduction && currentHealth === 0 && <div onClick={handleHealClick} onMouseEnter={() => landingNav.actions.focusTarget?.("revive")} className="absolute top-full"><ContentBox data-label="healButton" data-focused={keyboardFocus === "revive"}>{textToSprite("Revive", false, (!currentMana || currentMana < 34) ? "grey" : "")}</ContentBox></div>}
                 </div>
                 <div className="mt-2 ml-8">
                     <p className="mb-2">{textToSprite(memberName)}</p>

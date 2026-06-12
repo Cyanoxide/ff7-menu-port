@@ -11,7 +11,7 @@
         animation: 0.3s shake linear;
     }
 
-    &[data-interactive=true]:not([data-health="0"]):hover:before {
+    &[data-interactive=true][data-focused=true]:before {
         content: "";
         position: absolute;
         margin-left: -178px;
