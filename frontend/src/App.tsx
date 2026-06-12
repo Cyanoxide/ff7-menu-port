@@ -25,7 +25,8 @@ function App() {
           window.innerWidth / 1250,
           window.innerHeight / 975
         );
-        app.style.transform = `scale(${scale})`;
+        const offsetY = Math.max(0, (window.innerHeight - 975 * scale) / 2);
+        app.style.transform = `translateY(${offsetY}px) scale(${scale})`;
       }
     }
 

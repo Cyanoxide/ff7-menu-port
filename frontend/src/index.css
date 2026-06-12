@@ -10,7 +10,9 @@ body {
   justify-content: center;
 }
 
-body.crt-effect {
+/* Blur the scaled canvas rather than the body so the CRT softness
+   scales with the content and looks the same on every device */
+body.crt-effect #root {
   filter: blur(0.6px);
 }
 
