@@ -1,0 +1,74 @@
+[
+    {
+        "id": 1,
+        "name": "Mouse",
+        "type": "weapon",
+        "description": "A standard issue 800dpi Mouse.",
+        "stats": { "attack": 18, "attackPct": 96 },
+        "slots": { "multiSlots": 3, "singleSlots": 2 }
+    },
+    {
+        "id": 2,
+        "name": "Stylus",
+        "type": "weapon",
+        "description": "A precision pointing device made to emulate a pen or pencil.",
+        "stats": { "attack": 24, "attackPct": 92, "magicAtk": 4 },
+        "slots": { "multiSlots": 2, "singleSlots": 2 }
+    },
+    {
+        "id": 101,
+        "name": "Keyboard",
+        "type": "armor",
+        "description": "A standard issue QWERTY Keyboard",
+        "stats": { "defense": 20, "defensePct": 6, "magicDefPct": 3 },
+        "slots": { "multiSlots": 2, "singleSlots": 2 }
+    },
+    {
+        "id": 102,
+        "name": "Graphics Tablet",
+        "type": "armor",
+        "description": "A pressure-sensitive screen interface",
+        "stats": { "defense": 32, "defensePct": 8, "magicDefPct": 5 },
+        "slots": { "multiSlots": 3, "singleSlots": 1 }
+    },
+    {
+        "id": 201,
+        "name": "Audio Headset",
+        "type": "accessory",
+        "description": "Applies [Silence]",
+        "stats": {},
+        "slots": { "multiSlots": 0, "singleSlots": 0 }
+    },
+    {
+        "id": 202,
+        "name": "Wrist Rest",
+        "type": "accessory",
+        "description": "Raises [Comfort]",
+        "stats": {},
+        "slots": { "multiSlots": 0, "singleSlots": 0 }
+    },
+    {
+        "id": 203,
+        "name": "Dual Monitors",
+        "type": "accessory",
+        "description": "Removes [Darkness]",
+        "stats": {},
+        "slots": { "multiSlots": 0, "singleSlots": 0 }
+    },
+    {
+        "id": 204,
+        "name": "Standing Desk",
+        "type": "accessory",
+        "description": "Raises [Evade]",
+        "stats": {},
+        "slots": { "multiSlots": 0, "singleSlots": 0 }
+    },
+        {
+        "id": 205,
+        "name": "Ergonomic Chair",
+        "type": "accessory",
+        "description": "Raises [Comfort]",
+        "stats": {},
+        "slots": { "multiSlots": 0, "singleSlots": 0 }
+    }
+]

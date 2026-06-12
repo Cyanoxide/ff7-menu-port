@@ -8,11 +8,14 @@ import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import skillsJSON from "../../data/skills.json";
 import type { SkillType } from "../../context/types";
+import { getEquipmentById } from "../../util/equipment";
 
 import styles from "./SkillsContent.module.scss";
 
 function SkillsContent() {
-    const { isSoundEnabled, isCRTEnabled } = useContext();
+    const { isSoundEnabled, isCRTEnabled, currentEquipment } = useContext();
+    const weapon = getEquipmentById(currentEquipment.weapon);
+    const armor = getEquipmentById(currentEquipment.armor);
     const skillPlaceholder = {
         id: 0,
         name: "",
@@ -54,8 +57,8 @@ function SkillsContent() {
                         <PartyMember memberId={1} />
                     </div>
                     <div className="mt-9 mr-2">
-                        <EquipmentSlots type="Wpn." name="Mouse" multiSlots={3} singleSlots={2} materia={skillsJSON as SkillType[]} setSkill={setSkill} selectedMateria={selectedMateria} setSelectedMateria={setSelectedMateria} />
-                        <EquipmentSlots type="Arm." name="Keyboard" multiSlots={2} singleSlots={2} materia={skillsJSON as SkillType[]} setSkill={setSkill} selectedMateria={selectedMateria} setSelectedMateria={setSelectedMateria} />
+                        <EquipmentSlots type="Wpn." name={weapon?.name} multiSlots={weapon?.slots?.multiSlots} singleSlots={weapon?.slots?.singleSlots} materia={skillsJSON as SkillType[]} setSkill={setSkill} selectedMateria={selectedMateria} setSelectedMateria={setSelectedMateria} />
+                        <EquipmentSlots type="Arm." name={armor?.name} multiSlots={armor?.slots?.multiSlots} singleSlots={armor?.slots?.singleSlots} materia={skillsJSON as SkillType[]} setSkill={setSkill} selectedMateria={selectedMateria} setSelectedMateria={setSelectedMateria} />
                     </div>
                 </div>
             </ContentBox>

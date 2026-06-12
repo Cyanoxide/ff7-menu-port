@@ -6,6 +6,7 @@ import Menu from './components/Menu/Menu';
 import Landing from "./pages/Landing/Landing";
 import Projects from "./pages/Projects/Projects";
 import Skills from "./pages/Skills/SkillsContent";
+import Equip from "./pages/Equip/Equip";
 import MemCardSelector from "./components/MemCardSelector/MemCardSelector";
 import Config from "./pages/Config/Config";
 
@@ -44,6 +45,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/skills" element={<Skills />} />
+            <Route path="/equip" element={<Equip />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/history" element={<MemCardSelector />} />
             <Route path="/config" element={<Config />} />

@@ -1,5 +1,5 @@
 import type { State, Action } from "./types";
-import { defaultWindowColor, defaultMateriaLoadout } from "./defaults";
+import { defaultWindowColor, defaultMateriaLoadout, defaultEquipment } from "./defaults";
 
 export const reducer = (state: State, action: Action): State => {
     switch (action.type) {
@@ -17,6 +17,8 @@ export const reducer = (state: State, action: Action): State => {
             return { ...state, currentMana: action.payload };
         case "SET_CURRENT_MATERIA":
             return { ...state, currentMateria: action.payload };
+        case "SET_CURRENT_EQUIPMENT":
+            return { ...state, currentEquipment: action.payload };
         case "INCREMENT_SECONDS":
             return { ...state, seconds: state.seconds + 1 };
         default:
@@ -33,4 +35,5 @@ export const initialState: State = {
     currentHealth: null,
     currentMana: null,
     currentMateria: structuredClone(defaultMateriaLoadout),
+    currentEquipment: structuredClone(defaultEquipment),
 };
