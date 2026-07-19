@@ -27,8 +27,10 @@ function SkillsContent() {
         name: "",
         color: null,
         description: "",
-        additionalInfo: "",
-        score: 0
+        score: 0,
+        ap: 0,
+        toNextLevel: 0,
+        abilities: [],
     }
 
     const [skill, setSkill] = useState<SkillType>(skillPlaceholder);
@@ -225,6 +227,26 @@ function SkillsContent() {
                         ))}
                     </ul>}
                 </div>
+                {skill.id !== 0 && (
+                    <div className={styles.details}>
+                        <div className={styles.statRow}>
+                            <span>{textToSprite("AP", false, "blue")}</span>
+                            <span>{textToSprite(skill.ap.toString(), true)}</span>
+                        </div>
+                        <div className={styles.statRow}>
+                            <span>{textToSprite("To next level", false, "blue")}</span>
+                            <span>{textToSprite(skill.score >= 5 ? "MASTER" : skill.toNextLevel.toString(), true)}</span>
+                        </div>
+                        <div className={styles.abilityList}>
+                            <p>{textToSprite("Ability list", false, "blue")}</p>
+                            <ul className="ml-8">
+                                {skill.abilities.map((ability) => (
+                                    <li key={ability}>{textToSprite(ability)}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                )}
             </ContentBox>
             <ContentBox data-label="skillsContentRight" className="absolute top-[359px] right-0 bottom-0">
                 <ul>

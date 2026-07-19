@@ -1,7 +1,7 @@
 
 export type PartyMemberType = { id: number; name: string; limit_level: number; age_epoch: number; hp: number; mp: number; image_path: string; };
 export type HistoryType = { id: number; name: string; link: string; user: string; level: number; role: string; year: string; image_path: string; };
-export type SkillType = { id: number; name: string; color: "green" | "red" | "yellow" | "blue" | "pink" | null; description: string; score: number; };
+export type SkillType = { id: number; name: string; color: "green" | "red" | "yellow" | "blue" | "pink" | null; description: string; score: number; ap: number; toNextLevel: number; abilities: string[]; };
 export type EquipmentStats = { attack?: number; attackPct?: number; magicAtk?: number; defense?: number; defensePct?: number; magicDefPct?: number; };
 export type EquipmentItemType = { id: number; name: string; type: "weapon" | "armor" | "accessory"; description: string; stats: EquipmentStats; slots?: { multiSlots: number; singleSlots: number }; };
 export type CurrentEquipment = { weapon: number; armor: number; accessory: number | null; };
