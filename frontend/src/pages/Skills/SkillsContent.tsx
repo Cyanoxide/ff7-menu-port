@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "../../context/context";
 
 import ContentBox from "../../components/ContentBox/ContentBox";
 import PartyMember from "../../components/PartyMember/PartyMember";
 import EquipmentSlots from "../../components/EquipmentSlots/EquipmentSlots";
+import Scrollbar from "../../components/Scrollbar/Scrollbar";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import skillsJSON from "../../data/skills.json";
@@ -35,6 +36,7 @@ function SkillsContent() {
 
     const [skill, setSkill] = useState<SkillType>(skillPlaceholder);
     const [selectedMateria, setSelectedMateria] = useState<number | null>(null);
+    const materiaListRef = useRef<HTMLDivElement>(null);
     const [targetSlot, setTargetSlot] = useState<{ arrIndex: 0 | 1; slotIndex: number } | null>(null);
 
     const weaponSlotCount = weapon ? slotCount(weapon) : 0;
@@ -249,13 +251,16 @@ function SkillsContent() {
                 )}
             </ContentBox>
             <ContentBox data-label="skillsContentRight" className="absolute top-[359px] right-0 bottom-0">
-                <ul>
-                    {skills.map((skillItem, index) => (
-                        <li key={skillItem.id} onMouseEnter={() => focus({ group: "materia", index })} onClick={() => handleMateriaConfirm(skillItem.id)} className="mb-1.5">
-                            <span className={`${styles.skill} flex`} data-color={skillItem.color} data-active={skillItem.id === selectedMateria} data-focused={isFocused("materia", index)}>{textToSprite(skillItem.name)}</span>
-                        </li>
-                    ))}
-                </ul>
+                <div ref={materiaListRef} className="hide-scrollbar h-full overflow-y-auto pr-9">
+                    <ul>
+                        {skills.map((skillItem, index) => (
+                            <li key={skillItem.id} onMouseEnter={() => focus({ group: "materia", index })} onClick={() => handleMateriaConfirm(skillItem.id)} className="mb-1.5">
+                                <span className={`${styles.skill} flex`} data-color={skillItem.color} data-active={skillItem.id === selectedMateria} data-focused={isFocused("materia", index)}>{textToSprite(skillItem.name)}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <Scrollbar targetRef={materiaListRef} />
             </ContentBox>
         </>
     );

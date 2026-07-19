@@ -53,6 +53,15 @@ body.crt-effect #root:before {
   z-index: 1;
 }
 
+/* Hide the native scrollbar on elements that use the custom FF7 <Scrollbar />. */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 body * {
   image-rendering: crisp-edges;
 }
