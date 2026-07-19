@@ -7,7 +7,7 @@
         "score": 4,
         "ap": 21000,
         "toNextLevel": 8000,
-        "abilities": ["Components", "Hooks", "Context"]
+        "abilities": ["Components", "State Management", "Context"]
     },
     {
         "id": 2,
@@ -67,7 +67,7 @@
         "score": 2,
         "ap": 3200,
         "toNextLevel": 1800,
-        "abilities": ["Backend"]
+        "abilities": ["Laravel"]
     },
     {
         "id": 8,
@@ -77,7 +77,7 @@
         "score": 4,
         "ap": 22000,
         "toNextLevel": 3000,
-        "abilities": ["Branching", "Merging", "Rebasing"]
+        "abilities": ["Branching", "Merging"]
     },
     {
         "id": 9,
