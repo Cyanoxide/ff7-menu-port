@@ -1,0 +1,35 @@
+// FF7 scrollbar: a recessed channel with a raised grey thumb (light top/left
+// bevel, dark bottom/right), pinned to the right edge of its positioned parent.
+.track {
+    position: absolute;
+    top: 0;
+    // shifted 1px past the right edge so no sliver of the box shows beside it
+    right: -1px;
+    bottom: 0;
+    width: 32px;
+    background: rgba(190, 200, 245, 0.20);
+    opacity: 0;
+    transition: opacity 0.12s ease;
+    pointer-events: none;
+    z-index: 3;
+
+    &[data-visible="true"] {
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+.thumb {
+    position: absolute;
+    top: 0;
+    // fills the full gutter width
+    left: 0;
+    right: 0;
+    background: #a0a0a0;
+    border-top: 3px solid #f0f0f0;
+    border-left: 3px solid #c1c1c1;
+    border-right: 3px solid #727272;
+    border-bottom: 3px solid #414141;
+    cursor: pointer;
+    will-change: transform;
+}

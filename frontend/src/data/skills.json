@@ -4,69 +4,99 @@
         "name": "React",
         "color": "green",
         "description": "A JavaScript library for building interactive user interfaces.",
-        "score": 4
+        "score": 4,
+        "ap": 21000,
+        "toNextLevel": 8000,
+        "abilities": ["Components", "State Management", "Context"]
     },
     {
         "id": 2,
         "name": "Typescript",
         "color": "yellow",
         "description": "A superset of JavaScript that adds static typing.",
-        "score": 3
+        "score": 3,
+        "ap": 9500,
+        "toNextLevel": 4500,
+        "abilities": ["Types", "Generics"]
     },
     {
         "id": 3,
         "name": "Javascript",
         "color": "yellow",
         "description": "A programming language for creating dynamic content.",
-        "score": 5
+        "score": 5,
+        "ap": 65000,
+        "toNextLevel": 0,
+        "abilities": ["ES6+", "Async", "Closures", "DOM"]
     },
     {
         "id": 4,
         "name": "Python",
         "color": "blue",
         "description": "A general-purpose, readable programming language.",
-        "score": 4
+        "score": 4,
+        "ap": 18000,
+        "toNextLevel": 6000,
+        "abilities": ["Scripting", "Data", "APIs"]
     },
     {
         "id": 5,
         "name": "Django",
         "color": "blue",
         "description": "A Python framework for web apps.",
-        "score": 4
+        "score": 4,
+        "ap": 16500,
+        "toNextLevel": 7500,
+        "abilities": ["Models", "Views", "ORM"]
     },
     {
         "id": 6,
         "name": "SQL",
         "color": "yellow",
         "description": "A language for managing relational databases.",
-        "score": 3
+        "score": 3,
+        "ap": 8000,
+        "toNextLevel": 3000,
+        "abilities": ["Queries", "Joins"]
     },
     {
         "id": 7,
         "name": "PHP",
         "color": "yellow",
         "description": "A server-side language for building dynamic web pages.",
-        "score": 2
+        "score": 2,
+        "ap": 3200,
+        "toNextLevel": 1800,
+        "abilities": ["CMS Platforms", "Sessions", "Form/DB Handling"]
     },
     {
         "id": 8,
         "name": "Git",
         "color": "pink",
         "description": "A version control system for managing code changes.",
-        "score": 4
+        "score": 4,
+        "ap": 22000,
+        "toNextLevel": 3000,
+        "abilities": ["Branching", "Merging"]
     },
     {
         "id": 9,
         "name": "Photoshop",
         "color": "red",
         "description": "A graphics editor used for image manipulation and design.",
-        "score": 5
+        "score": 5,
+        "ap": 80000,
+        "toNextLevel": 0,
+        "abilities": ["Editing", "Design", "Compositing"]
     },
     {
         "id": 10,
         "name": "Docker",
         "color": "pink",
         "description": "A platform for packaging, and running containerized apps.",
-        "score": 2
+        "score": 2,
+        "ap": 2500,
+        "toNextLevel": 2500,
+        "abilities": ["Containers"]
     }
 ]

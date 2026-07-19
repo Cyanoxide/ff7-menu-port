@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "../../context/context";
 
 import ContentBox from "../../components/ContentBox/ContentBox";
 import PartyMember from "../../components/PartyMember/PartyMember";
 import EquipmentSlots from "../../components/EquipmentSlots/EquipmentSlots";
+import Scrollbar from "../../components/Scrollbar/Scrollbar";
+import { isPointerMoving } from "../../util/pointerActivity";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import skillsJSON from "../../data/skills.json";
@@ -27,12 +29,16 @@ function SkillsContent() {
         name: "",
         color: null,
         description: "",
-        additionalInfo: "",
-        score: 0
+        score: 0,
+        ap: 0,
+        toNextLevel: 0,
+        abilities: [],
     }
 
     const [skill, setSkill] = useState<SkillType>(skillPlaceholder);
     const [selectedMateria, setSelectedMateria] = useState<number | null>(null);
+    const materiaListRef = useRef<HTMLDivElement>(null);
+    const materiaItemRefs = useRef<(HTMLLIElement | null)[]>([]);
     const [targetSlot, setTargetSlot] = useState<{ arrIndex: 0 | 1; slotIndex: number } | null>(null);
 
     const weaponSlotCount = weapon ? slotCount(weapon) : 0;
@@ -202,6 +208,14 @@ function SkillsContent() {
 
     useEffect(() => () => closeNav.setFocus(false), []);
 
+    // Keep the keyboard-focused materia on screen as the cursor moves past the
+    // visible rows; snap alignment lands it on a whole-row boundary.
+    useEffect(() => {
+        if (pos?.group === "materia") {
+            materiaItemRefs.current[pos.index]?.scrollIntoView({ block: "nearest" });
+        }
+    }, [pos]);
+
     return (
         <>
             <ContentBox data-label="skillsHeader" className="h-[261px] absolute top-0">
@@ -225,15 +239,42 @@ function SkillsContent() {
                         ))}
                     </ul>}
                 </div>
+                {skill.id !== 0 && (
+                    <div className={styles.details}>
+                        <div className={styles.statRow}>
+                            <span>{textToSprite("AP", false, "blue")}</span>
+                            <span>{textToSprite(skill.ap.toString(), true)}</span>
+                        </div>
+                        <div className={styles.statRow}>
+                            <span>{textToSprite("To next level", false, "blue")}</span>
+                            <span>{textToSprite(skill.score >= 5 ? "MASTER" : skill.toNextLevel.toString(), true)}</span>
+                        </div>
+                        <div className={styles.abilityList}>
+                            <p>{textToSprite("Ability list", false, "blue")}</p>
+                            <ul className="ml-8">
+                                {skill.abilities.map((ability) => (
+                                    <li key={ability}>{textToSprite(ability)}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                )}
             </ContentBox>
             <ContentBox data-label="skillsContentRight" className="absolute top-[359px] right-0 bottom-0">
-                <ul>
-                    {skills.map((skillItem, index) => (
-                        <li key={skillItem.id} onMouseEnter={() => focus({ group: "materia", index })} onClick={() => handleMateriaConfirm(skillItem.id)} className="mb-1.5">
-                            <span className={`${styles.skill} flex`} data-color={skillItem.color} data-active={skillItem.id === selectedMateria} data-focused={isFocused("materia", index)}>{textToSprite(skillItem.name)}</span>
-                        </li>
-                    ))}
-                </ul>
+                {/* Fixed 43px rows in a 430px viewport => exactly 10 fit; snap keeps
+                    scrolling on whole-row boundaries so a row is never half-cut. The
+                    pl-20/-ml-20 pair reserves room for the left-pointing cursor so it
+                    isn't clipped once it scrolls with the rows (see .skill position). */}
+                <div ref={materiaListRef} className="hide-scrollbar -ml-20 h-[430px] snap-y snap-mandatory overflow-y-auto pl-20 pr-9">
+                    <ul>
+                        {skills.map((skillItem, index) => (
+                            <li key={skillItem.id} ref={(el) => { materiaItemRefs.current[index] = el; }} onMouseEnter={() => { if (isPointerMoving()) focus({ group: "materia", index }); }} onClick={() => handleMateriaConfirm(skillItem.id)} className="flex h-[43px] snap-start items-center">
+                                <span className={`${styles.skill} flex`} data-color={skillItem.color} data-active={skillItem.id === selectedMateria} data-focused={isFocused("materia", index)}>{textToSprite(skillItem.name)}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <Scrollbar targetRef={materiaListRef} />
             </ContentBox>
         </>
     );
