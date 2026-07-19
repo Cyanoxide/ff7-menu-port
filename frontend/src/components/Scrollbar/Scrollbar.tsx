@@ -6,6 +6,9 @@ interface ScrollbarProps {
     // The scrollable element to track. It should hide its native bar (add the
     // global `hide-scrollbar` class) and its offset parent should be positioned.
     targetRef: React.RefObject<HTMLElement | null>;
+    // Fires when the bar shows/hides, so the list can reclaim the reserved gutter
+    // space when nothing overflows.
+    onVisibleChange?: (visible: boolean) => void;
 }
 
 // The handle is a small fixed-size position indicator (like FF7's), not a
@@ -17,10 +20,12 @@ const MIN_THUMB = 34;
 // a sibling of a scrollable element inside a positioned (relative/absolute)
 // container. It measures the target and auto-hides when there's nothing to
 // scroll, so it stays out of the way until a list outgrows its box.
-const Scrollbar: React.FC<ScrollbarProps> = ({ targetRef }) => {
+const Scrollbar: React.FC<ScrollbarProps> = ({ targetRef, onVisibleChange }) => {
     const trackRef = useRef<HTMLDivElement>(null);
     const [thumb, setThumb] = useState({ visible: false, height: 0, top: 0 });
     const drag = useRef<{ startY: number; startScroll: number } | null>(null);
+
+    useEffect(() => { onVisibleChange?.(thumb.visible); }, [thumb.visible, onVisibleChange]);
 
     useEffect(() => {
         const target = targetRef.current;

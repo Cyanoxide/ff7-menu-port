@@ -45,6 +45,7 @@ function ProjectsContent() {
     const navigate = useNavigate();
     const [description, setDescription] = useState("");
     const [moreInfo, setmoreInfo] = useState<string[]>([]);
+    const [hasScrollbar, setHasScrollbar] = useState(false);
     const anchorRefs = useRef<(HTMLAnchorElement | null)[]>([]);
     const projectListRef = useRef<HTMLDivElement>(null);
     const projectItemRefs = useRef<(HTMLLIElement | null)[]>([]);
@@ -107,7 +108,7 @@ function ProjectsContent() {
             <ContentBox className="absolute top-[190px] right-0 bottom-0" data-label="contentRight">
                 {/* Fixed 48px rows in a 576px viewport => 12 fit in this taller box;
                     pl-24/-ml-24 reserves room for the cursor's left overhang. */}
-                <div ref={projectListRef} className="hide-scrollbar -ml-24 h-[576px] snap-y snap-mandatory overflow-y-auto pl-24 pr-9">
+                <div ref={projectListRef} className={`hide-scrollbar -ml-24 h-[576px] snap-y snap-mandatory overflow-y-auto pl-24 ${hasScrollbar ? "pr-9" : ""}`}>
                     <ul>
                         {PROJECTS.map((project, index) => (
                             <li key={project.key} ref={(el) => { projectItemRefs.current[index] = el; }} className={`${styles.item} flex h-[48px] snap-start items-center`} data-focused={isFocused("items", index)} onMouseEnter={() => { if (isPointerMoving()) focus({ group: "items", index }); }} onClick={() => playSound("select", isSoundEnabled)}>
@@ -125,7 +126,7 @@ function ProjectsContent() {
                         ))}
                     </ul>
                 </div>
-                <Scrollbar targetRef={projectListRef} />
+                <Scrollbar targetRef={projectListRef} onVisibleChange={setHasScrollbar} />
             </ContentBox>
         </>
     );
