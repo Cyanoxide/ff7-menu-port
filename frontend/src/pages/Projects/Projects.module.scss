@@ -1,3 +1,8 @@
+// anchor the cursor to the row so it scrolls with the list
+.item {
+    position: relative;
+}
+
 .item[data-focused=true]:before {
     content: "";
     position: absolute;
