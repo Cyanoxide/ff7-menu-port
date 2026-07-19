@@ -16,6 +16,126 @@
         "slots": { "multiSlots": 2, "singleSlots": 2 }
     },
     {
+        "id": 3,
+        "name": "Trackball",
+        "type": "weapon",
+        "description": "Placeholder weapon.",
+        "stats": { "attack": 20, "attackPct": 95 },
+        "slots": { "multiSlots": 2, "singleSlots": 2 }
+    },
+    {
+        "id": 4,
+        "name": "Touchpad",
+        "type": "weapon",
+        "description": "Placeholder weapon.",
+        "stats": { "attack": 22, "attackPct": 94 },
+        "slots": { "multiSlots": 3, "singleSlots": 1 }
+    },
+    {
+        "id": 5,
+        "name": "Light Pen",
+        "type": "weapon",
+        "description": "Placeholder weapon.",
+        "stats": { "attack": 26, "attackPct": 90, "magicAtk": 6 },
+        "slots": { "multiSlots": 2, "singleSlots": 2 }
+    },
+    {
+        "id": 6,
+        "name": "Joystick",
+        "type": "weapon",
+        "description": "Placeholder weapon.",
+        "stats": { "attack": 28, "attackPct": 88 },
+        "slots": { "multiSlots": 3, "singleSlots": 2 }
+    },
+    {
+        "id": 7,
+        "name": "Gamepad",
+        "type": "weapon",
+        "description": "Placeholder weapon.",
+        "stats": { "attack": 30, "attackPct": 86 },
+        "slots": { "multiSlots": 4, "singleSlots": 0 }
+    },
+    {
+        "id": 8,
+        "name": "Digital Pen",
+        "type": "weapon",
+        "description": "Placeholder weapon.",
+        "stats": { "attack": 25, "attackPct": 91, "magicAtk": 8 },
+        "slots": { "multiSlots": 2, "singleSlots": 2 }
+    },
+    {
+        "id": 9,
+        "name": "Laser Pointer",
+        "type": "weapon",
+        "description": "Placeholder weapon.",
+        "stats": { "attack": 32, "attackPct": 84 },
+        "slots": { "multiSlots": 3, "singleSlots": 1 }
+    },
+    {
+        "id": 10,
+        "name": "Barcode Scanner",
+        "type": "weapon",
+        "description": "Placeholder weapon.",
+        "stats": { "attack": 27, "attackPct": 89 },
+        "slots": { "multiSlots": 2, "singleSlots": 3 }
+    },
+    {
+        "id": 11,
+        "name": "VR Controller",
+        "type": "weapon",
+        "description": "Placeholder weapon.",
+        "stats": { "attack": 34, "attackPct": 82, "magicAtk": 10 },
+        "slots": { "multiSlots": 4, "singleSlots": 1 }
+    },
+    {
+        "id": 12,
+        "name": "Foot Pedal",
+        "type": "weapon",
+        "description": "Placeholder weapon.",
+        "stats": { "attack": 21, "attackPct": 96 },
+        "slots": { "multiSlots": 1, "singleSlots": 2 }
+    },
+    {
+        "id": 13,
+        "name": "Jog Wheel",
+        "type": "weapon",
+        "description": "Placeholder weapon.",
+        "stats": { "attack": 23, "attackPct": 93 },
+        "slots": { "multiSlots": 2, "singleSlots": 2 }
+    },
+    {
+        "id": 14,
+        "name": "Data Glove",
+        "type": "weapon",
+        "description": "Placeholder weapon.",
+        "stats": { "attack": 29, "attackPct": 87, "magicAtk": 5 },
+        "slots": { "multiSlots": 3, "singleSlots": 2 }
+    },
+    {
+        "id": 15,
+        "name": "Motion Sensor",
+        "type": "weapon",
+        "description": "Placeholder weapon.",
+        "stats": { "attack": 31, "attackPct": 85 },
+        "slots": { "multiSlots": 3, "singleSlots": 1 }
+    },
+    {
+        "id": 16,
+        "name": "Eye Tracker",
+        "type": "weapon",
+        "description": "Placeholder weapon.",
+        "stats": { "attack": 33, "attackPct": 83, "magicAtk": 12 },
+        "slots": { "multiSlots": 4, "singleSlots": 0 }
+    },
+    {
+        "id": 17,
+        "name": "MIDI Pad",
+        "type": "weapon",
+        "description": "Placeholder weapon.",
+        "stats": { "attack": 24, "attackPct": 92 },
+        "slots": { "multiSlots": 2, "singleSlots": 2 }
+    },
+    {
         "id": 101,
         "name": "Keyboard",
         "type": "armor",
