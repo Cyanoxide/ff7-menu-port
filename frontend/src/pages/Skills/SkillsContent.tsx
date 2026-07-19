@@ -6,6 +6,7 @@ import ContentBox from "../../components/ContentBox/ContentBox";
 import PartyMember from "../../components/PartyMember/PartyMember";
 import EquipmentSlots from "../../components/EquipmentSlots/EquipmentSlots";
 import Scrollbar from "../../components/Scrollbar/Scrollbar";
+import { isPointerMoving } from "../../util/pointerActivity";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import skillsJSON from "../../data/skills.json";
@@ -267,7 +268,7 @@ function SkillsContent() {
                 <div ref={materiaListRef} className="hide-scrollbar -ml-20 h-[430px] snap-y snap-mandatory overflow-y-auto pl-20 pr-9">
                     <ul>
                         {skills.map((skillItem, index) => (
-                            <li key={skillItem.id} ref={(el) => { materiaItemRefs.current[index] = el; }} onMouseEnter={() => focus({ group: "materia", index })} onClick={() => handleMateriaConfirm(skillItem.id)} className="flex h-[43px] snap-start items-center">
+                            <li key={skillItem.id} ref={(el) => { materiaItemRefs.current[index] = el; }} onMouseEnter={() => { if (isPointerMoving()) focus({ group: "materia", index }); }} onClick={() => handleMateriaConfirm(skillItem.id)} className="flex h-[43px] snap-start items-center">
                                 <span className={`${styles.skill} flex`} data-color={skillItem.color} data-active={skillItem.id === selectedMateria} data-focused={isFocused("materia", index)}>{textToSprite(skillItem.name)}</span>
                             </li>
                         ))}
