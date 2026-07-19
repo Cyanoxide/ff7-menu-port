@@ -18,7 +18,15 @@ const PROJECTS = [
         icon: "/xpicon.png",
         link: "https://react-xp.jamiepates.com",
         description: "An authentic recreation of Windows XP",
-        moreInfo: ["This is still a work in", "progress, but I'm", "currently working on", "recreating Windows XP", "from scratch using", "React and Typescript"],
+        moreInfo: ["This is still a work in", "progress, but I'm", "currently working on", "recreating Windows XP", "from scratch using", "React and Typescript."],
+    },
+    {
+        key: "p5rFusion",
+        name: "P5R Fusion Calculator",
+        icon: "/personaicon.png",
+        link: "https://persona-calc.jamiepates.com",
+        description: "A step-by-step fusion guide for Persona 5 Royal",
+        moreInfo: ["I mostly built this", "because I wanted an", "excuse to play around", "with the Persona 5", "aesthetic. It's a fusion", "calculator for P5R."],
     },
     {
         key: "tripleTriad",
