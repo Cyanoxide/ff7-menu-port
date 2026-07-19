@@ -38,15 +38,6 @@ const PROJECTS = [
         description: "Let's play a game of cards!",
         moreInfo: ["This is a React project", "I built to authentically", "recreate the FF8", "version of Triple Triad", "to be playable in a", "web browser."],
     },
-    // Placeholder projects so the list overflows and the scrollbar is exercised.
-    ...Array.from({ length: 15 }, (_, i) => ({
-        key: `placeholder${i + 1}`,
-        name: `Project ${i + 4}`,
-        icon: "/cardicon.png",
-        link: "#",
-        description: `Placeholder project ${i + 4}`,
-        moreInfo: ["This is a placeholder", "project used to preview", "the scrollbar."],
-    })),
 ];
 
 function ProjectsContent() {
