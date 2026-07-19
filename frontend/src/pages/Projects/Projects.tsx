@@ -4,6 +4,8 @@ import { useContext } from "../../context/context";
 
 import ContentBox from "../../components/ContentBox/ContentBox";
 import PartyMember from "../../components/PartyMember/PartyMember";
+import Scrollbar from "../../components/Scrollbar/Scrollbar";
+import { isPointerMoving } from "../../util/pointerActivity";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { useCursorNav, markKeyboardNavigation } from "../../hooks/useCursorNav";
@@ -44,8 +46,10 @@ function ProjectsContent() {
     const [description, setDescription] = useState("");
     const [moreInfo, setmoreInfo] = useState<string[]>([]);
     const anchorRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+    const projectListRef = useRef<HTMLDivElement>(null);
+    const projectItemRefs = useRef<(HTMLLIElement | null)[]>([]);
 
-    const { focus, setPosSilently, isFocused } = useCursorNav({
+    const { pos, focus, setPosSilently, isFocused } = useCursorNav({
         groups: [{ id: "items", size: PROJECTS.length }, { id: "close", size: 1 }],
         initial: null,
         fallback: { group: "items", index: 0 },
@@ -79,6 +83,13 @@ function ProjectsContent() {
 
     useEffect(() => () => closeNav.setFocus(false), []);
 
+    // Keep the keyboard-focused project on screen as the cursor moves.
+    useEffect(() => {
+        if (pos?.group === "items") {
+            projectItemRefs.current[pos.index]?.scrollIntoView({ block: "nearest" });
+        }
+    }, [pos]);
+
     return (
         <>
             <ContentBox data-label="header" className="h-[84px] absolute">
@@ -94,22 +105,27 @@ function ProjectsContent() {
                 </ContentBox>}
             </ContentBox>
             <ContentBox className="absolute top-[190px] right-0 bottom-0" data-label="contentRight">
-                <ul>
-                    {PROJECTS.map((project, index) => (
-                        <li key={project.key} className={`${styles.item} ${index < PROJECTS.length - 1 ? "mb-2.5" : ""}`} data-focused={isFocused("items", index)} onMouseEnter={() => focus({ group: "items", index })} onClick={() => playSound("select", isSoundEnabled)}>
-                            <a href={project.link} ref={(el) => { anchorRefs.current[index] = el; }} className="flex justify-between items-center">
-                                <span className="flex items-center">
-                                    <img src={project.icon} alt="Card Icon" width="36" height="36" className="mr-3" />
-                                    <span>{textToSprite(project.name)}</span>
-                                </span>
-                                <span className="flex">
-                                    <span className="mr-2">{textToSprite(":")}</span>
-                                    <span className="mt-1">{textToSprite("1", true)}</span>
-                                </span>
-                            </a>
-                        </li>
-                    ))}
-                </ul>
+                {/* Fixed 48px rows in a 576px viewport => 12 fit in this taller box;
+                    pl-24/-ml-24 reserves room for the cursor's left overhang. */}
+                <div ref={projectListRef} className="hide-scrollbar -ml-24 h-[576px] snap-y snap-mandatory overflow-y-auto pl-24 pr-9">
+                    <ul>
+                        {PROJECTS.map((project, index) => (
+                            <li key={project.key} ref={(el) => { projectItemRefs.current[index] = el; }} className={`${styles.item} flex h-[48px] snap-start items-center`} data-focused={isFocused("items", index)} onMouseEnter={() => { if (isPointerMoving()) focus({ group: "items", index }); }} onClick={() => playSound("select", isSoundEnabled)}>
+                                <a href={project.link} ref={(el) => { anchorRefs.current[index] = el; }} className="flex h-full w-full justify-between items-center">
+                                    <span className="flex items-center">
+                                        <img src={project.icon} alt="Card Icon" width="36" height="36" className="mr-3" />
+                                        <span>{textToSprite(project.name)}</span>
+                                    </span>
+                                    <span className="flex">
+                                        <span className="mr-2">{textToSprite(":")}</span>
+                                        <span className="mt-1">{textToSprite("1", true)}</span>
+                                    </span>
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <Scrollbar targetRef={projectListRef} />
             </ContentBox>
         </>
     );

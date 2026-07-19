@@ -5,6 +5,8 @@ import { useContext } from "../../context/context";
 import ContentBox from "../../components/ContentBox/ContentBox";
 import PartyMember from "../../components/PartyMember/PartyMember";
 import MateriaSlotPreview from "../../components/MateriaSlotPreview/MateriaSlotPreview";
+import Scrollbar from "../../components/Scrollbar/Scrollbar";
+import { isPointerMoving } from "../../util/pointerActivity";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { getEquipmentById, getDerivedStats, slotCount, resizeMateriaRow } from "../../util/equipment";
@@ -44,6 +46,8 @@ function Equip() {
     const [hoveredItem, setHoveredItem] = useState<EquipmentItemType | null>(null);
     const [lastEquipped, setLastEquipped] = useState<EquipmentItemType | null>(null);
     const pendingEquipRef = useRef(false);
+    const equipListRef = useRef<HTMLDivElement>(null);
+    const equipItemRefs = useRef<(HTMLLIElement | null)[]>([]);
 
     const activeCategory = hoveredCategory ?? selectedCategory;
     const equippedItem = activeCategory ? getEquipmentById(currentEquipment[activeCategory]) : undefined;
@@ -184,6 +188,13 @@ function Equip() {
 
     useEffect(() => () => closeNav.setFocus(false), []);
 
+    // Keep the keyboard-focused equipment row on screen as the cursor moves.
+    useEffect(() => {
+        if (pos?.group === "items") {
+            equipItemRefs.current[pos.index]?.scrollIntoView({ block: "nearest" });
+        }
+    }, [pos]);
+
     return (
         <>
             <ContentBox data-label="equipHeader" className="h-[225px] absolute top-0">
@@ -238,20 +249,25 @@ function Equip() {
                 </ul>
             </ContentBox>
             <ContentBox data-label="equipContentRight" className="absolute top-[323px] right-0 bottom-0">
-                <ul>
-                    {categoryItems.map((item, index) => (
-                        <li key={item.id} onPointerEnter={(event) => { if (event.pointerType === "mouse" && itemListInteractive) focus({ group: "items", index }); }} onClick={() => {
-                            if (!itemListInteractive || pendingEquipRef.current) return;
-                            if (isFocused("items", index)) return handleEquip(item);
-                            // Touch presses haven't hovered, so flash the cursor on the row first
-                            focus({ group: "items", index });
-                            pendingEquipRef.current = true;
-                            window.setTimeout(() => { pendingEquipRef.current = false; handleEquip(item); }, 150);
-                        }} className="mb-3">
-                            <span className={`${styles.equipmentItem} flex`} data-focused={isFocused("items", index)}>{textToSprite(item.name)}</span>
-                        </li>
-                    ))}
-                </ul>
+                {/* Fixed 44px rows in a 440px viewport => exactly 10 fit (like skills);
+                    pl-20/-ml-20 reserves room for the cursor's left overhang. */}
+                <div ref={equipListRef} className="hide-scrollbar -ml-20 h-[440px] snap-y snap-mandatory overflow-y-auto pl-20 pr-9">
+                    <ul>
+                        {categoryItems.map((item, index) => (
+                            <li key={item.id} ref={(el) => { equipItemRefs.current[index] = el; }} onPointerEnter={(event) => { if (event.pointerType === "mouse" && itemListInteractive && isPointerMoving()) focus({ group: "items", index }); }} onClick={() => {
+                                if (!itemListInteractive || pendingEquipRef.current) return;
+                                if (isFocused("items", index)) return handleEquip(item);
+                                // Touch presses haven't hovered, so flash the cursor on the row first
+                                focus({ group: "items", index });
+                                pendingEquipRef.current = true;
+                                window.setTimeout(() => { pendingEquipRef.current = false; handleEquip(item); }, 150);
+                            }} className="flex h-[44px] snap-start items-center">
+                                <span className={`${styles.equipmentItem} flex`} data-focused={isFocused("items", index)}>{textToSprite(item.name)}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <Scrollbar targetRef={equipListRef} />
             </ContentBox>
         </>
     );

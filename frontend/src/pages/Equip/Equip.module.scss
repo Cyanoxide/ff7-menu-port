@@ -1,3 +1,8 @@
+// anchor the list cursor to the row so it scrolls with it
+.equipmentItem {
+    position: relative;
+}
+
 .equipRow,
 .equipmentItem {
     cursor: pointer;
