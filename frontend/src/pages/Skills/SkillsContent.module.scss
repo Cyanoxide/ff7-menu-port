@@ -40,6 +40,9 @@
 }
 
 .skill {
+    // anchor the cursor to the row so it scrolls with it (not the static panel)
+    position: relative;
+
     &[data-focused=true]:after {
         content: "";
         position: absolute;

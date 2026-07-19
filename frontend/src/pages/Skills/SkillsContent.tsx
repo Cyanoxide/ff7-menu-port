@@ -37,6 +37,7 @@ function SkillsContent() {
     const [skill, setSkill] = useState<SkillType>(skillPlaceholder);
     const [selectedMateria, setSelectedMateria] = useState<number | null>(null);
     const materiaListRef = useRef<HTMLDivElement>(null);
+    const materiaItemRefs = useRef<(HTMLLIElement | null)[]>([]);
     const [targetSlot, setTargetSlot] = useState<{ arrIndex: 0 | 1; slotIndex: number } | null>(null);
 
     const weaponSlotCount = weapon ? slotCount(weapon) : 0;
@@ -206,6 +207,14 @@ function SkillsContent() {
 
     useEffect(() => () => closeNav.setFocus(false), []);
 
+    // Keep the keyboard-focused materia on screen as the cursor moves past the
+    // visible rows; snap alignment lands it on a whole-row boundary.
+    useEffect(() => {
+        if (pos?.group === "materia") {
+            materiaItemRefs.current[pos.index]?.scrollIntoView({ block: "nearest" });
+        }
+    }, [pos]);
+
     return (
         <>
             <ContentBox data-label="skillsHeader" className="h-[261px] absolute top-0">
@@ -251,10 +260,14 @@ function SkillsContent() {
                 )}
             </ContentBox>
             <ContentBox data-label="skillsContentRight" className="absolute top-[359px] right-0 bottom-0">
-                <div ref={materiaListRef} className="hide-scrollbar h-full overflow-y-auto pr-9">
+                {/* Fixed 43px rows in a 430px viewport => exactly 10 fit; snap keeps
+                    scrolling on whole-row boundaries so a row is never half-cut. The
+                    pl-20/-ml-20 pair reserves room for the left-pointing cursor so it
+                    isn't clipped once it scrolls with the rows (see .skill position). */}
+                <div ref={materiaListRef} className="hide-scrollbar -ml-20 h-[430px] snap-y snap-mandatory overflow-y-auto pl-20 pr-9">
                     <ul>
                         {skills.map((skillItem, index) => (
-                            <li key={skillItem.id} onMouseEnter={() => focus({ group: "materia", index })} onClick={() => handleMateriaConfirm(skillItem.id)} className="mb-1.5">
+                            <li key={skillItem.id} ref={(el) => { materiaItemRefs.current[index] = el; }} onMouseEnter={() => focus({ group: "materia", index })} onClick={() => handleMateriaConfirm(skillItem.id)} className="flex h-[43px] snap-start items-center">
                                 <span className={`${styles.skill} flex`} data-color={skillItem.color} data-active={skillItem.id === selectedMateria} data-focused={isFocused("materia", index)}>{textToSprite(skillItem.name)}</span>
                             </li>
                         ))}

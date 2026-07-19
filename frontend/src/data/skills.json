@@ -98,5 +98,55 @@
         "ap": 2500,
         "toNextLevel": 2500,
         "abilities": ["Containers"]
+    },
+    {
+        "id": 11,
+        "name": "Node.js",
+        "color": "green",
+        "description": "A runtime for running JavaScript on the server.",
+        "score": 4,
+        "ap": 17000,
+        "toNextLevel": 5000,
+        "abilities": ["Express", "Streams", "NPM"]
+    },
+    {
+        "id": 12,
+        "name": "GraphQL",
+        "color": "pink",
+        "description": "A query language for APIs with a typed schema.",
+        "score": 3,
+        "ap": 7000,
+        "toNextLevel": 4000,
+        "abilities": ["Queries", "Mutations"]
+    },
+    {
+        "id": 13,
+        "name": "Redis",
+        "color": "red",
+        "description": "An in-memory data store used for caching.",
+        "score": 3,
+        "ap": 6500,
+        "toNextLevel": 3500,
+        "abilities": ["Caching", "Pub/Sub"]
+    },
+    {
+        "id": 14,
+        "name": "AWS",
+        "color": "yellow",
+        "description": "A cloud platform for hosting and infrastructure.",
+        "score": 3,
+        "ap": 9000,
+        "toNextLevel": 6000,
+        "abilities": ["S3", "Lambda", "EC2"]
+    },
+    {
+        "id": 15,
+        "name": "Figma",
+        "color": "pink",
+        "description": "A collaborative interface design tool.",
+        "score": 4,
+        "ap": 14000,
+        "toNextLevel": 4000,
+        "abilities": ["Prototyping", "Components"]
     }
 ]
