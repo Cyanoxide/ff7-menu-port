@@ -15,5 +15,5 @@ export const defaultMateriaLoadout: (number | null)[][] = [
 export const defaultEquipment: CurrentEquipment = {
     weapon: 1,
     armor: 101,
-    accessory: null,
+    accessory: 207,
 };
