@@ -16,6 +16,14 @@
         "slots": { "multiSlots": 2, "singleSlots": 2 }
     },
     {
+        "id": 3,
+        "name": "Controller",
+        "type": "weapon",
+        "description": "An analog gamepad designed for use with the PlayStation 1.",
+        "stats": { "attack": 28, "attackPct": 90, "magicAtk": 6 },
+        "slots": { "multiSlots": 2, "singleSlots": 2 }
+    },
+    {
         "id": 101,
         "name": "Keyboard",
         "type": "armor",
@@ -68,6 +76,30 @@
         "name": "Ergonomic Chair",
         "type": "accessory",
         "description": "Raises [Comfort]",
+        "stats": {},
+        "slots": { "multiSlots": 0, "singleSlots": 0 }
+    },
+    {
+        "id": 206,
+        "name": "PS1 Memory Card",
+        "type": "accessory",
+        "description": "Increases [MP]",
+        "stats": {},
+        "slots": { "multiSlots": 0, "singleSlots": 0 }
+    },
+    {
+        "id": 207,
+        "name": "Gameboy Color",
+        "type": "accessory",
+        "description": "Applies [Silence]",
+        "stats": {},
+        "slots": { "multiSlots": 0, "singleSlots": 0 }
+    },
+    {
+        "id": 208,
+        "name": "Smartphone",
+        "type": "accessory",
+        "description": "Applies [Darkness]",
         "stats": {},
         "slots": { "multiSlots": 0, "singleSlots": 0 }
     }

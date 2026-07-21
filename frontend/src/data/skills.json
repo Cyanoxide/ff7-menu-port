@@ -27,7 +27,7 @@
         "score": 5,
         "ap": 65000,
         "toNextLevel": 0,
-        "abilities": ["ES6+", "Async", "Closures", "DOM"]
+        "abilities": ["ES6+", "Async", "Closures", "Web Optimisation"]
     },
     {
         "id": 4,
@@ -77,7 +77,7 @@
         "score": 4,
         "ap": 22000,
         "toNextLevel": 3000,
-        "abilities": ["Branching", "Merging"]
+        "abilities": ["Branching", "Merging", "Code Review"]
     },
     {
         "id": 9,
@@ -93,10 +93,80 @@
         "id": 10,
         "name": "Docker",
         "color": "pink",
-        "description": "A platform for packaging, and running containerized apps.",
+        "description": "A platform for packaging and running containerized apps.",
         "score": 2,
         "ap": 2500,
         "toNextLevel": 2500,
         "abilities": ["Containers"]
+    },
+    {
+        "id": 11,
+        "name": "Figma",
+        "color": "red",
+        "description": "A web-based editor used for web and component design.",
+        "score": 3,
+        "ap": 30000,
+        "toNextLevel": 0,
+        "abilities": ["Designing", "Wireframes", "Components"]
+    },
+    {
+        "id": 13,
+        "name": "Tailwind",
+        "color": "blue",
+        "description": "A utility-first CSS framework for rapid UI styling.",
+        "score": 5,
+        "ap": 60000,
+        "toNextLevel": 0,
+        "abilities": ["Utility Classes", "Responsive Design"]
+    },
+    {
+        "id": 14,
+        "name": "SASS/LESS",
+        "color": "blue",
+        "description": "CSS preprocessors for adding variables, nesting and mixins.",
+        "score": 5,
+        "ap": 52000,
+        "toNextLevel": 0,
+        "abilities": ["Nesting", "Mixins", "Variables"]
+    },
+    {
+        "id": 15,
+        "name": "Linux",
+        "color": "pink",
+        "description": "An open-source operating system.",
+        "score": 4,
+        "ap": 17000,
+        "toNextLevel": 8000,
+        "abilities": ["CLI/SSH", "Permissions"]
+    },
+    {
+        "id": 16,
+        "name": "PostgreSQL",
+        "color": "yellow",
+        "description": "An advanced open-source relational database system.",
+        "score": 3,
+        "ap": 8500,
+        "toNextLevel": 3000,
+        "abilities": ["Queries", "Indexing", "Schema Design"]
+    },
+    {
+        "id": 17,
+        "name": "Agile/Scrum",
+        "color": "green",
+        "description": "An iterative framework for planning and delivering work.",
+        "score": 4,
+        "ap": 18000,
+        "toNextLevel": 7000,
+        "abilities": ["Sprints", "Standups"]
+    },
+    {
+        "id": 18,
+        "name": "Claude Code",
+        "color": "blue",
+        "description": "An agentic CLI for AI-assisted coding and automation.",
+        "score": 3,
+        "ap": 8500,
+        "toNextLevel": 6000,
+        "abilities": ["Agentic Coding", "Refactoring", "Debugging"]
     }
 ]
