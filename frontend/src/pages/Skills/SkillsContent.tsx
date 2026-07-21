@@ -81,6 +81,25 @@ function SkillsContent() {
             return;
         }
 
+        if (targetSlot && (targetSlot.arrIndex !== arrIndex || targetSlot.slotIndex !== slotIndex)) {
+            // A slot was already selected; clicking a different slot swaps their
+            // contents. An empty target still swaps, emptying the source slot.
+            const nextMateria = currentMateria.map(row => [...row]);
+            const held = nextMateria[targetSlot.arrIndex][targetSlot.slotIndex] ?? null;
+            const target = nextMateria[arrIndex][slotIndex] ?? null;
+            nextMateria[targetSlot.arrIndex][targetSlot.slotIndex] = target;
+            nextMateria[arrIndex][slotIndex] = held;
+            dispatch({ type: "SET_CURRENT_MATERIA", payload: nextMateria });
+            playSound("materia", isSoundEnabled);
+            setTargetSlot(null);
+
+            // Land the cursor on the destination slot and show what now sits there
+            setPosSilently({ group: (arrIndex === 0) ? "wpnSlots" : "armSlots", index: slotIndex });
+            const skillObj = skills.find(item => item.id === held);
+            setSkill(skillObj ?? skillPlaceholder);
+            return;
+        }
+
         // FF7 flow: choose the slot first, then pick its materia from the list
         playSound("select", isSoundEnabled);
         setTargetSlot({ arrIndex, slotIndex });
