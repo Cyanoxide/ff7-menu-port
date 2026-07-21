@@ -72,6 +72,9 @@
         width: 53%;
         padding-left: 2rem;
         padding-right: 2rem;
+        // trims content height to a multiple of the 48px project rows (12 fit)
+        padding-top: 22px;
+        padding-bottom: 22px;
     }
 
     &[data-label="skillsHeader"],
@@ -86,6 +89,9 @@
 
     &[data-label="skillsContentRight"] {
         width: 42%;
+        // less space above/below the list than the default 1.5rem
+        padding-top: 0.7rem;
+        padding-bottom: 0.7rem;
     }
 
     &[data-label="equipSlots"] {
