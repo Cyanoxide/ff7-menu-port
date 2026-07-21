@@ -1,9 +1,16 @@
+import { useState } from "react";
 import ContentBox from "../../components/ContentBox/ContentBox";
 import PartyMember from "../../components/PartyMember/PartyMember";
 import Time from "../../components/Time/Time";
 import textToSprite from "../../util/textToSprite";
+import locations from "../../data/locations.json";
 
 function LandingContent() {
+    // Show a random FF7 location screen name, re-rolled on each page load.
+    const [location] = useState(
+        () => locations[Math.floor(Math.random() * locations.length)]
+    );
+
     return (
         <>
             <ContentBox className="w-[1000px] h-[720px] m-auto absolute top-[44px]" data-label="party">
@@ -31,7 +38,7 @@ function LandingContent() {
                     </li>
                 </ul>
             </ContentBox>
-            <ContentBox className="w-[535px] h-[95px] m-auto absolute right-0 top-0" data-label="pageInfo">{textToSprite("Remote, United Kingdom")}</ContentBox>
+            <ContentBox className="w-[535px] h-[95px] m-auto absolute right-0 top-0" data-label="pageInfo">{textToSprite(location)}</ContentBox>
         </>
     );
 }
