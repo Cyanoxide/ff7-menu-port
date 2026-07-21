@@ -27,7 +27,7 @@
         "score": 5,
         "ap": 65000,
         "toNextLevel": 0,
-        "abilities": ["ES6+", "Async", "Closures", "DOM", "Web Optimisation"]
+        "abilities": ["ES6+", "Async", "Closures", "Web Optimisation"]
     },
     {
         "id": 4,
