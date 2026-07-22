@@ -16,6 +16,7 @@
         height: 46px;
         background-size: contain;
         background-repeat: no-repeat;
+        margin-top: 2px;
         z-index: 1;
         pointer-events: none;
     }
@@ -30,6 +31,7 @@
     height: 46px;
     background-size: contain;
     background-repeat: no-repeat;
+    margin-top: 2px;
     z-index: 1;
     pointer-events: none;
     animation: blinking 0.15s linear infinite;
