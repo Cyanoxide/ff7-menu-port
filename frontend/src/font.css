@@ -6,7 +6,7 @@
 }
 
 .font-glyph {
-    background-image: url("/font-spritesheet.png");
+    background-image: url("/font-spritesheet.png?v=2");
     display: inline-block;
     width: 20px;
     height: 39px;
@@ -34,7 +34,7 @@
 
 .font-glyph[data-sprite=" "] {
     background-position: 12px 0;
-    width: 6px;
+    width: 6.5px;
 }
 
 .font-glyph[data-sprite="A"] {
@@ -188,8 +188,8 @@
 }
 
 .font-glyph[data-sprite="e"] {
-    background-position: -134px -42px;
-    width: 22px;
+    background-position: -136px -42px;
+    width: 21px;
 }
 
 .font-glyph[data-sprite="f"] {
@@ -205,7 +205,7 @@
 
 .font-glyph[data-sprite="h"] {
     background-position: -231px -42px;
-    width: 22px;
+    width: 23px;
 }
 
 .font-glyph[data-sprite="i"] {
@@ -240,8 +240,8 @@
 }
 
 .font-glyph[data-sprite="o"] {
-    background-position: -449px -42px;
-    width: 19px;
+    background-position: -448px -42px;
+    width: 20px;
 }
 
 .font-glyph[data-sprite="p"] {
@@ -263,7 +263,7 @@
 
 .font-glyph[data-sprite="s"] {
     background-position: -579px -42px;
-    width: 16px;
+    width: 17px;
 }
 
 .font-glyph[data-sprite="t"] {

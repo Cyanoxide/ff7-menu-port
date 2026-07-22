@@ -9,6 +9,7 @@ import Skills from "./pages/Skills/SkillsContent";
 import Equip from "./pages/Equip/Equip";
 import MemCardSelector from "./components/MemCardSelector/MemCardSelector";
 import Config from "./pages/Config/Config";
+import Resume from "./pages/Resume/Resume";
 
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -73,6 +74,7 @@ function App() {
             <Route path="/projects" element={<Projects />} />
             <Route path="/history" element={<MemCardSelector />} />
             <Route path="/config" element={<Config />} />
+            <Route path="/resume" element={<Resume />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <Menu />

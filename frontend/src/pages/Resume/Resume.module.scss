@@ -1,0 +1,227 @@
+.scroll {
+    height: 692px;
+    // Matched left/right gutters around the 32px scrollbar; top/bottom padding so
+    // the title/section badge shadows aren't clipped by the scroll overflow.
+    padding: 10px 62px 10px 30px;
+}
+
+.doc {
+    padding-bottom: 0.5rem;
+}
+
+.line {
+    margin-bottom: 0.15rem;
+}
+
+/* --- profile --- */
+.title {
+    margin-bottom: 0.2rem;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.profileRow {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    margin-top: 1.4rem;
+}
+
+.portrait {
+    width: 150px;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.stats {
+    flex: 1;
+    min-width: 0;
+
+    li {
+        margin-bottom: 0.35rem;
+    }
+}
+
+.paragraph {
+    margin-bottom: 1.6rem;
+}
+
+/* --- underscore separator: clipped to the underline band so the space above
+   and below the line reads as equal, with matching margins. --- */
+.separator {
+    height: 6px;
+    overflow: hidden;
+    margin: 2.2rem 0;
+    opacity: 0.4;
+    pointer-events: none;
+
+    :global(.font) {
+        margin-top: -30px;
+    }
+}
+
+/* --- section heading badge (equal whitespace above and below) --- */
+.heading {
+    margin: 2.2rem 0;
+}
+
+/* --- skills grid --- */
+.materiaGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 3rem;
+    row-gap: 0.55rem;
+    max-width: 1000px;
+}
+
+.materiaRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.materia {
+    position: relative;
+
+    &[data-color]:before {
+        content: "";
+        background-image: url("/materia-spritesheet.png");
+        background-repeat: no-repeat;
+        background-size: 200px 30px;
+        width: 2.5rem;
+        height: 2rem;
+        margin-right: 0.4rem;
+        flex-shrink: 0;
+    }
+
+    &[data-color="blue"]:before { background-position-x: 4px; }
+    &[data-color="pink"]:before { background-position-x: -39px; }
+    &[data-color="red"]:before { background-position-x: -82px; }
+    &[data-color="green"]:before { background-position-x: -124px; }
+    &[data-color="yellow"]:before { background-position-x: -167px; }
+}
+
+.stars {
+    zoom: 0.42;
+    flex-shrink: 0;
+}
+
+.star {
+    background-image: url("/star-spritesheet.png");
+    background-repeat: no-repeat;
+    background-size: 380px 130px;
+    background-position-y: -73px;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-right: 0.3rem;
+
+    &[data-crt="true"] { filter: blur(0.7px); }
+    &[data-star="true"] { background-position-y: 0; }
+    &[data-color="pink"] { background-position-x: 0; }
+    &[data-color="green"] { background-position-x: -80px; }
+    &[data-color="red"] { background-position-x: -159px; }
+    &[data-color="yellow"] { background-position-x: -239px; }
+    &[data-color="blue"] { background-position-x: -318px; }
+}
+
+/* --- work / education / project records --- */
+.record {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    cursor: pointer;
+}
+
+// Education has no description, so the logo and its text are vertically centred.
+// The glyph line box sits slightly high, so nudge the text down to visually centre.
+.recordCenter {
+    align-items: center;
+
+    .recordBody {
+        position: relative;
+        top: 7px;
+    }
+}
+
+.logo {
+    width: 104px;
+    height: 104px;
+    object-fit: contain;
+    flex-shrink: 0;
+    border-radius: 4px;
+    background: #f2f2f2;
+}
+
+.icon {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    flex-shrink: 0;
+    image-rendering: pixelated;
+    margin-top: 0.1rem;
+}
+
+.recordBody {
+    flex: 1;
+    min-width: 0;
+
+    .line {
+        opacity: 0.9;
+        margin-top: 0.15rem;
+    }
+}
+
+.role {
+    margin: 0.2rem 0 0.9rem;
+}
+
+.projectName {
+    margin-bottom: 0.1rem;
+}
+
+/* --- title heading + right-aligned external links --- */
+.profileTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+.links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+    // Tighter line spacing so the three links line up with the 2-line title,
+    // but with a sliver of space between them.
+    gap: 0;
+
+    .link {
+        margin: -0.06rem 0;
+    }
+}
+
+.footerLinks {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.2rem;
+}
+
+.footerRight {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pipe {
+    opacity: 0.6;
+}
+
+.link {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
