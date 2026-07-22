@@ -51,8 +51,10 @@ function SkillsContent() {
     ].filter(group => group.size > 0);
 
     const handleSlotFocus = (arrIndex: 0 | 1, slotIndex: number) => {
+        // Hovering a filled slot shows its materia; an empty slot clears the
+        // details panel rather than leaving stale data on screen.
         const matchedMateria = skills.find(item => item.id === currentMateria[arrIndex]?.[slotIndex]);
-        if (matchedMateria) setSkill(matchedMateria);
+        setSkill(matchedMateria ?? skillPlaceholder);
     };
 
     const handleSlotConfirm = (arrIndex: 0 | 1, slotIndex: number) => {
