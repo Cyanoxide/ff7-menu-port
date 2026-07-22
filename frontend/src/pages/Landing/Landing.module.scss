@@ -1,0 +1,25 @@
+.refresh {
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-right: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+
+    .pageInfo:hover & {
+        opacity: 1;
+    }
+
+    &:hover {
+        animation: spin 2s linear infinite;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

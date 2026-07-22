@@ -21,7 +21,7 @@
             height: 46px;
             background-size: contain;
             background-repeat: no-repeat;
-            margin-top: 4px;
+            margin-top: 6px;
             pointer-events: none;
         }
 
@@ -40,7 +40,7 @@
 
         a[data-label="close"]:hover:before,
         a[data-label="close"][data-focused=true]:before {
-            margin-top: -4px;
+            margin-top: 3px;
             margin-left: -72px;
             z-index: 1;
         }

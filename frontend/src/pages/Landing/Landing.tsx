@@ -3,13 +3,29 @@ import ContentBox from "../../components/ContentBox/ContentBox";
 import PartyMember from "../../components/PartyMember/PartyMember";
 import Time from "../../components/Time/Time";
 import textToSprite from "../../util/textToSprite";
+import playSound from "../../util/sounds";
+import { useContext } from "../../context/context";
 import locations from "../../data/locations.json";
+import styles from "./Landing.module.scss";
 
 function LandingContent() {
-    // Show a random FF7 location screen name, re-rolled on each page load.
-    const [location] = useState(
+    const { isSoundEnabled } = useContext();
+
+    // Show a random FF7 location screen name, re-rolled on each page load
+    // or whenever the refresh button is pressed.
+    const [location, setLocation] = useState(
         () => locations[Math.floor(Math.random() * locations.length)]
     );
+
+    const refreshLocation = () => {
+        playSound("select", isSoundEnabled);
+        setLocation(prev => {
+            if (locations.length < 2) return prev;
+            let next = prev;
+            while (next === prev) next = locations[Math.floor(Math.random() * locations.length)];
+            return next;
+        });
+    };
 
     return (
         <>
@@ -38,7 +54,10 @@ function LandingContent() {
                     </li>
                 </ul>
             </ContentBox>
-            <ContentBox className="w-[535px] h-[95px] m-auto absolute right-0 top-0" data-label="pageInfo">{textToSprite(location)}</ContentBox>
+            <ContentBox className={`${styles.pageInfo} w-[535px] h-[95px] m-auto absolute right-0 top-0 flex items-center justify-between`} data-label="pageInfo">
+                <span>{textToSprite(location)}</span>
+                <span className={`${styles.refresh} font-glyph`} data-sprite="reset-icon" onClick={refreshLocation}></span>
+            </ContentBox>
         </>
     );
 }

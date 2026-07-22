@@ -39,6 +39,14 @@
     }
 }
 
+// Glyph sprites (39px) hang ~3px below their 36px line box, so in a 43px row a
+// descender (y, p) reaches the row's bottom edge with almost no clearance and
+// bleeds past the scroll clip when the row above scrolls just out of view.
+// Centring the glyph in the row restores ~2px of clearance top and bottom.
+.materiaList :global(.font) {
+    align-items: center;
+}
+
 .skill {
     // anchor the cursor to the row so it scrolls with it (not the static panel)
     position: relative;
@@ -52,6 +60,7 @@
         height: 46px;
         background-size: contain;
         background-repeat: no-repeat;
+        margin-top: 5px;
         z-index: 1;
         pointer-events: none;
     }
@@ -65,6 +74,7 @@
         height: 46px;
         background-size: contain;
         background-repeat: no-repeat;
+        margin-top: 5px;
         z-index: 1;
         pointer-events: none;
         animation: blinking 0.15s linear infinite;

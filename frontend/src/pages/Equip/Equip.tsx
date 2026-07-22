@@ -227,7 +227,7 @@ function Equip() {
                         </div>
                         <div className="flex items-center mt-6">
                             <span className="w-[150px]">{textToSprite("Growth", false, "blue")}</span>
-                            <span className="ml-24">{textToSprite((slotItem.slots && slotCount(slotItem) > 0) ? "Normal" : "Nothing")}</span>
+                            <span className="ml-24">{textToSprite((slotItem.slots && slotCount(slotItem) > 0) ? (slotItem.slots.growth ?? "Normal") : "Nothing")}</span>
                         </div>
                     </>
                 )}

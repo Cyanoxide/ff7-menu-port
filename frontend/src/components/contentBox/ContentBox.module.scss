@@ -118,7 +118,7 @@
 
     &[data-label="healButton"] {
         padding: .5rem .7rem .5rem .55rem;
-        margin-top: 0.85rem;
+        margin-top: calc(0.85rem - 2px);
         opacity: 0;
         animation: fadeIn 0.2s linear forwards;
         cursor: pointer;
@@ -132,7 +132,7 @@
             height: 46px;
             background-size: contain;
             background-repeat: no-repeat;
-            margin-top: -2px;
+            margin-top: 0px;
             z-index: 1;
             pointer-events: none;
         }

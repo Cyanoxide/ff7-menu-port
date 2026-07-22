@@ -51,8 +51,10 @@ function SkillsContent() {
     ].filter(group => group.size > 0);
 
     const handleSlotFocus = (arrIndex: 0 | 1, slotIndex: number) => {
+        // Hovering a filled slot shows its materia; an empty slot clears the
+        // details panel rather than leaving stale data on screen.
         const matchedMateria = skills.find(item => item.id === currentMateria[arrIndex]?.[slotIndex]);
-        if (matchedMateria) setSkill(matchedMateria);
+        setSkill(matchedMateria ?? skillPlaceholder);
     };
 
     const handleSlotConfirm = (arrIndex: 0 | 1, slotIndex: number) => {
@@ -284,7 +286,7 @@ function SkillsContent() {
                     scrolling on whole-row boundaries so a row is never half-cut. The
                     pl-20/-ml-20 pair reserves room for the left-pointing cursor so it
                     isn't clipped once it scrolls with the rows (see .skill position). */}
-                <div ref={materiaListRef} className="hide-scrollbar -ml-20 h-[430px] snap-y snap-mandatory overflow-y-auto pl-20 pr-9">
+                <div ref={materiaListRef} className={`${styles.materiaList} hide-scrollbar -ml-20 h-[430px] snap-y snap-mandatory overflow-y-auto pl-20 pr-9`}>
                     <ul>
                         {skills.map((skillItem, index) => (
                             <li key={skillItem.id} ref={(el) => { materiaItemRefs.current[index] = el; }} onMouseEnter={() => { if (isPointerMoving()) focus({ group: "materia", index }); }} onClick={() => handleMateriaConfirm(skillItem.id)} className="flex h-[43px] snap-start items-center">
