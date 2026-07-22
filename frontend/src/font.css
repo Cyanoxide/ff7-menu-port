@@ -6,7 +6,7 @@
 }
 
 .font-glyph {
-    background-image: url("/font-spritesheet.png?v=2");
+    background-image: url("/font-spritesheet.png");
     display: inline-block;
     width: 20px;
     height: 39px;
