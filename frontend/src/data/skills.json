@@ -64,9 +64,9 @@
         "name": "PHP",
         "color": "yellow",
         "description": "A server-side language for building dynamic web pages.",
-        "score": 2,
-        "ap": 3200,
-        "toNextLevel": 1800,
+        "score": 3,
+        "ap": 8500,
+        "toNextLevel": 3500,
         "abilities": ["CMS Platforms", "Sessions", "Form/DB Handling"]
     },
     {
@@ -94,9 +94,9 @@
         "name": "Docker",
         "color": "pink",
         "description": "A platform for packaging and running containerized apps.",
-        "score": 2,
-        "ap": 2500,
-        "toNextLevel": 2500,
+        "score": 3,
+        "ap": 8000,
+        "toNextLevel": 4000,
         "abilities": ["Containers"]
     },
     {

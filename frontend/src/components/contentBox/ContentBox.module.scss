@@ -44,6 +44,7 @@
         transition: all 0.3s ease-in 0.65s;
         overflow: hidden;
         animation: none;
+        padding: 1.5rem 1.25rem;
     }
 
     &[data-label="header"],
@@ -140,6 +141,25 @@
 
     &[data-label="memCardSelector"] {
         padding: 0.5rem 1.5rem;
+    }
+
+    &[data-label="resumeContent"] {
+        width: 100%;
+        // Horizontal gutters are handled by the inner scroll element so the left
+        // and right gutters can be matched around the scrollbar.
+        padding: 16px 0;
+    }
+
+    &[data-label="resumeSection"] {
+        display: inline-flex;
+        padding: 0.55rem 1.6rem;
+        margin-bottom: 0;
+    }
+
+    &[data-label="resumeTitle"] {
+        display: inline-block;
+        padding: 0.7rem 1.5rem;
+        margin-bottom: 0;
     }
 
     &[data-label="close"] {
