@@ -286,7 +286,7 @@ function SkillsContent() {
                     scrolling on whole-row boundaries so a row is never half-cut. The
                     pl-20/-ml-20 pair reserves room for the left-pointing cursor so it
                     isn't clipped once it scrolls with the rows (see .skill position). */}
-                <div ref={materiaListRef} className="hide-scrollbar -ml-20 h-[430px] snap-y snap-mandatory overflow-y-auto pl-20 pr-9">
+                <div ref={materiaListRef} className={`${styles.materiaList} hide-scrollbar -ml-20 h-[430px] snap-y snap-mandatory overflow-y-auto pl-20 pr-9`}>
                     <ul>
                         {skills.map((skillItem, index) => (
                             <li key={skillItem.id} ref={(el) => { materiaItemRefs.current[index] = el; }} onMouseEnter={() => { if (isPointerMoving()) focus({ group: "materia", index }); }} onClick={() => handleMateriaConfirm(skillItem.id)} className="flex h-[43px] snap-start items-center">
