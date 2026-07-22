@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { useContext } from "../../context/context";
+import playSound from "../../util/sounds";
 
 import styles from "./Scrollbar.module.scss";
 
@@ -21,9 +23,13 @@ const MIN_THUMB = 34;
 // container. It measures the target and auto-hides when there's nothing to
 // scroll, so it stays out of the way until a list outgrows its box.
 const Scrollbar: React.FC<ScrollbarProps> = ({ targetRef, onVisibleChange }) => {
+    const { isSoundEnabled } = useContext();
     const trackRef = useRef<HTMLDivElement>(null);
     const [thumb, setThumb] = useState({ visible: false, height: 0, top: 0 });
     const drag = useRef<{ startY: number; startScroll: number } | null>(null);
+    // The thumb position last time a drag "tick" sound played, so the scrollbar
+    // clicks as it steps — matching the colour picker's RGB sliders.
+    const lastSoundTop = useRef(0);
 
     useEffect(() => { onVisibleChange?.(thumb.visible); }, [thumb.visible, onVisibleChange]);
 
@@ -73,6 +79,13 @@ const Scrollbar: React.FC<ScrollbarProps> = ({ targetRef, onVisibleChange }) => 
             const scale = track.getBoundingClientRect().height / track.clientHeight || 1;
             const deltaLayout = (event.clientY - drag.current.startY) / scale;
             target.scrollTop = drag.current.startScroll + (deltaLayout / range) * scrollable;
+
+            // Click as the thumb steps to a new pixel position, like the sliders
+            const newTop = Math.round(range * (target.scrollTop / scrollable));
+            if (newTop !== lastSoundTop.current) {
+                lastSoundTop.current = newTop;
+                playSound("select", isSoundEnabled);
+            }
         };
         const onUp = () => {
             drag.current = null;
@@ -84,7 +97,7 @@ const Scrollbar: React.FC<ScrollbarProps> = ({ targetRef, onVisibleChange }) => 
             window.removeEventListener("mousemove", onMove);
             window.removeEventListener("mouseup", onUp);
         };
-    }, [targetRef, thumb.height]);
+    }, [targetRef, thumb.height, isSoundEnabled]);
 
     const startDrag = (event: React.MouseEvent) => {
         event.preventDefault();
@@ -92,6 +105,7 @@ const Scrollbar: React.FC<ScrollbarProps> = ({ targetRef, onVisibleChange }) => 
         const target = targetRef.current;
         if (!target) return;
         drag.current = { startY: event.clientY, startScroll: target.scrollTop };
+        lastSoundTop.current = thumb.top;
         document.body.style.userSelect = "none";
     };
 
