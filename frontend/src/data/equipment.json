@@ -21,7 +21,7 @@
         "type": "weapon",
         "description": "An analog gamepad designed for use with the PlayStation 1.",
         "stats": { "attack": 28, "attackPct": 90, "magicAtk": 6 },
-        "slots": { "multiSlots": 2, "singleSlots": 2 }
+        "slots": { "multiSlots": 0, "singleSlots": 5, "growth": "Double" }
     },
     {
         "id": 101,
