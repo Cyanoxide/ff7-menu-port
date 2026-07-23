@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "../../context/context";
 import { defaultUserName } from "../../context/defaults";
 import partyMemberJSON from "../../data/partyMember.json";
+import { resolvePortrait } from "../../data/portraits";
 import type { PartyMemberType } from "../../context/types";
 
 import ContentBox from "../../components/ContentBox/ContentBox";
@@ -44,6 +45,18 @@ function NameEntry() {
     const partyMember = (partyMemberJSON as PartyMemberType[])[0];
 
     const [name, setName] = useState(userName || defaultUserName);
+
+    // Easter egg cue: play the save sound the instant the previewed portrait
+    // changes as the name is typed (skips the initial render). It may overlap the
+    // keypress's select sound.
+    const prevPortraitKey = useRef<number | "default" | null>(null);
+    useEffect(() => {
+        const key = resolvePortrait(name)?.index ?? "default";
+        if (prevPortraitKey.current !== null && prevPortraitKey.current !== key) {
+            playSound("save", isSoundEnabled);
+        }
+        prevPortraitKey.current = key;
+    }, [name]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const appendChar = (ch: string | null) => {
         if (ch === null) return;
