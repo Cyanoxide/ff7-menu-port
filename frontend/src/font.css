@@ -509,6 +509,11 @@
     height: 33px;
 }
 
+.font-glyph[data-sprite="edit-icon"] {
+    background-position: -911px -184px;
+    width: 31px;
+}
+
 .font-glyph[data-sprite="<"] {
     background-position: 1px -232px;
     width: 20px;

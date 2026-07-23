@@ -25,6 +25,7 @@ export interface State {
     currentEquipment: CurrentEquipment;
     isSoundEnabled: boolean;
     isCRTEnabled: boolean;
+    userName: string;
 }
 
 export type Action =
@@ -37,6 +38,7 @@ export type Action =
     | { type: "SET_CURRENT_EQUIPMENT"; payload: CurrentEquipment }
     | { type: "SET_IS_SOUND_ENABLED"; payload: boolean }
     | { type: "SET_IS_CRT_ENABLED"; payload: boolean }
+    | { type: "SET_USER_NAME"; payload: string }
 
 export interface ContextType extends State {
     dispatch: React.Dispatch<Action>;

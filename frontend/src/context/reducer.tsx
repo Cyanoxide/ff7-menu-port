@@ -1,5 +1,5 @@
 import type { State, Action } from "./types";
-import { defaultWindowColor, defaultMateriaLoadout, defaultEquipment } from "./defaults";
+import { defaultWindowColor, defaultMateriaLoadout, defaultEquipment, defaultUserName } from "./defaults";
 
 export const reducer = (state: State, action: Action): State => {
     switch (action.type) {
@@ -11,6 +11,8 @@ export const reducer = (state: State, action: Action): State => {
             return { ...state, isSoundEnabled: action.payload };
         case "SET_IS_CRT_ENABLED":
             return { ...state, isCRTEnabled: action.payload };
+        case "SET_USER_NAME":
+            return { ...state, userName: action.payload };
         case "SET_CURRENT_HEALTH":
             return { ...state, currentHealth: action.payload };
         case "SET_CURRENT_MANA":
@@ -36,4 +38,5 @@ export const initialState: State = {
     currentMana: null,
     currentMateria: structuredClone(defaultMateriaLoadout),
     currentEquipment: structuredClone(defaultEquipment),
+    userName: defaultUserName,
 };

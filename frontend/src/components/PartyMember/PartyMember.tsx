@@ -5,8 +5,10 @@ import ResourceCounter from "../ResourceCounter/ResourceCounter.tsx";
 import partyMemberJSON from "../../data/partyMember.json";
 import type { PartyMemberType } from "../../context/types.tsx";
 import { useState, useEffect, useRef, useSyncExternalStore } from "react";
+import { useNavigate } from "react-router-dom";
 import playSound from "../../util/sounds.ts";
 import { useContext } from "../../context/context.tsx";
+import { markKeyboardNavigation } from "../../hooks/useCursorNav.ts";
 import { landingNav } from "../../hooks/landingNav.ts";
 import styles from "./PartyMember.module.scss";
 import ContentBox from "../ContentBox/ContentBox.tsx";
@@ -22,7 +24,8 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     const [isAttacking, setIsAttacking] = useState(false);
     const [isDying, setIsDying] = useState(false);
     const [damage, setDamage] = useState(0);
-    const { isSoundEnabled, currentHealth, currentMana, dispatch } = useContext();
+    const { isSoundEnabled, currentHealth, currentMana, userName, dispatch } = useContext();
+    const navigate = useNavigate();
     const landingFocus = useSyncExternalStore(landingNav.subscribe, landingNav.getFocus);
     const keyboardFocus = healthReduction ? landingFocus : null;
     const attackRef = useRef<() => void>(() => { });
@@ -127,6 +130,13 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
         landingNav.actions.focusTarget?.("avatar");
     }
 
+    const handleEditName = () => {
+        if (!healthReduction) return;
+        playSound("select", isSoundEnabled);
+        markKeyboardNavigation();
+        navigate("/name");
+    }
+
     const handleHealClick = () => {
         if (currentMana) {
             playSound("heal", isSoundEnabled);
@@ -156,7 +166,14 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
                     {healthReduction && currentHealth === 0 && <div onClick={handleHealClick} onMouseEnter={() => landingNav.actions.focusTarget?.("revive")} className="absolute top-full"><ContentBox data-label="healButton" data-focused={keyboardFocus === "revive"}>{textToSprite("Revive", false, (!currentMana || currentMana < 34) ? "grey" : "")}</ContentBox></div>}
                 </div>
                 <div className="mt-2 ml-8">
-                    <p className="mb-2">{textToSprite(memberName)}</p>
+                    {healthReduction ? (
+                        <div className={`${styles.username} mb-2 flex items-center`} onClick={handleEditName}>
+                            {textToSprite(userName || memberName)}
+                            <span className="font-glyph ml-2" data-sprite="edit-icon"></span>
+                        </div>
+                    ) : (
+                        <p className="mb-2">{textToSprite(userName || memberName)}</p>
+                    )}
                     <p className="flex">
                         <span className="font-glyph" data-sprite="lv">lv</span>
                         {textToSprite(convertAgeEpochToLevel(new Date(age_epoch).getTime()).toFixed(0), true)}

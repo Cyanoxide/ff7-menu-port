@@ -152,6 +152,11 @@ const Menu = () => {
         )
     }
 
+    // Standalone screens (e.g. the name-entry page) aren't in the menu; hide the
+    // menu box entirely rather than leaving an empty stray box in the corner.
+    const isMenuPage = isLanding || navItems.some((item) => `/${item.id}` === location.pathname);
+    if (!isMenuPage) return null;
+
     return (
         <ContentBox className={`m-auto w-[270px] absolute right-0 ${(!isLanding) ? "h-[84px]" : "h-[530px]"}`} data-label="menu" data-animated={isLanding} >
             <ul className={styles.menu}>
