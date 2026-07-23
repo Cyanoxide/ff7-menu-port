@@ -41,6 +41,11 @@ export const Provider = ({ children }: { children: ReactNode }) => {
         }
         setInitialized(true);
 
+        const userName = localStorage.getItem("userName");
+        if (userName) {
+            dispatch({ type: "SET_USER_NAME", payload: userName });
+        }
+
         const isCRTEnabledJSON = localStorage.getItem("isCRTEnabled");
         if (isCRTEnabledJSON) {
             try {

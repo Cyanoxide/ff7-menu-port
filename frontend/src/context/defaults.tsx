@@ -1,4 +1,8 @@
-import type { WindowColor, CurrentEquipment } from "./types";
+import type { WindowColor, CurrentEquipment, PartyMemberType } from "./types";
+import partyMemberJSON from "../data/partyMember.json";
+
+// The canonical, resettable display name — sourced from the party member data
+export const defaultUserName: string = (partyMemberJSON as PartyMemberType[])[0]?.name ?? "";
 
 export const defaultWindowColor: WindowColor = {
     topLeft: [2, 34, 186],

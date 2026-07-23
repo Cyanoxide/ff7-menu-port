@@ -1,0 +1,211 @@
+// Top-right cross that returns to the landing page — positioned to match the
+// close button on the other pages (pokes slightly past the right edge).
+.close {
+    top: 15px;
+    right: -15px;
+    z-index: 3;
+    cursor: pointer;
+
+    &:hover:before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        // matched to the close-button cursor on the other pages (e.g. Projects)
+        margin-top: 2px;
+        margin-left: -72px;
+        background-image: url("/cursor.png");
+        width: 76px;
+        height: 46px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        pointer-events: none;
+        z-index: 1;
+    }
+}
+
+.closeBox {
+    height: 52px;
+    width: 49px;
+    padding: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview {
+    display: flex;
+    align-items: center;
+    // 5px of breathing room above and below the portrait
+    padding-top: 5px;
+    padding-bottom: 5px;
+    // extra whitespace to the left of the portrait
+    padding-left: 4rem;
+    margin-bottom: 10px;
+}
+
+.portrait {
+    // same size as the portrait everywhere else (PartyMember uses width 145)
+    width: 145px;
+    height: auto;
+    margin-right: 4rem;
+}
+
+.nameSlots {
+    display: flex;
+    height: 39px;
+    // the raised glyphs overflow the box upward; shift down so the name + underline
+    // block reads as vertically centred against the portrait
+    position: relative;
+    top: 19px;
+}
+
+.slot {
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    align-items: flex-end;
+    // every slot is the width of the widest glyph (M) so the name is evenly spaced
+    width: 34px;
+    height: 39px;
+
+    // the underscore is stretched to fill the full M-width slot (only here, not elsewhere)
+    .underline {
+        display: inline-block;
+        transform: scaleX(1.36);
+    }
+
+    // Lift the entered glyph clear of its underscore so the underline reads as separate
+    .slotChar {
+        position: absolute;
+        left: 50%;
+        bottom: 29px;
+        transform: translateX(-50%);
+    }
+}
+
+.body {
+    position: relative;
+    height: 33.9rem;
+    // contain the child z-indexes (right container > left container > option cursor)
+    isolation: isolate;
+}
+
+.keyboard {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 75%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    // the left container paints on top: it overlaps the right container's edge and
+    // the option cursor tucks under it (keyboard > option cursor > controls background)
+    z-index: 2;
+}
+
+.keyGrid {
+    // centred block of keys, with room to its left for the hand cursor
+    display: inline-block;
+}
+
+.keyRow {
+    display: flex;
+    margin-bottom: 0.5rem;
+}
+
+.key {
+    position: relative;
+    width: 4.4rem;
+    height: 3.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:not(span) {
+        cursor: pointer;
+    }
+
+    &[data-focused=true]:before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        // nudge down so the finger (which sits high in the sprite) centres on the glyph
+        margin-top: 11px;
+        left: 0;
+        margin-left: -3.25rem;
+        background-image: url("/cursor.png");
+        width: 76px;
+        height: 46px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        pointer-events: none;
+        z-index: 1;
+    }
+}
+
+// The right-side container box (background/border only). The keyboard's z-index
+// keeps it painting under the keyboard, so the left box overlaps its edge.
+.controlsBox {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 29%;
+}
+
+// The option list overlays the container box in its own layer (z-index 3) so it
+// paints above the keyboard and the option cursor's tail is never clipped.
+.controls {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 29%;
+    display: flex;
+    flex-direction: column;
+    // bottom-aligned options, matching the FF7 layout
+    justify-content: flex-end;
+    gap: 0.7rem;
+    // shifted right to clear the overlapping keyboard box (and leave room for the cursor)
+    padding-left: 7rem;
+    // raise the options off the bottom edge (the old container box added border+margin here)
+    padding-bottom: 2.7rem;
+    z-index: 3;
+    // fade in together with the boxes
+    opacity: 0;
+    animation: fadeIn 0.25s ease-in 0.2s forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.control {
+    position: relative;
+    width: fit-content;
+    cursor: pointer;
+
+    &[data-focused=true]:before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        // nudge down so the finger (which sits high in the sprite) centres on the label
+        margin-top: 11px;
+        left: 0;
+        margin-left: -4.75rem;
+        background-image: url("/cursor.png");
+        width: 76px;
+        height: 46px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        pointer-events: none;
+        // above the left-side (keyboard) container so the tail isn't clipped,
+        // without changing the container paint order (keyboard still overlaps controls)
+        z-index: 3;
+    }
+}

@@ -6,7 +6,7 @@
 }
 
 .font-glyph {
-    background-image: url("/font-spritesheet.png?v=2");
+    background-image: url("/font-spritesheet.png");
     display: inline-block;
     width: 20px;
     height: 39px;
@@ -507,6 +507,11 @@
     background-position: -863px -184px;
     width: 35px;
     height: 33px;
+}
+
+.font-glyph[data-sprite="edit-icon"] {
+    background-position: -911px -184px;
+    width: 31px;
 }
 
 .font-glyph[data-sprite="<"] {

@@ -37,7 +37,7 @@ const LINKS: [string, string][] = [
 
 const INTRO: string[] = [
     "I'm a Gloucester based Senior Web Developer with over 10 years of hands-on experience across the industry, both on-site and remote.",
-    "I tend to lean towards the Front-end, but I'm also comfortable working on Back-end projects.",
+    "I lean towards the Front-end side of development, but I'm more than comfortable working on complex Back-end tasks, too.",
     "I've led small teams, and I'm at my best under pressure in startups and fast-growing companies where things change quickly.",
 ];
 

@@ -1,3 +1,17 @@
+.username {
+    width: fit-content;
+    cursor: pointer;
+
+    [data-sprite=edit-icon] {
+        transition: opacity 0.3s ease;
+        opacity: 0;
+    }
+
+    &:hover [data-sprite=edit-icon] {
+        opacity: 0.7;
+    }
+}
+
 .portrait {
     position: relative;
     display: flex;

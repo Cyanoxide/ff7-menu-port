@@ -10,6 +10,7 @@ import Equip from "./pages/Equip/Equip";
 import MemCardSelector from "./components/MemCardSelector/MemCardSelector";
 import Config from "./pages/Config/Config";
 import Resume from "./pages/Resume/Resume";
+import NameEntry from "./pages/NameEntry/NameEntry";
 
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -75,6 +76,7 @@ function App() {
             <Route path="/history" element={<MemCardSelector />} />
             <Route path="/config" element={<Config />} />
             <Route path="/resume" element={<Resume />} />
+            <Route path="/name" element={<NameEntry />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <Menu />
