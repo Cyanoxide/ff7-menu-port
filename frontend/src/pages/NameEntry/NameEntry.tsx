@@ -73,18 +73,18 @@ function NameEntry() {
             playSound("error", isSoundEnabled);
             return;
         }
-        playSound("select", isSoundEnabled);
+        playSound("back", isSoundEnabled);
         setName(name.slice(0, -1));
     };
 
     const restoreDefault = () => {
-        playSound("select", isSoundEnabled);
+        playSound("back", isSoundEnabled);
         setName(defaultUserName);
     };
 
     const confirmName = () => {
         const finalName = name.trim() || defaultUserName;
-        playSound("select", isSoundEnabled);
+        playSound("save", isSoundEnabled);
         dispatch({ type: "SET_USER_NAME", payload: finalName });
         localStorage.setItem("userName", finalName);
         markKeyboardNavigation();
