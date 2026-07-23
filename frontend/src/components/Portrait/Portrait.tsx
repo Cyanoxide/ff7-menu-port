@@ -4,7 +4,6 @@ import {
     PORTRAIT_SHEET,
     PORTRAIT_WIDTH,
     PORTRAIT_HEIGHT,
-    PORTRAIT_SHEET_WIDTH,
 } from "../../data/portraits";
 
 interface PortraitProps {
@@ -37,7 +36,9 @@ const Portrait: React.FC<PortraitProps> = ({ src, width = 145, className, name, 
                 width: `${width}px`,
                 height: `${PORTRAIT_HEIGHT * scale}px`,
                 backgroundImage: `url(${PORTRAIT_SHEET})`,
-                backgroundSize: `${PORTRAIT_SHEET_WIDTH * scale}px ${PORTRAIT_HEIGHT * scale}px`,
+                // scale by the (constant) height so it's independent of the sheet's
+                // total width — appending portraits like Cid doesn't affect the others
+                backgroundSize: `auto ${PORTRAIT_HEIGHT * scale}px`,
                 backgroundPosition: `-${sprite.x * scale}px 0`,
                 backgroundRepeat: "no-repeat",
             }}

@@ -7,10 +7,10 @@ export const PORTRAIT_SHEET = "/portraits-spritesheet.png";
 // wide each with thin separators — see the measured x offsets below).
 export const PORTRAIT_WIDTH = 107;
 export const PORTRAIT_HEIGHT = 122;
-export const PORTRAIT_SHEET_WIDTH = 980;
 
 // Left x offset of each portrait in the sheet, keyed by its index.
-const PORTRAIT_OFFSETS = [0, 109, 218, 327, 437, 546, 655, 765, 873];
+// (index 9 / Cid takes effect once the extended spritesheet is in place.)
+const PORTRAIT_OFFSETS = [0, 109, 218, 327, 437, 546, 655, 765, 873, 982];
 
 // Accepted names (compared case-insensitively, trimmed) → portrait index.
 const NAME_TO_INDEX: Record<string, number> = {
@@ -25,6 +25,7 @@ const NAME_TO_INDEX: Record<string, number> = {
     "yuffie": 6,
     "cait sith": 7,
     "vincent": 8,
+    "cid": 9,
 };
 
 export interface PortraitSprite {
