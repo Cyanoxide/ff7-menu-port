@@ -1,11 +1,14 @@
-import { useReducer, useEffect, useState } from "react";
+import { useReducer, useEffect, useState, useRef } from "react";
 import type { ReactNode } from "react";
 import { reducer, initialState } from "./reducer";
 import { Context } from "./context";
+import { resolvePortrait } from "../data/portraits";
+import playSound from "../util/sounds";
 
 export const Provider = ({ children }: { children: ReactNode }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
     const [initialized, setInitialized] = useState(false);
+    const prevPortraitKey = useRef<number | "default" | null>(null);
 
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -86,6 +89,18 @@ export const Provider = ({ children }: { children: ReactNode }) => {
             document.body.classList.remove("crt-effect");
         }
     }, [state.isCRTEnabled])
+
+    // Easter egg: play a cue whenever the resolved portrait changes (e.g. renaming
+    // the profile to an FF7 character). Skips the initial load so it stays silent
+    // on refresh.
+    useEffect(() => {
+        if (!initialized) return;
+        const key = resolvePortrait(state.userName)?.index ?? "default";
+        if (prevPortraitKey.current !== null && prevPortraitKey.current !== key) {
+            playSound("select", state.isSoundEnabled);
+        }
+        prevPortraitKey.current = key;
+    }, [state.userName, initialized]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Context value={{ ...state, dispatch }}>

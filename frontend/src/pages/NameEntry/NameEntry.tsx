@@ -6,6 +6,7 @@ import partyMemberJSON from "../../data/partyMember.json";
 import type { PartyMemberType } from "../../context/types";
 
 import ContentBox from "../../components/ContentBox/ContentBox";
+import Portrait from "../../components/Portrait/Portrait";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { useCursorNav, markKeyboardNavigation } from "../../hooks/useCursorNav";
@@ -153,7 +154,7 @@ function NameEntry() {
                 </div>
             </div>
             <ContentBox data-label="namePreview" className={styles.preview}>
-                <img src={partyMember.image_path} alt="Party Member Portrait" width={145} className={`object-contain ${styles.portrait}`} />
+                <Portrait src={partyMember.image_path} width={145} name={name} className={styles.portrait} />
                 {/* Fixed M-width slots, each underlined by a stretched underscore */}
                 <div className={styles.nameSlots}>
                     {Array.from({ length: MAX_LENGTH }).map((_, i) => {

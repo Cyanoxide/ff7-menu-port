@@ -12,6 +12,7 @@ import { markKeyboardNavigation } from "../../hooks/useCursorNav.ts";
 import { landingNav } from "../../hooks/landingNav.ts";
 import styles from "./PartyMember.module.scss";
 import ContentBox from "../ContentBox/ContentBox.tsx";
+import Portrait from "../Portrait/Portrait.tsx";
 
 interface partyMemberProps {
     memberId?: number,
@@ -161,7 +162,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
                 <div className={styles.portrait} data-shake={isAttacking} data-dying={isDying} data-interactive={healthReduction} data-health={currentHealth?.toString()} data-focused={keyboardFocus === "avatar"}>
                     {isAttacking && <p className="absolute">{textToSprite(damage.toString(), true)}</p>}
                     <div className="self-center relative" onClick={handleOnClick} onMouseEnter={handleMouseEnter}>
-                        <img src={image_path} alt="Party Member Portrait" width={145} className="object-contain" />
+                        <Portrait src={image_path} width={145} />
                     </div>
                     {healthReduction && currentHealth === 0 && <div onClick={handleHealClick} onMouseEnter={() => landingNav.actions.focusTarget?.("revive")} className="absolute top-full"><ContentBox data-label="healButton" data-focused={keyboardFocus === "revive"}>{textToSprite("Revive", false, (!currentMana || currentMana < 34) ? "grey" : "")}</ContentBox></div>}
                 </div>
