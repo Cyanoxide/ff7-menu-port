@@ -97,7 +97,7 @@ export const Provider = ({ children }: { children: ReactNode }) => {
         if (!initialized) return;
         const key = resolvePortrait(state.userName)?.index ?? "default";
         if (prevPortraitKey.current !== null && prevPortraitKey.current !== key) {
-            playSound("select", state.isSoundEnabled);
+            playSound("save", state.isSoundEnabled);
         }
         prevPortraitKey.current = key;
     }, [state.userName, initialized]); // eslint-disable-line react-hooks/exhaustive-deps
