@@ -46,13 +46,13 @@ function NameEntry() {
 
     const [name, setName] = useState(userName || defaultUserName);
 
-    // Easter egg cue: play the save sound the instant the previewed portrait
-    // changes as the name is typed (skips the initial render). It may overlap the
-    // keypress's select sound.
+    // Easter egg cue: play the save sound the instant the name resolves to a new
+    // character portrait as it's typed (skips the initial render, and stays silent
+    // when reverting to the default). It may overlap the keypress's select sound.
     const prevPortraitKey = useRef<number | "default" | null>(null);
     useEffect(() => {
         const key = resolvePortrait(name)?.index ?? "default";
-        if (prevPortraitKey.current !== null && prevPortraitKey.current !== key) {
+        if (prevPortraitKey.current !== null && prevPortraitKey.current !== key && key !== "default") {
             playSound("save", isSoundEnabled);
         }
         prevPortraitKey.current = key;
