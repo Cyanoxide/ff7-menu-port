@@ -161,7 +161,7 @@ function NameEntry() {
                     {textToSprite("Please enter a name.")}
                 </ContentBox>
                 <div className={`${styles.close} absolute`} onClick={goBack}>
-                    <ContentBox data-label="nameClose" className={`${styles.closeBox} w-full`}>
+                    <ContentBox data-label="nameClose" className={styles.closeBox}>
                         {textToSprite("X")}
                     </ContentBox>
                 </div>
