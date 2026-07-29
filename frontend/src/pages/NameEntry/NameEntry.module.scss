@@ -28,9 +28,10 @@
     height: 52px;
     width: 49px;
     padding: 7px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    // Deliberately not centred with flex. The X glyph carries its own bearing
+    // inside the sprite, so centring the box it sits in puts it ~2px right of
+    // where the close button on every other page lands, which is laid out by
+    // normal flow. Matching that flow keeps this one consistent with them.
 }
 
 .preview {

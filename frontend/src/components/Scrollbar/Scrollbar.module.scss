@@ -2,9 +2,8 @@
 // bevel, dark bottom/right), pinned to the right edge of its positioned parent.
 .track {
     position: absolute;
-    top: 0;
-    // shifted 1px past the right edge so no sliver of the box shows beside it
-    right: -1px;
+    top: 1.65px;
+    right: 2px;
     bottom: 0;
     width: 32px;
     background: rgba(190, 200, 245, 0.20);
