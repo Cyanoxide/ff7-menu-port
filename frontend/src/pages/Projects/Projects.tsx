@@ -38,6 +38,22 @@ const PROJECTS = [
         description: "Let's play a game of cards!",
         moreInfo: ["This is a React project", "I built to authentically", "recreate the FF8", "version of Triple Triad", "to be playable in a", "web browser."],
     },
+    {
+        key: "fillerless",
+        name: "Fillerless",
+        icon: "/fillerlessicon.png",
+        link: "https://fillerless.jamiepates.com",
+        description: "An app that provides watchlists for TV Shows and Anime",
+        moreInfo: ["I built this a while back,", "as a way to further", " my understanding", "of how to effectively", "integrate REST APIs", "into my projects."],
+    },
+    {
+        key: "overwatchSens",
+        name: "Overwatch Calculator",
+        icon: "/overwatchicon.png",
+        link: "https://overwatch-sens.jamiepates.com",
+        description: "A mouse sensitivity calculator specifically for Overwatch",
+        moreInfo: ["Calculates your ideal", "sensitivity based on", "your current settings,", "your hero, and the", "settings of professional", "Overwatch players."],
+    },
 ];
 
 function ProjectsContent() {
