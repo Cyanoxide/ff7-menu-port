@@ -1,0 +1,117 @@
+// Screenshot carousel, sitting over the menu rather than inside a panel of it
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.panelWrap {
+    width: 70%;
+    max-width: 900px;
+    // The height every stage keeps, whatever its shape. Chosen to leave the
+    // square slides the size they already were, with the head and the controls
+    // still clear of the screen's edges.
+    --stage-h: 49vh;
+}
+
+.panel {
+    padding: 1.4rem 1.6rem;
+    cursor: default;
+}
+
+.head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    // A portrait stage narrows the panel to its own width, which can otherwise
+    // leave the title running into the close button
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.viewLink {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.close {
+    cursor: pointer;
+}
+
+// One height for every slide, whatever its shape: only the width changes, and it
+// eases, so stepping from a desktop capture to a phone one draws the modal in
+// rather than snapping to a new size. The width itself is set per slide.
+.stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--stage-h);
+    transition: width 380ms ease;
+    background: rgba(0, 0, 0, 0.5);
+    border-image: url("/border.png") 9/22px/7px;
+    overflow: hidden;
+    // A fallback only: the width that matters is set per slide from the height
+    width: calc(var(--stage-h) * 16 / 9);
+    margin: 0 auto;
+}
+
+.shot {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+// A full-page capture, taller than the stage, slid up and down inside it. Eased
+// both ways so an interrupted pan turns around smoothly rather than snapping.
+.page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    transition-property: transform;
+    transition-timing-function: ease-in-out;
+    will-change: transform;
+}
+
+.empty {
+    opacity: 0.6;
+}
+
+// The foot: paging on the left, the way out on the right, so neither has to
+// share an edge with the close button
+.controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-top: 1.2rem;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+
+    button {
+        cursor: pointer;
+
+        &:disabled {
+            opacity: 0.35;
+            cursor: default;
+        }
+    }
+}
+
+.count {
+    min-width: 5rem;
+    display: flex;
+    justify-content: center;
+}
