@@ -56,6 +56,11 @@ const wrap = (text: string, max: number): string[] => {
     return lines;
 };
 
+/** How long hover is ignored on the tab row after arriving on the page.
+ *  The panels fade in over ~450ms, and crossing the row on the way to the list
+ *  during that time should not switch tab. */
+const TAB_SETTLE_MS = 600;
+
 const TABS = [
     { key: "projects", label: "Projects" },
     { key: "websites", label: "Websites" },
@@ -192,6 +197,7 @@ function ProjectsContent() {
     const [selected, setSelected] = useState<Entry | null>(null);
     const [showImages, setShowImages] = useState(false);
     const [hasScrollbar, setHasScrollbar] = useState(false);
+    const [tabsSettled, setTabsSettled] = useState(false);
     const anchorRefs = useRef<(HTMLAnchorElement | null)[]>([]);
     const projectListRef = useRef<HTMLDivElement>(null);
     const projectItemRefs = useRef<(HTMLLIElement | null)[]>([]);
@@ -288,6 +294,14 @@ function ProjectsContent() {
 
     useEffect(() => () => closeNav.setFocus(false), []);
 
+    // Hover switches tab with no click needed, which is easy to trigger by
+    // accident while the page is still settling and the pointer crosses the row
+    // on its way somewhere else. Clicking a tab still works straight away.
+    useEffect(() => {
+        const timer = setTimeout(() => setTabsSettled(true), TAB_SETTLE_MS);
+        return () => clearTimeout(timer);
+    }, []);
+
     // Keep the keyboard-focused project on screen as the cursor moves.
     useEffect(() => {
         if (pos?.group === "items") {
@@ -308,7 +322,7 @@ function ProjectsContent() {
                             className={styles.tab}
                             data-focused={isFocused("tabs", index)}
                             data-active={key === tab}
-                            onPointerEnter={(event) => { if (event.pointerType === "mouse" && isPointerMoving()) selectTab(key); }}
+                            onPointerEnter={(event) => { if (tabsSettled && event.pointerType === "mouse" && isPointerMoving()) selectTab(key); }}
                             onClick={() => selectTab(key)}
                         >
                             {textToSprite(label)}

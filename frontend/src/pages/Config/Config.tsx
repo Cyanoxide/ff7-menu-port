@@ -132,7 +132,15 @@ function ConfigContent() {
                             activeColorPicker={activeColorPicker}
                             setActiveColorPicker={setActiveColorPicker}
                             focusSlidersOnOpen={pickerOpenedByKeyboard}
-                            focusedCorner={!activeColorPicker ? CORNERS.find((_, index) => isFocused("corners", index)) ?? null : null}
+                            // Shown while a picker is open too: the corners stay
+                            // hoverable and clickable then, so withholding the
+                            // cursor only made them look inert. The exception is
+                            // a picker opened by keyboard, which puts a cursor on
+                            // its own sliders — two cursors at once reads worse
+                            // than none.
+                            focusedCorner={(activeColorPicker && pickerOpenedByKeyboard)
+                                ? null
+                                : CORNERS.find((_, index) => isFocused("corners", index)) ?? null}
                             onCornerEnter={(corner) => focus({ group: "corners", index: CORNERS.indexOf(corner) })}
                             onCornerClick={(corner) => openColorPicker(corner, false)}
                         />
