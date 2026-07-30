@@ -150,8 +150,12 @@ function SkillsContent() {
 
     const { pos, focus, setPosSilently, isFocused } = useCursorNav({
         groups: [...groupCycle, { id: "close", size: 1 }],
-        initial: null,
-        fallback: { group: groupCycle[0].id, index: 0 },
+        // The first materia starts under the cursor so the panel describes
+        // something on arrival rather than sitting blank. Focused, not selected:
+        // the hook fires onFocus once without the cursor sound, and nothing is
+        // picked up for slotting until the cursor is confirmed on it.
+        initial: { group: "materia", index: 0 },
+        fallback: { group: "materia", index: 0 },
         enabled: true,
         resolveMove: (current, dir, { wrap }) => {
             // The close "X" sits at the seam of the vertical cycle, between the
@@ -238,7 +242,9 @@ function SkillsContent() {
     }, [pos]);
 
     return (
-        <>
+        // Fades as one group: the two lower panels overlap by 10px, and fading
+        // them separately shows the hidden border through the translucent one
+        <div className="panel-group">
             <ContentBox data-label="skillsHeader" className="h-[261px] absolute top-0">
                 <div className="flex justify-between items-end">
                     <div className="w-[447px] mb-2 ml-2">
@@ -297,7 +303,7 @@ function SkillsContent() {
                 </div>
                 <Scrollbar targetRef={materiaListRef} />
             </ContentBox>
-        </>
+        </div>
     );
 }
 

@@ -119,7 +119,11 @@ function Equip() {
             { id: "items", size: categoryItems.length },
             { id: "close", size: 1 },
         ],
-        initial: null,
+        // The weapon row starts under the cursor so the description, slots and
+        // stats describe something on arrival rather than sitting blank. Focused,
+        // not selected: hoveredCategory drives the preview, while
+        // selectedCategory stays null, so the item list is not yet in play.
+        initial: { group: "categories", index: 0 },
         fallback: { group: "categories", index: 0 },
         enabled: true,
         resolveMove: (current, dir, { wrap }) => {
@@ -196,7 +200,9 @@ function Equip() {
     }, [pos]);
 
     return (
-        <>
+        // Fades as one group: the lower panels overlap the list by 10px, and
+        // fading them separately shows the hidden border through the translucent one
+        <div className="panel-group">
             <ContentBox data-label="equipHeader" className="h-[225px] absolute top-0">
                 <div className="flex items-start">
                     <div className="w-[447px] mb-2 ml-2 shrink-0">
@@ -269,7 +275,7 @@ function Equip() {
                 </div>
                 <Scrollbar targetRef={equipListRef} />
             </ContentBox>
-        </>
+        </div>
     );
 }
 

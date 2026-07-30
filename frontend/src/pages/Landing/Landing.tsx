@@ -28,7 +28,9 @@ function LandingContent() {
     };
 
     return (
-        <>
+        // Fades as one group: the location and meta panels overlap the main one,
+        // and fading them separately shows the hidden borders through each other
+        <div className="panel-group">
             <ContentBox className="w-[1000px] h-[720px] m-auto absolute top-[44px]" data-label="party">
                 <PartyMember memberId={1} showProgressBars={true} healthReduction={true} />
                 <div className="flex items-center justify-center h-[340px] w-[720px] left-[53px] right-[220px] top-[294px] absolute">
@@ -58,7 +60,7 @@ function LandingContent() {
                 <span>{textToSprite(location)}</span>
                 <span className={`${styles.refresh} font-glyph`} data-sprite="reset-icon" onClick={refreshLocation}></span>
             </ContentBox>
-        </>
+        </div>
     );
 }
 
