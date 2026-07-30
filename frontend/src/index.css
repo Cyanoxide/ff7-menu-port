@@ -67,7 +67,7 @@ body.crt-effect #root:before {
   animation: panelGroupIn 0.25s ease-in 0.2s forwards;
 }
 
-.panel-group>[data-label] {
+.panel-group [data-label] {
   opacity: 1;
   animation: none;
 }

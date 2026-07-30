@@ -49,7 +49,10 @@ const MemCardSelector = () => {
             { id: "saves", size: saveSlotCount },
             { id: "close", size: 1 },
         ],
-        initial: null,
+        // Work starts under the cursor, as the first option. The row only draws
+        // the cursor once the card has finished loading, so it appears with the
+        // options rather than before them.
+        initial: { group: "options", index: 0 },
         fallback: isLoading ? undefined : (isListShown ? { group: "saves", index: 0 } : { group: "options", index: 0 }),
         enabled: true,
         resolveMove: (current, dir) => {
