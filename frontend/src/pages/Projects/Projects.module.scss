@@ -15,3 +15,168 @@
     margin-top: 16px;
     pointer-events: none;
 }
+
+// Tab row in the header, standing in for FF7's Use / Arrange / Key Items.
+// Fixed stops rather than a flowing row, so the labels sit where they do in the
+// original however long they are.
+.tabs {
+    margin-left: 1rem;
+}
+
+.tab {
+    position: relative;
+    cursor: pointer;
+    // Not allowed to shrink, or a flex row narrows it back to its text.
+    // Sized so the second tab starts on the left edge of the list column
+    // below it. Note the page is drawn under a scale, so this is larger than
+    // the gap measures on screen.
+    flex: none;
+    width: 450px;
+}
+
+// A standing cursor marks the tab being shown, and hover or the keyboard
+// cursor marks the one being pointed at. Neither blinks.
+.tab:hover::before,
+.tab[data-active="true"]::before,
+.tab[data-focused="true"]::before {
+    content: "";
+    position: absolute;
+    left: -81px;
+    // The hand is not centred within the cursor sprite, so splitting the box
+    // evenly leaves it riding high. Nudged down to sit level with the glyphs,
+    // matching where it lands on the list rows.
+    top: 50%;
+    transform: translateY(-50%);
+    margin-top: 9px;
+    background-image: url("/cursor.png");
+    width: 76px;
+    height: 46px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    pointer-events: none;
+}
+
+
+// Left panel: what the entry is, rather than a party member.
+.detail {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    // Tuned so the title's first line sits on the first list row opposite, and
+    // the links sit on the last row the list can hold. Both measured against
+    // the glyphs rather than the boxes, which carry different leading.
+    padding: 4px 0 5px;
+    // Spread down the full height rather than bunched at the top, which leaves
+    // one gap between every pair of blocks and all of them the same size
+    justify-content: space-between;
+}
+
+.detailHead {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+// Clipped to the underline band so the space above and below reads as equal,
+// as on the resume
+.separator {
+    height: 6px;
+    overflow: hidden;
+    opacity: 0.4;
+    pointer-events: none;
+
+    :global(.font) {
+        margin-top: -30px;
+    }
+}
+
+.detailDate {
+    opacity: 0.65;
+}
+
+// The last line of a wrapped title, carrying the date beside it
+.titleWithDate {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+}
+
+.detailLabel {
+    opacity: 0.65;
+    margin-bottom: 0.4rem;
+}
+
+// Skills, drawn as the skills list draws them: a materia of the skill's own
+// colour sitting inline before its name. Laid out in a row rather than stacked,
+// since the panel has more width than height to spare.
+.skillList {
+    display: flex;
+    flex-wrap: wrap;
+    // Roomier between rows than between items on a row, so a wrapped list reads
+    // as separate lines rather than a block
+    gap: 0.6rem 1.4rem;
+}
+
+.skill {
+    display: flex;
+    align-items: center;
+
+    &[data-color]::before {
+        content: "";
+        background-image: url("/materia-spritesheet.png");
+        background-repeat: no-repeat;
+        background-size: 200px 30px;
+        width: 2.5rem;
+        height: 30px;
+        margin-right: 0.35rem;
+        margin-top: 0.1rem;
+    }
+
+    &[data-color="blue"]::before {
+        background-position-x: 4px;
+    }
+
+    &[data-color="pink"]::before {
+        background-position-x: -39px;
+    }
+
+    &[data-color="red"]::before {
+        background-position-x: -82px;
+    }
+
+    &[data-color="green"]::before {
+        background-position-x: -124px;
+    }
+
+    &[data-color="yellow"]::before {
+        background-position-x: -167px;
+    }
+}
+
+// The info text, no longer boxed
+.detailInfo>div {
+    margin-bottom: 0.15rem;
+}
+
+// The two links share a row at the foot
+.detailLinks {
+    display: flex;
+    align-items: center;
+    gap: 2.4rem;
+}
+
+// Plain text rather than a plate, and following the block above it at the same
+// spacing as everything else rather than being pushed to the foot of the panel
+.viewButton {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    width: fit-content;
+    cursor: pointer;
+}
+
+// The site icon is a crisp logo against the CRT treatment's softness, which
+// makes it read as pasted on. A hair of blur settles it into the picture.
+.crtSoftened {
+    filter: blur(0.7px);
+}
