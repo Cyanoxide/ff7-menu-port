@@ -119,7 +119,11 @@ function Equip() {
             { id: "items", size: categoryItems.length },
             { id: "close", size: 1 },
         ],
-        initial: null,
+        // The weapon row starts under the cursor so the description, slots and
+        // stats describe something on arrival rather than sitting blank. Focused,
+        // not selected: hoveredCategory drives the preview, while
+        // selectedCategory stays null, so the item list is not yet in play.
+        initial: { group: "categories", index: 0 },
         fallback: { group: "categories", index: 0 },
         enabled: true,
         resolveMove: (current, dir, { wrap }) => {
