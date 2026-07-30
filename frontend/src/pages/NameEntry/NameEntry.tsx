@@ -155,7 +155,9 @@ function NameEntry() {
     });
 
     return (
-        <>
+        // Fades as one group: the controls panel overlaps the keyboard, and
+        // fading them separately shows the hidden border through the translucent one
+        <div className="panel-group">
             <div className="relative h-[84px] mb-[10px]">
                 <ContentBox data-label="nameHeader" className="h-full absolute top-0 left-0 right-0">
                     {textToSprite("Please enter a name.")}
@@ -225,7 +227,7 @@ function NameEntry() {
                     ))}
                 </div>
             </div>
-        </>
+        </div>
     );
 }
 
