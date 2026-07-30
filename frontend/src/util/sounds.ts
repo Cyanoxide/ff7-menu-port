@@ -1,4 +1,4 @@
-type sounds = "select" | "back" | "error" | "materia" | "slash" | "crit" | "delete" | "heal" | "save" | "saveSelect" | "fanfare";
+type sounds = "select" | "back" | "error" | "materia" | "slash" | "crit" | "limit" | "delete" | "heal" | "save" | "saveSelect" | "fanfare";
 
 export const loadSound = (sound: sounds) => {
     if (typeof window == "undefined") return;
@@ -12,6 +12,7 @@ export const loadSound = (sound: sounds) => {
         "materia": "materia.mp3",
         "slash": "slash.mp3",
         "crit": "crit.mp3",
+        "limit": "limit.mp3",
         "delete": "delete.mp3",
         "heal": "heal.mp3",
         "save": "save.mp3",

@@ -114,3 +114,48 @@
         transform: translateY(5px);
     }
 }
+
+// Cross Slash, laid over the portrait.
+//
+// The slashes are positioned in the sprite sheet's own pixels and scaled as one
+// group by --limit-unit, so their alignment holds whatever size the portrait is
+// drawn at. 2.9 makes the 62x55 composite ~180x160, a little larger than the
+// 145x165 portrait, so the cut overhangs it rather than sitting inside it.
+.limitSlashes {
+    --limit-unit: 2.9px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 2;
+
+    &[data-spinning=true] {
+        animation: limitSpin 0.9s ease-in forwards;
+    }
+}
+
+.limitSlash {
+    position: absolute;
+    background-repeat: no-repeat;
+    // The sprites are small and deliberately pixellated, like everything else here
+    image-rendering: pixelated;
+}
+
+// Duration must match LIMIT_TIMING.spin in data/limitBreak.ts
+@keyframes limitSpin {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg) scale(1);
+        opacity: 1;
+    }
+
+    to {
+        transform: translate(-50%, -50%) rotate(360deg) scale(1.6);
+        opacity: 0;
+    }
+}
+
+// Only the landing page's bar is interactive
+.limitBar[data-ready=true] {
+    cursor: pointer;
+}
