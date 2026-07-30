@@ -12,10 +12,15 @@
 .panelWrap {
     width: 70%;
     max-width: 900px;
-    // The height every stage keeps, whatever its shape. Chosen to leave the
-    // square slides the size they already were, with the head and the controls
-    // still clear of the screen's edges.
-    --stage-h: 49vh;
+    // The height every stage keeps, whatever its shape.
+    //
+    // Fixed, and in the app's own 1250x975 design pixels rather than viewport
+    // units: #root is already scaled by min(vw / 1250, vh / 975), so a `vh` here
+    // is scaled twice — once by the unit tracking the viewport and again by that
+    // transform. The modal then grew out of proportion with the menu behind it as
+    // the window or the browser's zoom changed. 440 is what 49vh came to at the
+    // size it was designed against.
+    --stage-h: 440px;
 }
 
 .panel {
