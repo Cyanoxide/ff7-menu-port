@@ -200,7 +200,9 @@ function Equip() {
     }, [pos]);
 
     return (
-        <>
+        // Fades as one group: the lower panels overlap the list by 10px, and
+        // fading them separately shows the hidden border through the translucent one
+        <div className="panel-group">
             <ContentBox data-label="equipHeader" className="h-[225px] absolute top-0">
                 <div className="flex items-start">
                     <div className="w-[447px] mb-2 ml-2 shrink-0">
@@ -273,7 +275,7 @@ function Equip() {
                 </div>
                 <Scrollbar targetRef={equipListRef} />
             </ContentBox>
-        </>
+        </div>
     );
 }
 

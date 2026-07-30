@@ -242,7 +242,9 @@ function SkillsContent() {
     }, [pos]);
 
     return (
-        <>
+        // Fades as one group: the two lower panels overlap by 10px, and fading
+        // them separately shows the hidden border through the translucent one
+        <div className="panel-group">
             <ContentBox data-label="skillsHeader" className="h-[261px] absolute top-0">
                 <div className="flex justify-between items-end">
                     <div className="w-[447px] mb-2 ml-2">
@@ -301,7 +303,7 @@ function SkillsContent() {
                 </div>
                 <Scrollbar targetRef={materiaListRef} />
             </ContentBox>
-        </>
+        </div>
     );
 }
 

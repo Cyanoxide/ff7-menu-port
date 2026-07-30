@@ -53,6 +53,35 @@ body.crt-effect #root:before {
   z-index: 1;
 }
 
+/* Fades a page's panels in as one group rather than each on its own.
+ *
+ * Skills and Equip overlap their panels by 10px so the two borders sit on top of
+ * one another and read as a single seam. Fading each panel separately makes them
+ * both translucent for a moment, and the border underneath shows through — the
+ * seam briefly doubles. Compositing the group first and applying the alpha to the
+ * result keeps the overlap hidden throughout.
+ *
+ * The timing matches .contentBox's own fade, so the animation is unchanged. */
+.panel-group {
+  opacity: 0;
+  animation: panelGroupIn 0.25s ease-in 0.2s forwards;
+}
+
+.panel-group>[data-label] {
+  opacity: 1;
+  animation: none;
+}
+
+@keyframes panelGroupIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 /* Hide the native scrollbar on elements that use the custom FF7 <Scrollbar />. */
 .hide-scrollbar {
   scrollbar-width: none;
