@@ -13,6 +13,8 @@ import { landingNav } from "../../hooks/landingNav.ts";
 import styles from "./PartyMember.module.scss";
 import ContentBox from "../ContentBox/ContentBox.tsx";
 import Portrait from "../Portrait/Portrait.tsx";
+import { LIMIT_SHEET, LIMIT_SHEET_SIZE, LIMIT_SLASHES, LIMIT_BOX, LIMIT_TIMING } from "../../data/limitBreak.ts";
+import { limitGauge } from "../../hooks/limitGauge.ts";
 
 interface partyMemberProps {
     memberId?: number,
@@ -25,12 +27,31 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     const [isAttacking, setIsAttacking] = useState(false);
     const [isDying, setIsDying] = useState(false);
     const [damage, setDamage] = useState(0);
+    // Cross Slash: how many slashes have landed, and whether they are spinning away
+    const [limitHits, setLimitHits] = useState(0);
+    const [limitSpinning, setLimitSpinning] = useState(false);
+    // Held outside React so it keeps filling while you are on another page
+    const limitCharge = useSyncExternalStore(limitGauge.subscribe, limitGauge.getCharge);
+    const [limitDraining, setLimitDraining] = useState(false);
+    const limitRunningRef = useRef(false);
+    const limitTimersRef = useRef<number[]>([]);
     const { isSoundEnabled, currentHealth, currentMana, userName, dispatch } = useContext();
     const navigate = useNavigate();
     const landingFocus = useSyncExternalStore(landingNav.subscribe, landingNav.getFocus);
     const keyboardFocus = healthReduction ? landingFocus : null;
     const attackRef = useRef<() => void>(() => { });
     const reviveRef = useRef<() => void>(() => { });
+
+    // The hits are spaced out over a second and a half, so each one needs the
+    // health as it stands when it lands rather than as it was when the sequence
+    // started. Context state is a snapshot in those closures; this is not.
+    const healthRef = useRef(currentHealth);
+    healthRef.current = currentHealth;
+
+    useEffect(() => () => {
+        limitTimersRef.current.forEach(clearTimeout);
+        limitTimersRef.current = [];
+    }, []);
 
     // Expose the avatar interactions to the landing page keyboard cursor
     useEffect(() => {
@@ -126,6 +147,69 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
         playSound(sound, isSoundEnabled);
     }
 
+    /**
+     * Cross Slash. Empties the bar, then lands three hits — two ordinary and a
+     * critical — each leaving its slash on screen until the whole cut spins away.
+     */
+    const runLimitBreak = () => {
+        if (!healthReduction || limitRunningRef.current) return;
+
+        if (!limitGauge.isReady() || !healthRef.current) {
+            playSound("error", isSoundEnabled);
+            return;
+        }
+
+        limitRunningRef.current = true;
+        limitGauge.spend();
+        setLimitDraining(true);
+        setLimitHits(0);
+        setLimitSpinning(false);
+        playSound("limit", isSoundEnabled);
+
+        const after = (delay: number, run: () => void) => {
+            limitTimersRef.current.push(window.setTimeout(run, delay));
+        };
+
+        const hit = (index: number, critical: boolean) => {
+            const health = healthRef.current;
+            const dealt = Math.floor(Math.random() * 21 + 130) * (critical ? 2 : 1);
+
+            // The cut always finishes, even if an earlier hit already emptied the
+            // bar — it just stops dealing damage rather than cutting away mid-swing
+            setLimitHits(index + 1);
+            playSound(critical ? "crit" : "slash", isSoundEnabled);
+
+            if (!health) return;
+
+            setIsAttacking(true);
+            setDamage(dealt);
+            dispatch({ type: "SET_CURRENT_HEALTH", payload: Math.max(0, health - dealt) });
+
+            if (dealt >= health) {
+                playSound("delete", isSoundEnabled);
+                setIsDying(true);
+            }
+        };
+
+        LIMIT_SLASHES.forEach((_, index) => {
+            const critical = index === LIMIT_SLASHES.length - 1;
+            after(LIMIT_TIMING.windUp + index * LIMIT_TIMING.betweenHits, () => hit(index, critical));
+        });
+
+        const lastHitAt = LIMIT_TIMING.windUp + (LIMIT_SLASHES.length - 1) * LIMIT_TIMING.betweenHits;
+        after(lastHitAt + LIMIT_TIMING.beforeSpin, () => setLimitSpinning(true));
+        after(lastHitAt + LIMIT_TIMING.beforeSpin + LIMIT_TIMING.spin, () => {
+            setLimitHits(0);
+            setLimitSpinning(false);
+        });
+        // The drop is a quick fall; after it the bar creeps back up on its own
+        after(LIMIT_TIMING.drain, () => setLimitDraining(false));
+        after(lastHitAt + LIMIT_TIMING.beforeSpin + LIMIT_TIMING.spin, () => {
+            limitRunningRef.current = false;
+            limitTimersRef.current = [];
+        });
+    };
+
     const handleMouseEnter = () => {
         if (!healthReduction) return;
         landingNav.actions.focusTarget?.("avatar");
@@ -163,6 +247,38 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
                     {isAttacking && <p className="absolute">{textToSprite(damage.toString(), true)}</p>}
                     <div className="self-center relative" onClick={handleOnClick} onMouseEnter={handleMouseEnter}>
                         <Portrait src={image_path} width={145} />
+                        {limitHits > 0 && (
+                            <div
+                                className={styles.limitSlashes}
+                                data-spinning={limitSpinning}
+                                style={{
+                                    width: `calc(${LIMIT_BOX.width} * var(--limit-unit))`,
+                                    height: `calc(${LIMIT_BOX.height} * var(--limit-unit))`,
+                                }}
+                            >
+                                {/* Keyed by the slash itself, not by position: filtering
+                                    shifts the indices, and React would reuse the node that
+                                    was the right slash for the middle one and mount a fresh
+                                    node for the right — so the wrong slash animated in */}
+                                {LIMIT_SLASHES.filter(({ order }) => order < limitHits).map(({ sheet, at, order }) => (
+                                    <span
+                                        key={order}
+                                        className={styles.limitSlash}
+                                        style={{
+                                            // Everything is expressed in the sheet's own pixels and
+                                            // scaled as one, so the slashes keep their alignment
+                                            width: `calc(${sheet.width} * var(--limit-unit))`,
+                                            height: `calc(${sheet.height} * var(--limit-unit))`,
+                                            left: `calc(${at.x} * var(--limit-unit))`,
+                                            top: `calc(${at.y} * var(--limit-unit))`,
+                                            backgroundImage: `url(${LIMIT_SHEET})`,
+                                            backgroundSize: `calc(${LIMIT_SHEET_SIZE.width} * var(--limit-unit)) calc(${LIMIT_SHEET_SIZE.height} * var(--limit-unit))`,
+                                            backgroundPosition: `calc(${-sheet.x} * var(--limit-unit)) calc(${-sheet.y} * var(--limit-unit))`,
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
                     {healthReduction && currentHealth === 0 && <div onClick={handleHealClick} onMouseEnter={() => landingNav.actions.focusTarget?.("revive")} className="absolute top-full"><ContentBox data-label="healButton" data-focused={keyboardFocus === "revive"}>{textToSprite("Revive", false, (!currentMana || currentMana < 34) ? "grey" : "")}</ContentBox></div>}
                 </div>
@@ -189,8 +305,17 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
                             <ProgressBar percentage={100 - (getDaysUntilLevel(age_epoch) / 365) * 100} />
                         </div>
                         <p>{textToSprite(`Limit level ${limit_level.toString()}`)}</p>
-                        <div className="ml-7">
-                            <ProgressBar percentage={100} accentColor="#dfbddd" data-limit="true" />
+                        <div
+                            className={`ml-7 ${healthReduction ? styles.limitBar : ""}`}
+                            onClick={runLimitBreak}
+                            data-ready={healthReduction && limitCharge >= 100}
+                        >
+                            <ProgressBar
+                                percentage={limitCharge}
+                                accentColor="#dfbddd"
+                                data-limit="true"
+                                data-refilling={(!limitDraining && limitCharge < 100) ? "true" : undefined}
+                            />
                         </div>
                     </div>
                 )}

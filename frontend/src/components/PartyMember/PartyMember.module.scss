@@ -35,7 +35,9 @@
         background-size: contain;
         background-repeat: no-repeat;
         margin-top: 71px;
-        z-index: 1;
+        // Above the limit break's slashes, which overhang the portrait and would
+        // otherwise cut across the cursor while they are on screen
+        z-index: 3;
         pointer-events: none;
     }
 
@@ -113,4 +115,65 @@
     80% {
         transform: translateY(5px);
     }
+}
+
+// Cross Slash, laid over the portrait.
+//
+// The slashes are positioned in the sprite sheet's own pixels and scaled as one
+// group by --limit-unit, so their alignment holds whatever size the portrait is
+// drawn at. 2.9 makes the 62x55 composite ~180x160, a little larger than the
+// 145x165 portrait, so the cut overhangs it rather than sitting inside it.
+.limitSlashes {
+    --limit-unit: 2.9px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    // Over the portrait, but under the cursor above
+    z-index: 2;
+
+    &[data-spinning=true] {
+        animation: limitSpin 0.48s ease-in forwards;
+    }
+}
+
+.limitSlash {
+    position: absolute;
+    background-repeat: no-repeat;
+    // The sprites are small and deliberately pixellated, like everything else here
+    image-rendering: pixelated;
+    // Each slash shrinks into place as it lands rather than appearing whole.
+    // Duration must match LIMIT_TIMING.slashIn in data/limitBreak.ts
+    animation: limitSlashIn 0.22s ease-out both;
+}
+
+@keyframes limitSlashIn {
+    from {
+        opacity: 0;
+        transform: scale(1.5);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+// Duration must match LIMIT_TIMING.spin in data/limitBreak.ts
+@keyframes limitSpin {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg) scale(1);
+        opacity: 1;
+    }
+
+    to {
+        transform: translate(-50%, -50%) rotate(360deg) scale(1.6);
+        opacity: 0;
+    }
+}
+
+// Only the landing page's bar is interactive
+.limitBar[data-ready=true] {
+    cursor: pointer;
 }

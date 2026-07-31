@@ -2,7 +2,7 @@
     {
         "id": 1,
         "name": "Jamie Pates",
-        "limit_level": 3,
+        "limit_level": 1,
         "age_epoch": 667785600,
         "hp": 1342,
         "mp": 578,
