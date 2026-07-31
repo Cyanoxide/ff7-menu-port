@@ -17,8 +17,20 @@
     padding: 0.35rem 0.7rem;
     min-height: var(--sprite-line);
 
+    /**
+     * border-color cannot mark these states: once border-image-source loads it
+     * paints the border outright and the colour never shows. That shipped as an
+     * invalid field with no visible marking at all. An outline sits outside the
+     * border image instead of being replaced by it.
+     */
+    &[data-focused="true"] {
+        outline: 2px solid #dfe3ee;
+        outline-offset: -2px;
+    }
+
     &[data-invalid="true"] {
-        border-color: #c96a6a;
+        outline: 2px solid #c96a6a;
+        outline-offset: -2px;
     }
 }
 

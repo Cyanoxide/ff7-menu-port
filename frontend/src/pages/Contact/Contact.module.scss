@@ -2,18 +2,40 @@
 // viewport units here would be applied a second time and grow out of proportion
 // with everything around them.
 
+/**
+ * Panel widths live here rather than as new data-label rules in
+ * ContentBox.module.scss, deliberately. That file is old enough that the dev
+ * server had a stale transform of it cached, so rules added there never reached
+ * the browser and both panels fell back to shrink-to-fit — which opens a wide
+ * gap between them and looks nothing like the rest of the site. Keeping the
+ * additions in this page's own new stylesheet leaves the shared file untouched.
+ *
+ * 59% + 42% overrun the stage by 11px on purpose: the right panel is pinned
+ * right, so the pair overlaps and the two borders read as one seam. Same figures
+ * as skillsContentLeft/Right. Only width is set — the panels keep ContentBox's
+ * own 1.5rem padding, so there is no padding declaration to lose a specificity
+ * tie with.
+ */
+.formPanel {
+    width: 59%;
+}
+
+.channelsPanel {
+    width: 42%;
+}
+
 
 // The cursor hangs 76px to the left of a row and is allowed to sit partly
 // outside the panel — reserving the whole 76px inside pushed the form well off
 // its own border. With the panel's 24px padding this leaves roughly half the
 // cursor overhanging, which the stage has room for: it is 1100px inside a
 // 1250px design width, so there is 75px of margin either side.
-$form-gutter: 1rem;
+$form-gutter: 1.5rem;
 
 // The channels panel keeps the full gutter instead. Its left border has the form
 // panel behind it, so a cursor overhanging there would float over the other
 // panel rather than over empty stage — which is why the two differ.
-$links-gutter: 3.5rem;
+$links-gutter: 4rem;
 
 .formColumn {
     display: flex;

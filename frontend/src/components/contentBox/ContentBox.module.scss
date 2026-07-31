@@ -161,21 +161,6 @@
         margin-bottom: 0;
     }
 
-    // 59% + 42% overrun the stage by 11px on purpose: the right panel is pinned
-    // to the right, so the pair overlaps and the two borders read as one seam.
-    // Same figures as skillsContentLeft/Right.
-    &[data-label="contactForm"] {
-        width: 59%;
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
-
-    &[data-label="contactChannels"] {
-        width: 42%;
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
-
     &[data-label="close"] {
         margin-top: -7px;
         height: 52px;

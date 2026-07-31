@@ -324,7 +324,7 @@ function ContactContent() {
             {/* Absolutely positioned and overlapping, the same as Skills and
                 Equip. Laying the two out with flex instead makes them overrun
                 the 1100px stage. */}
-            <ContentBox data-label="contactForm" className="absolute top-[94px] bottom-0">
+            <ContentBox data-label="contactForm" className={`${styles.formPanel} absolute top-[94px] bottom-0`}>
                 <div className={styles.formColumn}>
                     <input
                         ref={honeypotRef}
@@ -357,7 +357,7 @@ function ContactContent() {
                 </div>
             </ContentBox>
 
-            <ContentBox data-label="contactChannels" className="absolute top-[94px] right-0 bottom-0">
+            <ContentBox data-label="contactChannels" className={`${styles.channelsPanel} absolute top-[94px] right-0 bottom-0`}>
                 <div className={styles.linkColumn}>
                     <p className={styles.linkHeading}>{textToSprite("Channels", false, "grey")}</p>
                     <ul className={styles.links}>
