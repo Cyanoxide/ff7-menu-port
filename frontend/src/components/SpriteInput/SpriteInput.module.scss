@@ -1,0 +1,93 @@
+// A sprite-font text field: transparent real control on top, painted glyphs
+// underneath. See SpriteInput.tsx for why it is built this way.
+
+.field {
+    --sprite-line: 34px;
+    position: relative;
+    // The recessed look the progress bar's track uses, so a field reads as
+    // something you type into rather than another panel
+    background: rgba(0, 0, 0, 0.35);
+    box-shadow: inset 0 2px 3px 2px rgba(0, 0, 0, 0.45);
+    border: 2px solid #78797a;
+    border-radius: 4px;
+    padding: 0.35rem 0.7rem;
+    min-height: var(--sprite-line);
+
+    &[data-focused="true"] {
+        border-color: #dfe3ee;
+    }
+
+    &[data-invalid="true"] {
+        border-color: #c96a6a;
+    }
+}
+
+.text {
+    position: relative;
+    pointer-events: none;
+}
+
+.line {
+    display: flex;
+    align-items: center;
+    min-height: var(--sprite-line);
+    white-space: nowrap;
+}
+
+// Keeps an empty wrapped line at full height so the box does not jump as the
+// message is typed
+.blank {
+    display: block;
+    height: var(--sprite-line);
+}
+
+.placeholder {
+    opacity: 0.45;
+}
+
+.caret {
+    display: inline-block;
+    width: 2px;
+    height: 26px;
+    background: #fff;
+    // Matches the blink on the rest of the menu's prompts
+    animation: spriteCaret 1s steps(1, end) infinite;
+}
+
+@keyframes spriteCaret {
+
+    0%,
+    50% {
+        opacity: 1;
+    }
+
+    50.01%,
+    100% {
+        opacity: 0;
+    }
+}
+
+// The real control. Transparent rather than hidden: a display:none or
+// visibility:hidden field cannot be focused or typed into, and moving it off
+// screen makes the mobile keyboard scroll the page chasing it.
+.input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: inherit;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    color: transparent;
+    caret-color: transparent;
+    resize: none;
+    outline: none;
+    // Below 16px iOS zooms the page on focus, which fights the app's own scaling
+    font-size: 16px;
+    font-family: inherit;
+
+    &::selection {
+        background: rgba(255, 255, 255, 0.25);
+    }
+}
