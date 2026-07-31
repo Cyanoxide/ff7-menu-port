@@ -1,45 +1,143 @@
-// The style guide reads like documentation rather than a menu screen, so it is
-// the one place in the app with ordinary scrolling text. It still sits inside
-// the menu's frame: the whole point is that the examples are the real thing.
+// The kit page borrows the menu's furniture: a header strip with the page name
+// and close button in the corner, a narrow column of anchors on the left, and
+// the reading column beside it. The only departure is that code has to be real
+// selectable text, since the sprite font cannot be copied.
+
+.headRow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 84px;
+}
+
+.header {
+    height: 100%;
+    position: absolute;
+    left: 0;
+    // Stops short of the name and close button, as the other pages' headers do
+    right: 250px;
+}
+
+// This page is not in the menu, so it draws its own name and close button
+// rather than the ones Menu renders for menu pages
+.close {
+    position: absolute;
+    top: 0;
+    // Clear of the right edge so the close button, which hangs off the name
+    // box, lands where every other page puts it
+    right: 43px;
+    cursor: pointer;
+}
+
+.nameBox {
+    position: relative;
+    height: 84px;
+    width: 190px;
+    padding: 1.9rem 1.1rem;
+}
+
+// Matches contentBox's own [data-label="close"]: hung off the right edge and
+// nudged up, rather than sitting in flow beside the name
+.closeBox {
+    position: absolute;
+    top: 0;
+    right: -43px;
+    margin-top: -7px;
+    height: 52px;
+    width: 49px;
+    padding: 7px;
+}
+
+// The anchors. Three for now, but the column is sized for a list that grows.
+.nav {
+    position: absolute;
+    top: 94px;
+    bottom: 0;
+    left: 0;
+    width: 272px;
+    // The left padding is the cursor's overhang, not decoration
+    padding: 1.5rem 1rem 1.5rem 5.5rem;
+}
+
+.navItem {
+    position: relative;
+    margin-bottom: 1.4rem;
+    cursor: pointer;
+
+    // The same cursor the rest of the menu uses, on the group being read
+    &[data-focused="true"]::before {
+        content: "";
+        position: absolute;
+        left: -81px;
+        top: 50%;
+        transform: translateY(-50%);
+        margin-top: 9px;
+        width: 76px;
+        height: 46px;
+        background-image: url("/cursor.png");
+        background-size: contain;
+        background-repeat: no-repeat;
+        pointer-events: none;
+    }
+}
+
+.body {
+    position: absolute;
+    top: 94px;
+    bottom: 0;
+    left: 282px;
+    right: 0;
+}
+
 .scroller {
     height: 100%;
     overflow-y: auto;
-    padding-right: 1rem;
+    // Room for the scrollbar, which sits in the box's own gutter
+    padding-right: 2.6rem;
+    // Clear of the panel's top edge, or the first heading is cut in half
+    padding-top: 0.4rem;
 }
 
-.intro {
-    opacity: 0.7;
+.group {
     margin-bottom: 2.4rem;
 }
 
-.entry {
-    margin-bottom: 3.2rem;
+.groupName {
+    opacity: 0.65;
+    margin-bottom: 1.2rem;
 }
 
-.entryName {
-    margin-bottom: 1.2rem;
+.entry {
+    margin-bottom: 2.8rem;
+}
+
+.note {
+    margin-bottom: 0.2rem;
 }
 
 .entryBody {
     display: flex;
-    gap: 2.4rem;
-    align-items: flex-start;
+    gap: 1.6rem;
+    align-items: stretch;
+    margin-top: 1.2rem;
 }
 
-// The live example, given room to breathe against the panel behind it
+// The live example, given room against the panel behind it
 .demo {
     flex: none;
-    width: 300px;
+    width: 250px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1.6rem;
+    padding: 1.2rem;
     background: rgba(0, 0, 0, 0.25);
-    border-radius: 3px;
+    border: 2px solid #78797a;
+    border-image: url("/border.png") 9/22px/7px;
 }
 
 .demoWindow {
-    width: 220px;
+    width: 190px;
 }
 
 .demoStack {
@@ -52,11 +150,11 @@
 // Rows carrying the cursor, so the ::before has something to hang off
 .demoRows {
     width: 100%;
-    padding-left: 90px;
+    padding-left: 84px;
 
     li {
         position: relative;
-        margin-bottom: 0.8rem;
+        margin-bottom: 0.6rem;
     }
 
     li[data-focused="true"]::before {
@@ -91,59 +189,57 @@
     }
 }
 
-.detail {
+// The snippet sits in the same bordered box as everything else, with its own
+// scrollbar and the copy control inside it rather than floating above
+.codeBox {
+    position: relative;
     flex: 1;
     min-width: 0;
-}
-
-// Prose and code want a real font: the sprite font has no lowercase punctuation
-// worth speaking of, and code has to be selectable to be copied
-.note {
-    font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    font-size: 1.15rem;
-    line-height: 1.5;
-    color: #cfd6e6;
-    margin-bottom: 0.8rem;
-}
-
-.codeHead {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 0.4rem;
-}
-
-.copy {
-    cursor: pointer;
+    border: 2px solid #78797a;
+    border-image: url("/border.png") 9/22px/7px;
+    background: rgba(0, 0, 0, 0.35);
 }
 
 .code {
     font-family: ui-monospace, "SF Mono", Menlo, monospace;
     font-size: 1.1rem;
-    line-height: 1.45;
+    line-height: 1.5;
     color: #e6e9f2;
-    background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 3px;
-    padding: 1rem 1.2rem;
-    overflow-x: auto;
-    white-space: pre;
+    // Wrapped rather than scrolled sideways: the custom scrollbar tracks
+    // vertical overflow, and a horizontal one would need its own component
+    white-space: pre-wrap;
+    word-break: break-word;
     user-select: text;
+    height: 190px;
+    overflow-y: auto;
+    padding: 1rem 3.4rem 1rem 1.2rem;
+    margin: 0;
 }
 
-.footnote {
-    opacity: 0.55;
+.copy {
+    position: absolute;
+    top: 0.5rem;
+    right: 2.4rem;
+    cursor: pointer;
+    opacity: 0.85;
+
+    &:hover,
+    &[data-copied="true"] {
+        opacity: 1;
+    }
 }
 
-// A single element painted from the inlined data URI rather than a file, so the
-// page itself demonstrates that the snippets' images resolve
+// Painted from the inlined data URI rather than a file, so the page itself
+// shows that the snippets' images resolve. In the nav column's spare space,
+// where it is out of the reading column's way.
 .inlineProof {
     position: absolute;
-    right: 1.2rem;
-    bottom: 1.2rem;
+    left: 5.5rem;
+    bottom: 1.5rem;
     width: 76px;
     height: 46px;
     background-size: contain;
     background-repeat: no-repeat;
-    opacity: 0.85;
+    opacity: 0.5;
     pointer-events: none;
 }

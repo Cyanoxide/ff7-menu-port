@@ -16,8 +16,20 @@ export const KIT_ASSETS = {
     materia: materiaPng,
 };
 
+/**
+ * The left-hand column. Only three while this is a proof of concept, but the
+ * page is built around the idea that there will be many more.
+ */
+export const KIT_GROUPS = [
+    { id: "surfaces", name: "Surfaces" },
+    { id: "indicators", name: "Indicators" },
+    { id: "icons", name: "Icons" },
+];
+
 export type KitEntry = {
     name: string;
+    /** Which group in the left-hand column this belongs under */
+    group: string;
     /** What it is, and anything a person pasting it needs to know */
     notes: string[];
     /** The snippet, with data URIs already substituted in */
@@ -36,9 +48,10 @@ const shortened = (dataUri: string) => `${dataUri.slice(0, 48)}…`;
 export const KIT_ENTRIES: KitEntry[] = [
     {
         name: "Window",
+        group: "surfaces",
         notes: [
-            "The panel every screen is built from. The corners come from a nine-slice border image, so it holds its shape at any size.",
-            "The gradient is two overlaid linear-gradients, which is what gives the window its diagonal sheen.",
+            "The panel every screen is built from. Corners come from a nine-slice border image so it keeps its shape at any size.",
+            "Two overlaid gradients give the window its diagonal sheen.",
         ],
         demo: "contentBox",
         code: `.ff7-window {
@@ -54,9 +67,10 @@ export const KIT_ENTRIES: KitEntry[] = [
     },
     {
         name: "Progress bar",
+        group: "indicators",
         notes: [
-            "Two nested boxes: a light outer track and an inset shadow over the fill, which is what makes it read as recessed.",
-            "Set the fill's width as a percentage. The limit variant cycles its colour instead of sitting still.",
+            "A light outer track with an inset shadow over the fill. That is what makes it read as recessed.",
+            "Set the fill width as a percentage. The limit variant cycles its colour instead of sitting still.",
         ],
         demo: "progressBar",
         code: `.ff7-bar {
@@ -87,9 +101,10 @@ export const KIT_ENTRIES: KitEntry[] = [
     },
     {
         name: "Cursor",
+        group: "indicators",
         notes: [
-            "The pointing hand that marks the focused row. Drawn as a ::before on the row so it needs no element of its own.",
-            "It is not centred within its own sprite, so the nudge below is doing real work — without it the hand rides high.",
+            "The pointing hand that marks the focused row. Drawn as a before so it needs no element of its own.",
+            "The hand is not centred in its own sprite. Without the nudge below it rides high.",
         ],
         demo: "cursor",
         code: `.ff7-row[data-focused="true"]::before {
@@ -109,9 +124,10 @@ export const KIT_ENTRIES: KitEntry[] = [
     },
     {
         name: "Materia",
+        group: "icons",
         notes: [
-            "One sheet holds all five colours; shift the background horizontally to pick one.",
-            "Sized in ems so it sits inline with text at whatever size the surrounding copy is.",
+            "One sheet holds all five colours. Shift the background sideways to pick one.",
+            "Sized in rems so it sits inline with the text beside it.",
         ],
         demo: "materia",
         code: `.ff7-materia::before {
