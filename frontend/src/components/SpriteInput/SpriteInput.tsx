@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { useContext } from "../../context/context";
+import { stripUnsupported, wrapWithOffsets } from "./spriteText";
 
 import styles from "./SpriteInput.module.scss";
 
@@ -21,62 +22,6 @@ import styles from "./SpriteInput.module.scss";
  * on mobile entirely.
  */
 
-/**
- * The sprite sheet's own characters, from font.css. Anything else has no glyph
- * and would render as a gap, so it is dropped on the way in rather than typed
- * into a hole. Note there is no double quote in the sheet.
- */
-// eslint-disable-next-line no-useless-escape
-const ALLOWED = /[^A-Za-z0-9 £_\-,;:!?.()\[\]{}@*\/\\'&#%`^+<=>|~$\n]/g;
-
-export const stripUnsupported = (text: string) => text.replace(ALLOWED, "");
-
-/**
- * Breaks text to a character budget, keeping each line's offset in the original
- * string so the caret can be placed on the right line. The sprite font sets
- * every glyph nowrap, so wrapping has to happen here rather than in CSS.
- */
-export const wrapWithOffsets = (text: string, max: number): { text: string; start: number }[] => {
-    const lines: { text: string; start: number }[] = [];
-
-    for (const paragraph of text.split("\n")) {
-        // Offset of this paragraph within the whole string
-        const base = lines.length
-            ? text.indexOf(paragraph, lines[lines.length - 1].start + lines[lines.length - 1].text.length)
-            : 0;
-
-        let line = "";
-        let start = base;
-
-        for (const word of paragraph.split(" ")) {
-            const candidate = line ? `${line} ${word}` : word;
-
-            if (candidate.length <= max) {
-                line = candidate;
-                continue;
-            }
-
-            if (line) {
-                lines.push({ text: line, start });
-                start += line.length + 1;
-            }
-
-            // A single word longer than the budget still has to go somewhere
-            let rest = word;
-            while (rest.length > max) {
-                lines.push({ text: rest.slice(0, max), start });
-                start += max;
-                rest = rest.slice(max);
-            }
-            line = rest;
-        }
-
-        lines.push({ text: line, start });
-    }
-
-    return lines;
-};
-
 interface SpriteInputProps {
     value: string;
     onChange: (value: string) => void;
@@ -93,26 +38,77 @@ interface SpriteInputProps {
     name: string;
     type?: "text" | "email";
     invalid?: boolean;
+    /** Lets the page focus the field, e.g. when the menu cursor confirms on it */
+    inputRef?: React.RefObject<(HTMLInputElement & HTMLTextAreaElement) | null>;
 }
 
 const SpriteInput: React.FC<SpriteInputProps> = ({
-    value, onChange, cols, maxLength, multiline, rows = 4, placeholder, label, name, type = "text", invalid,
+    value, onChange, cols, maxLength, multiline, rows = 4, placeholder, label, name, type = "text", invalid, inputRef,
 }) => {
     const { isSoundEnabled } = useContext();
-    const fieldRef = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
+    const ownRef = useRef<(HTMLInputElement & HTMLTextAreaElement) | null>(null);
+    const fieldRef = inputRef ?? ownRef;
+    const viewRef = useRef<HTMLDivElement>(null);
+    const caretRef = useRef<HTMLSpanElement>(null);
     const [focused, setFocused] = useState(false);
     const [caret, setCaret] = useState(0);
+    // How far the painted text is pushed out of view to keep the caret on screen
+    const [scroll, setScroll] = useState({ x: 0, y: 0 });
 
     // The caret follows the real field's selection, so it lands where editing
     // will actually happen rather than always at the end
-    const syncCaret = () => {
+    const syncCaret = useCallback(() => {
         const field = fieldRef.current;
         if (field) setCaret(field.selectionStart ?? field.value.length);
-    };
+    }, [fieldRef]);
 
     useEffect(() => {
         if (focused) syncCaret();
-    }, [value, focused]);
+    }, [value, focused, syncCaret]);
+
+    /**
+     * Keeps the caret in view. The sprite font sets every glyph nowrap and the
+     * painted text is plain spans, so a long value simply runs out of the box
+     * and over whatever sits next to it — the field has to do its own scrolling
+     * rather than relying on the real control's, which is invisible.
+     *
+     * A layout effect, not an effect: measuring and shifting after paint shows
+     * the text in the wrong place for a frame on every keystroke.
+     */
+    useLayoutEffect(() => {
+        const view = viewRef.current;
+        const mark = caretRef.current;
+
+        if (!view || !mark) {
+            setScroll((current) => (current.x === 0 && current.y === 0 ? current : { x: 0, y: 0 }));
+            return;
+        }
+
+        setScroll((current) => {
+            // Keep a glyph's worth of room ahead of the caret so the character
+            // being typed is visible rather than flush against the edge
+            const margin = 28;
+            // Both are measured against .track, which is the offset parent
+            const row = mark.parentElement;
+            const left = mark.offsetLeft;
+
+            let { x, y } = current;
+            if (left - x > view.clientWidth - margin) x = left - view.clientWidth + margin;
+            if (left - x < 0) x = left;
+
+            // Scrolled by whole rows rather than by the caret, so a half-cut
+            // line never shows at the top or bottom of the window
+            const top = row?.offsetTop ?? 0;
+            const height = row?.offsetHeight ?? view.clientHeight;
+            if (top - y > view.clientHeight - height) y = top - view.clientHeight + height;
+            if (top - y < 0) y = top;
+
+            x = Math.max(0, x);
+            y = Math.max(0, y);
+
+            return x === current.x && y === current.y ? current : { x, y };
+        });
+    }, [value, caret, focused]);
 
     const lines = useMemo(
         () => (multiline ? wrapWithOffsets(value, cols) : [{ text: value, start: 0 }]),
@@ -137,7 +133,7 @@ const SpriteInput: React.FC<SpriteInputProps> = ({
                 {showCaret ? (
                     <>
                         {textToSprite(line.text.slice(0, at))}
-                        <span className={styles.caret} aria-hidden="true" />
+                        <span ref={caretRef} className={styles.caret} aria-hidden="true" />
                         {textToSprite(line.text.slice(at))}
                     </>
                 ) : (
@@ -154,12 +150,23 @@ const SpriteInput: React.FC<SpriteInputProps> = ({
             data-focused={focused}
             data-invalid={invalid}
             data-multiline={multiline}
-            style={multiline ? { minHeight: `calc(${rows} * var(--sprite-line))` } : undefined}
         >
-            <div className={styles.text} aria-hidden="true">
-                {value.length === 0 && !focused && placeholder
-                    ? <span className={styles.placeholder}>{textToSprite(placeholder)}</span>
-                    : lines.map(renderLine)}
+            <div
+                ref={viewRef}
+                className={styles.text}
+                aria-hidden="true"
+                // Multiline is a fixed window that the track scrolls inside, so
+                // the panel does not grow as the message is typed
+                style={{ height: multiline ? `calc(${rows} * var(--sprite-line))` : "var(--sprite-line)" }}
+            >
+                <div
+                    className={styles.track}
+                    style={{ transform: `translate(${-scroll.x}px, ${-scroll.y}px)` }}
+                >
+                    {value.length === 0 && !focused && placeholder
+                        ? <span className={styles.placeholder}>{textToSprite(placeholder)}</span>
+                        : lines.map(renderLine)}
+                </div>
             </div>
 
             {multiline ? (

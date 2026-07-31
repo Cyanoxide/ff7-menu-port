@@ -25,6 +25,11 @@
         "position": 4
     },
     {
+        "id": "contact",
+        "name": "Contact",
+        "position": 5
+    },
+    {
         "id": "resume",
         "name": "Resume",
         "position": 6

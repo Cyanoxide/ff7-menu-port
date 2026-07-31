@@ -10,6 +10,7 @@ import Equip from "./pages/Equip/Equip";
 import MemCardSelector from "./components/MemCardSelector/MemCardSelector";
 import Config from "./pages/Config/Config";
 import Resume from "./pages/Resume/Resume";
+import Contact from "./pages/Contact/Contact";
 import NameEntry from "./pages/NameEntry/NameEntry";
 
 function App() {
@@ -76,6 +77,7 @@ function App() {
             <Route path="/history" element={<MemCardSelector />} />
             <Route path="/config" element={<Config />} />
             <Route path="/resume" element={<Resume />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="/name" element={<NameEntry />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

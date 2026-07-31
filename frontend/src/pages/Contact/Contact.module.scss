@@ -1,0 +1,151 @@
+// Sizes are in design pixels. The app scales #root by min(vw/1250, vh/975), so
+// viewport units here would be applied a second time and grow out of proportion
+// with everything around them.
+
+.layout {
+    display: flex;
+    height: 100%;
+    gap: 2.5rem;
+}
+
+// Both columns are indented far enough that the cursor, which hangs 80px to the
+// left of a row, stays inside the panel instead of sitting over its border
+.formColumn {
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+    padding-left: 5.5rem;
+}
+
+.fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.fieldLabel {
+    display: block;
+    margin-bottom: 0.35rem;
+}
+
+// The cursor sits to the left of a row's label, clear of the field itself
+.field[data-focused="true"] .fieldLabel:before {
+    content: "";
+    position: absolute;
+    margin-left: -80px;
+    margin-top: -2px;
+    background-image: url("/cursor.png");
+    width: 76px;
+    height: 46px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.sendRow {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 1.6rem;
+}
+
+.send {
+    position: relative;
+    padding: 0.4rem 2.2rem;
+    border: 2px solid #78797a;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.35);
+    box-shadow: inset 0 2px 3px 2px rgba(0, 0, 0, 0.45);
+
+    &[data-focused="true"] {
+        border-color: #dfe3ee;
+
+        &:before {
+            content: "";
+            position: absolute;
+            left: -80px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-image: url("/cursor.png");
+            width: 76px;
+            height: 46px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            pointer-events: none;
+        }
+    }
+
+    &[data-disabled="true"] {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+}
+
+.linkColumn {
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+    padding-left: 5.5rem;
+    padding-right: 0.5rem;
+}
+
+.linkHeading {
+    margin-bottom: 0.9rem;
+}
+
+.links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+
+    &[data-focused="true"]:before {
+        content: "";
+        position: absolute;
+        left: -80px;
+        top: 50%;
+        transform: translateY(-50%);
+        background-image: url("/cursor.png");
+        width: 76px;
+        height: 46px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        pointer-events: none;
+    }
+}
+
+.note {
+    margin-top: 2.2rem;
+    opacity: 0.75;
+
+    p {
+        margin-bottom: 0.2rem;
+    }
+}
+
+/**
+ * The honeypot: present and fillable, but never seen. Not display:none or
+ * hidden — some bots skip fields that are obviously unreachable, and the point
+ * is for one to fill it in. aria-hidden and tabindex keep it away from screen
+ * readers and the tab order, so no real person lands on it by accident.
+ */
+.honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}

@@ -19,6 +19,10 @@ coverage/
 .env.*
 !.env.example
 
+# Contact form config: real recipient address and signing secret.
+# The template next to it is committed; this never is.
+frontend/public/contact-config.php
+
 # Python
 __pycache__/
 *.py[cod]

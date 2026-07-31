@@ -1,0 +1,39 @@
+# Apache rules for the built site.
+#
+# Deliberately NOT named .htaccess. Deploying is a manual upload of dist/, and
+# anything in public/ is copied into dist/ verbatim — so a live .htaccess here
+# would land in dist/ and overwrite whatever is on the server, breaking routing.
+# The server's own .htaccess is the one that matters; this is a reference copy.
+#
+# To use it: open the .htaccess already on the server and make sure it contains
+# the block below. Do not simply upload this file over it.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Single-page app: unknown paths are routes, so hand them to index.html and
+  # let React Router work out what they mean.
+  #
+  # The two conditions are the important part. Without them every request is
+  # rewritten, including /contact.php, which would be served the contents of
+  # index.html instead of being executed — the form would post to the app and
+  # get HTML back. Excluding paths that exist on disk keeps the handler, the
+  # assets and the PDF reachable.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# The contact form's config holds the recipient address and signing secret.
+# contact.php reads it from disk; nothing should be able to fetch it over HTTP.
+# The file guards itself with a CONTACT_APP check as well, so this is a second
+# lock rather than the only one.
+<Files "contact-config.php">
+  Require all denied
+</Files>
+
+# The committed template is inert, but there is no reason to serve it either.
+<Files "contact-config.example.php">
+  Require all denied
+</Files>

@@ -22,9 +22,17 @@
     }
 }
 
+// A fixed window over the painted text. The glyphs are nowrap spans, so without
+// clipping a long value runs straight out of the field and over its neighbour.
 .text {
     position: relative;
+    overflow: hidden;
     pointer-events: none;
+}
+
+// Shifted by SpriteInput to keep the caret inside .text
+.track {
+    position: relative;
 }
 
 .line {
