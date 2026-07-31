@@ -4,10 +4,16 @@
     height: 1.7rem;
     position: relative;
 
-    // The limit bar empties visibly when it is spent rather than snapping to
-    // nothing. Only this bar: the others are set once and never move.
+    // The limit bar moves at two different paces, and only this bar moves at all:
+    // a quick fall when it is spent, then a slow creep as it refills. The refill
+    // is linear and paced to the gauge's tick so it glides between updates
+    // rather than stepping.
     &[data-limit=true]>div>div {
-        transition: width 0.45s ease-out;
+        transition: width 0.46s ease-out;
+    }
+
+    &[data-limit=true][data-refilling=true]>div>div {
+        transition: width 1s linear;
     }
 
     &>div {

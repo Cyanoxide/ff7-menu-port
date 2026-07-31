@@ -4,6 +4,7 @@ interface progressBarProps {
     accentColor?: string,
     percentage?: number,
     "data-limit"?: string,
+    "data-refilling"?: string,
 }
 
 const ProgressBar: React.FC<progressBarProps> = ({ accentColor = "#f5c4d0", percentage = 0, ...props }) => {

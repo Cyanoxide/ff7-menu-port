@@ -14,6 +14,7 @@ import styles from "./PartyMember.module.scss";
 import ContentBox from "../ContentBox/ContentBox.tsx";
 import Portrait from "../Portrait/Portrait.tsx";
 import { LIMIT_SHEET, LIMIT_SHEET_SIZE, LIMIT_SLASHES, LIMIT_BOX, LIMIT_TIMING } from "../../data/limitBreak.ts";
+import { limitGauge } from "../../hooks/limitGauge.ts";
 
 interface partyMemberProps {
     memberId?: number,
@@ -29,7 +30,9 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     // Cross Slash: how many slashes have landed, and whether they are spinning away
     const [limitHits, setLimitHits] = useState(0);
     const [limitSpinning, setLimitSpinning] = useState(false);
-    const [limitCharge, setLimitCharge] = useState(100);
+    // Held outside React so it keeps filling while you are on another page
+    const limitCharge = useSyncExternalStore(limitGauge.subscribe, limitGauge.getCharge);
+    const [limitDraining, setLimitDraining] = useState(false);
     const limitRunningRef = useRef(false);
     const limitTimersRef = useRef<number[]>([]);
     const { isSoundEnabled, currentHealth, currentMana, userName, dispatch } = useContext();
@@ -151,13 +154,14 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     const runLimitBreak = () => {
         if (!healthReduction || limitRunningRef.current) return;
 
-        if (!healthRef.current) {
+        if (!limitGauge.isReady() || !healthRef.current) {
             playSound("error", isSoundEnabled);
             return;
         }
 
         limitRunningRef.current = true;
-        setLimitCharge(0);
+        limitGauge.spend();
+        setLimitDraining(true);
         setLimitHits(0);
         setLimitSpinning(false);
         playSound("limit", isSoundEnabled);
@@ -198,9 +202,9 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
             setLimitHits(0);
             setLimitSpinning(false);
         });
-        // Refilling last leaves the bar ready to go again
-        after(lastHitAt + LIMIT_TIMING.beforeSpin + LIMIT_TIMING.spin + LIMIT_TIMING.beforeRefill, () => {
-            setLimitCharge(100);
+        // The drop is a quick fall; after it the bar creeps back up on its own
+        after(LIMIT_TIMING.drain, () => setLimitDraining(false));
+        after(lastHitAt + LIMIT_TIMING.beforeSpin + LIMIT_TIMING.spin, () => {
             limitRunningRef.current = false;
             limitTimersRef.current = [];
         });
@@ -304,9 +308,14 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
                         <div
                             className={`ml-7 ${healthReduction ? styles.limitBar : ""}`}
                             onClick={runLimitBreak}
-                            data-ready={healthReduction && limitCharge === 100}
+                            data-ready={healthReduction && limitCharge >= 100}
                         >
-                            <ProgressBar percentage={limitCharge} accentColor="#dfbddd" data-limit="true" />
+                            <ProgressBar
+                                percentage={limitCharge}
+                                accentColor="#dfbddd"
+                                data-limit="true"
+                                data-refilling={(!limitDraining && limitCharge < 100) ? "true" : undefined}
+                            />
                         </div>
                     </div>
                 )}

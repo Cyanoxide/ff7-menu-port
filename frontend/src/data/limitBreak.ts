@@ -51,8 +51,8 @@ export const LIMIT_TIMING = {
     beforeSpin: 900,
     /** The spin itself; must match the limitSpin animation in PartyMember.module.scss */
     spin: 480,
-    /** After the spin, before the bar refills */
-    beforeRefill: 250,
+    /** The bar's quick fall when it is spent; matches the drain transition */
+    drain: 460,
     /** Each slash shrinking into place; matches limitSlashIn in the stylesheet */
     slashIn: 220,
 };
