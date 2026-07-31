@@ -50,6 +50,19 @@ const FIELDS = [
 
 const IDLE_HINT = "Send a message over the PHS";
 
+/**
+ * Pre-wrapped by hand to the channels panel. The sprite font wraps nothing — every
+ * glyph is a nowrap span — so a line too long for the panel does not fold, it
+ * runs out over the border.
+ */
+const NOTE = [
+    "Messages reach me",
+    "by email. I read",
+    "every one, and reply",
+    "to the address",
+    "you leave.",
+];
+
 type Status = "idle" | "sending" | "sent" | "error";
 
 function ContactContent() {
@@ -269,7 +282,7 @@ function ContactContent() {
                 onMouseEnter={() => focus({ group: "fields", index })}
                 onKeyDown={handleFieldKeyDown}
             >
-                <span className={styles.fieldLabel}>{textToSprite(spec.label, false, "blue")}</span>
+                <span className={styles.fieldLabel}>{textToSprite(spec.label, false, "grey")}</span>
                 <SpriteInput
                     inputRef={fieldRefs[id]}
                     name={id}
@@ -297,71 +310,72 @@ function ContactContent() {
 
     return (
         <>
-            <div className="relative h-[84px] mb-[10px]">
-                <ContentBox data-label="contactHeader" className="h-full absolute top-0 left-0 right-0">
-                    {textToSprite(hint)}
-                </ContentBox>
-            </div>
+            <ContentBox data-label="contactHeader" className="h-[84px] absolute">
+                {textToSprite(hint)}
+            </ContentBox>
 
-            <ContentBox data-label="contactBody" className="h-[45.1rem]">
-                <div className={styles.layout}>
-                    <div className={styles.formColumn}>
-                        <input
-                            ref={honeypotRef}
-                            type="text"
-                            name="website"
-                            className={styles.honeypot}
-                            tabIndex={-1}
-                            autoComplete="off"
-                            aria-hidden="true"
-                        />
-                        <ul className={styles.fields}>
-                            {field(0, "name", name, setName)}
-                            {field(1, "email", email, setEmail)}
-                            {field(2, "message", message, setMessage)}
-                        </ul>
+            {/* Absolutely positioned, and flush rather than overlapping, the same
+                as the Projects page. Laying the two out with flex instead makes
+                them overrun the 1100px stage. */}
+            <ContentBox data-label="contactForm" className="absolute top-[94px] bottom-0">
+                <div className={styles.formColumn}>
+                    <input
+                        ref={honeypotRef}
+                        type="text"
+                        name="website"
+                        className={styles.honeypot}
+                        tabIndex={-1}
+                        autoComplete="off"
+                        aria-hidden="true"
+                    />
+                    <ul className={styles.fields}>
+                        {field(0, "name", name, setName)}
+                        {field(1, "email", email, setEmail)}
+                        {field(2, "message", message, setMessage)}
+                    </ul>
 
-                        <div className={styles.sendRow}>
-                            <button
-                                type="button"
-                                className={styles.send}
-                                data-focused={isFocused("send", 0)}
-                                data-disabled={status === "sending"}
-                                onMouseEnter={() => focus({ group: "send", index: 0 })}
-                                onClick={send}
-                            >
-                                {textToSprite("Send")}
-                            </button>
-                            <span className={styles.status}>{statusLine()}</span>
-                        </div>
+                    <div className={styles.sendRow}>
+                        <button
+                            type="button"
+                            className={styles.send}
+                            data-focused={isFocused("send", 0)}
+                            data-disabled={status === "sending"}
+                            onMouseEnter={() => focus({ group: "send", index: 0 })}
+                            onClick={send}
+                        >
+                            {textToSprite("Send", false, "yellow")}
+                        </button>
+                        <span className={styles.status}>{statusLine()}</span>
                     </div>
+                </div>
+            </ContentBox>
 
-                    <div className={styles.linkColumn}>
-                        <p className={styles.linkHeading}>{textToSprite("Channels", false, "blue")}</p>
-                        <ul className={styles.links}>
-                            {links.map((link, index) => (
-                                <li key={link.id}>
-                                    <a
-                                        href={link.href}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className={styles.link}
-                                        data-focused={isFocused("links", index)}
-                                        onMouseEnter={() => focus({ group: "links", index })}
-                                        onClick={() => playSound("select", isSoundEnabled)}
-                                    >
-                                        {textToSprite(link.label, false, "yellow")}
-                                        <span className="font-glyph ml-2" data-sprite="external-link-icon"></span>
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
+            <ContentBox data-label="contactChannels" className="absolute top-[94px] right-0 bottom-0">
+                <div className={styles.linkColumn}>
+                    <p className={styles.linkHeading}>{textToSprite("Channels", false, "grey")}</p>
+                    <ul className={styles.links}>
+                        {links.map((link, index) => (
+                            <li key={link.id}>
+                                <a
+                                    href={link.href}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className={styles.link}
+                                    data-focused={isFocused("links", index)}
+                                    onMouseEnter={() => focus({ group: "links", index })}
+                                    onClick={() => playSound("select", isSoundEnabled)}
+                                >
+                                    {textToSprite(link.label, false, "yellow")}
+                                    <span className="font-glyph ml-2" data-sprite="external-link-icon"></span>
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
 
-                        <div className={styles.note}>
-                            {["Messages reach me by email.", "I read every one, and reply", "to the address you leave."].map((line, index) => (
-                                <p key={index}>{textToSprite(line)}</p>
-                            ))}
-                        </div>
+                    <div className={styles.note}>
+                        {NOTE.map((line, index) => (
+                            <p key={index}>{textToSprite(line, false, "grey")}</p>
+                        ))}
                     </div>
                 </div>
             </ContentBox>

@@ -2,19 +2,16 @@
 // viewport units here would be applied a second time and grow out of proportion
 // with everything around them.
 
-.layout {
-    display: flex;
-    height: 100%;
-    gap: 2.5rem;
-}
 
-// Both columns are indented far enough that the cursor, which hangs 80px to the
-// left of a row, stays inside the panel instead of sitting over its border
+// Both columns are indented to leave room for the cursor, which hangs 76px to
+// the left of a row. That plus the panel's own 24px padding is all the gutter
+// there should be — any more reads as the form drifting away from its border.
+$cursor-gutter: 3.5rem;
+
 .formColumn {
     display: flex;
     flex-direction: column;
-    width: 60%;
-    padding-left: 5.5rem;
+    padding-left: $cursor-gutter;
 }
 
 .fields {
@@ -32,7 +29,7 @@
 .field[data-focused="true"] .fieldLabel:before {
     content: "";
     position: absolute;
-    margin-left: -80px;
+    margin-left: -76px;
     margin-top: -2px;
     background-image: url("/cursor.png");
     width: 76px;
@@ -50,30 +47,26 @@
     margin-top: 1.6rem;
 }
 
+// Reads as a link rather than a control, matching the resume's yellow links.
+// A filled button was tried and rejected: nothing else in the menu has one.
 .send {
     position: relative;
-    padding: 0.4rem 2.2rem;
-    border: 2px solid #78797a;
-    border-radius: 4px;
-    background: rgba(0, 0, 0, 0.35);
-    box-shadow: inset 0 2px 3px 2px rgba(0, 0, 0, 0.45);
+    background: none;
+    border: 0;
+    padding: 0;
 
-    &[data-focused="true"] {
-        border-color: #dfe3ee;
-
-        &:before {
-            content: "";
-            position: absolute;
-            left: -80px;
-            top: 50%;
-            transform: translateY(-50%);
-            background-image: url("/cursor.png");
-            width: 76px;
-            height: 46px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            pointer-events: none;
-        }
+    &[data-focused="true"]:before {
+        content: "";
+        position: absolute;
+        left: -76px;
+        top: 50%;
+        transform: translateY(-50%);
+        background-image: url("/cursor.png");
+        width: 76px;
+        height: 46px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        pointer-events: none;
     }
 
     &[data-disabled="true"] {
@@ -91,9 +84,7 @@
 .linkColumn {
     display: flex;
     flex-direction: column;
-    width: 40%;
-    padding-left: 5.5rem;
-    padding-right: 0.5rem;
+    padding-left: $cursor-gutter;
 }
 
 .linkHeading {
@@ -114,7 +105,7 @@
     &[data-focused="true"]:before {
         content: "";
         position: absolute;
-        left: -80px;
+        left: -76px;
         top: 50%;
         transform: translateY(-50%);
         background-image: url("/cursor.png");
@@ -128,7 +119,6 @@
 
 .note {
     margin-top: 2.2rem;
-    opacity: 0.75;
 
     p {
         margin-bottom: 0.2rem;

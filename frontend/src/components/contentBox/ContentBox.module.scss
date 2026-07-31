@@ -161,6 +161,24 @@
         margin-bottom: 0;
     }
 
+    &[data-label="contactHeader"] {
+        width: 100%;
+    }
+
+    // The form and the channels sit flush, the same as the Projects page's two
+    // panels, so the pair reads as one seam rather than two boxes with a gap.
+    &[data-label="contactForm"] {
+        width: 58%;
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+
+    &[data-label="contactChannels"] {
+        width: 42%;
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+
     &[data-label="close"] {
         margin-top: -7px;
         height: 52px;
