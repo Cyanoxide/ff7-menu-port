@@ -11,6 +11,7 @@ import MemCardSelector from "./components/MemCardSelector/MemCardSelector";
 import Config from "./pages/Config/Config";
 import Resume from "./pages/Resume/Resume";
 import NameEntry from "./pages/NameEntry/NameEntry";
+import StyleGuide from "./pages/StyleGuide/StyleGuide";
 
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -77,6 +78,8 @@ function App() {
             <Route path="/config" element={<Config />} />
             <Route path="/resume" element={<Resume />} />
             <Route path="/name" element={<NameEntry />} />
+            {/* Not in the menu: a proof of concept, reachable by URL */}
+            <Route path="/styleguide" element={<StyleGuide />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <Menu />
