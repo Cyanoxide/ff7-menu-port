@@ -35,7 +35,9 @@
         background-size: contain;
         background-repeat: no-repeat;
         margin-top: 71px;
-        z-index: 1;
+        // Above the limit break's slashes, which overhang the portrait and would
+        // otherwise cut across the cursor while they are on screen
+        z-index: 3;
         pointer-events: none;
     }
 
@@ -128,6 +130,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
+    // Over the portrait, but under the cursor above
     z-index: 2;
 
     &[data-spinning=true] {
