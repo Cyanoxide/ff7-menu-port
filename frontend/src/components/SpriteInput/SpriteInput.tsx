@@ -32,18 +32,18 @@ interface SpriteInputProps {
     multiline?: boolean;
     /** Visible lines when multiline */
     rows?: number;
-    /** Shown dimmed while the field is empty */
-    placeholder?: string;
     label: string;
     name: string;
     type?: "text" | "email";
     invalid?: boolean;
+    /** The menu cursor is on this field's row, without it being typed into yet */
+    selected?: boolean;
     /** Lets the page focus the field, e.g. when the menu cursor confirms on it */
     inputRef?: React.RefObject<(HTMLInputElement & HTMLTextAreaElement) | null>;
 }
 
 const SpriteInput: React.FC<SpriteInputProps> = ({
-    value, onChange, cols, maxLength, multiline, rows = 4, placeholder, label, name, type = "text", invalid, inputRef,
+    value, onChange, cols, maxLength, multiline, rows = 4, label, name, type = "text", invalid, selected, inputRef,
 }) => {
     const { isSoundEnabled } = useContext();
     const ownRef = useRef<(HTMLInputElement & HTMLTextAreaElement) | null>(null);
@@ -148,6 +148,7 @@ const SpriteInput: React.FC<SpriteInputProps> = ({
         <div
             className={styles.field}
             data-focused={focused}
+            data-selected={selected}
             data-invalid={invalid}
             data-multiline={multiline}
         >
@@ -163,9 +164,7 @@ const SpriteInput: React.FC<SpriteInputProps> = ({
                     className={styles.track}
                     style={{ transform: `translate(${-scroll.x}px, ${-scroll.y}px)` }}
                 >
-                    {value.length === 0 && !focused && placeholder
-                        ? <span className={styles.placeholder}>{textToSprite(placeholder)}</span>
-                        : lines.map(renderLine)}
+                    {lines.map(renderLine)}
                 </div>
             </div>
 

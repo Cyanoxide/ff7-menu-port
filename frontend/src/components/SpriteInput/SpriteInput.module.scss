@@ -23,7 +23,11 @@
      * invalid field with no visible marking at all. An outline sits outside the
      * border image instead of being replaced by it.
      */
-    &[data-focused="true"] {
+    // Also marks the row the menu cursor is on. The fields deliberately have no
+    // hand cursor, so without this a keyboard user has nothing telling them
+    // which field they are about to type into.
+    &[data-focused="true"],
+    &[data-selected="true"] {
         outline: 2px solid #dfe3ee;
         outline-offset: -2px;
     }
@@ -59,10 +63,6 @@
 .blank {
     display: block;
     height: var(--sprite-line);
-}
-
-.placeholder {
-    opacity: 0.45;
 }
 
 .caret {

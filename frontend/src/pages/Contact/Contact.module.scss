@@ -17,30 +17,20 @@
  * tie with.
  */
 .formPanel {
-    width: 59%;
+    width: 68%;
 }
 
 .channelsPanel {
-    width: 42%;
+    width: 33%;
 }
 
 
-// The cursor hangs 76px to the left of a row and is allowed to sit partly
-// outside the panel — reserving the whole 76px inside pushed the form well off
-// its own border. With the panel's 24px padding this leaves roughly half the
-// cursor overhanging, which the stage has room for: it is 1100px inside a
-// 1250px design width, so there is 75px of margin either side.
-$form-gutter: 1.5rem;
-
-// The channels panel keeps the full gutter instead. Its left border has the form
-// panel behind it, so a cursor overhanging there would float over the other
-// panel rather than over empty stage — which is why the two differ.
-$links-gutter: 4rem;
-
+// No gutter: the fields have no hand cursor to leave room for, so the panel's
+// own 24px padding is the whole inset and the gap either side of an input
+// matches. Any padding here would show up as extra space on the left only.
 .formColumn {
     display: flex;
     flex-direction: column;
-    padding-left: $form-gutter;
 }
 
 .fields {
@@ -52,21 +42,6 @@ $links-gutter: 4rem;
 .fieldLabel {
     display: block;
     margin-bottom: 0.35rem;
-}
-
-// The cursor sits to the left of a row's label, clear of the field itself
-.field[data-focused="true"] .fieldLabel:before {
-    content: "";
-    position: absolute;
-    margin-left: -76px;
-    margin-top: -2px;
-    background-image: url("/cursor.png");
-    width: 76px;
-    height: 46px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    z-index: 1;
-    pointer-events: none;
 }
 
 .sendRow {
@@ -113,7 +88,9 @@ $links-gutter: 4rem;
 .linkColumn {
     display: flex;
     flex-direction: column;
-    padding-left: $links-gutter;
+    // Enough that the cursor crosses the seam onto the form panel rather than
+    // sitting clear of it, which is what the Skills list's cursor does.
+    padding-left: 2rem;
 }
 
 .linkHeading {
@@ -143,14 +120,6 @@ $links-gutter: 4rem;
         background-size: contain;
         background-repeat: no-repeat;
         pointer-events: none;
-    }
-}
-
-.note {
-    margin-top: 2.2rem;
-
-    p {
-        margin-bottom: 0.2rem;
     }
 }
 

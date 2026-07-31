@@ -43,25 +43,14 @@ const LINKS: LinkEntry[] = [
     { id: "github", label: "Github", detail: "Source code and projects", href: "https://github.com/Cyanoxide" },
 ];
 
-const FIELDS = [
-    { id: "name", label: "Name", placeholder: "Who is calling?", hint: "Enter your name" },
-    { id: "email", label: "Email", placeholder: "Where should the reply go?", hint: "Enter an address for the reply" },
-] as const;
-
-const IDLE_HINT = "Send a message over the PHS";
+const LABELS = ["Name", "Email", "Message"] as const;
 
 /**
- * Pre-wrapped by hand to the channels panel. The sprite font wraps nothing — every
- * glyph is a nowrap span — so a line too long for the panel does not fold, it
- * runs out over the border.
+ * The header is static. It described whatever the cursor was on, which meant the
+ * top of the page flickered through four different strings as you moved down the
+ * form — the other menus' headers do not move like that.
  */
-const NOTE = [
-    "Messages reach me",
-    "by email. I read",
-    "every one, and reply",
-    "to the address",
-    "you leave.",
-];
+const HEADING = "Send a message over the PHS";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
@@ -74,7 +63,6 @@ function ContactContent() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState("");
-    const [hint, setHint] = useState(IDLE_HINT);
     const [status, setStatus] = useState<Status>("idle");
     const [error, setError] = useState("");
     const [invalid, setInvalid] = useState<string[]>([]);
@@ -210,14 +198,7 @@ function ContactContent() {
             if (dir === "up") return { group: "send", index: 0 };
             return null;
         },
-        onFocus: (current) => {
-            closeNav.setFocus(current.group === "close");
-
-            if (current.group === "fields") setHint(current.index === 2 ? "Type your message" : FIELDS[current.index].hint);
-            else if (current.group === "send") setHint("Send the message");
-            else if (current.group === "links") setHint(links[current.index].detail);
-            else setHint(IDLE_HINT);
-        },
+        onFocus: (current) => closeNav.setFocus(current.group === "close"),
         onConfirm: (current) => {
             if (current.group === "close") {
                 playSound("back", isSoundEnabled);
@@ -271,22 +252,19 @@ function ContactContent() {
     };
 
     const field = (index: number, id: "name" | "email" | "message", value: string, onChange: (next: string) => void) => {
-        const spec = id === "message"
-            ? { label: "Message", placeholder: "" }
-            : FIELDS[index];
+        const label = LABELS[index];
 
         return (
             <li
                 className={styles.field}
-                data-focused={isFocused("fields", index)}
                 onMouseEnter={() => focus({ group: "fields", index })}
                 onKeyDown={handleFieldKeyDown}
             >
-                <span className={styles.fieldLabel}>{textToSprite(spec.label, false, "grey")}</span>
+                <span className={styles.fieldLabel}>{textToSprite(label, false, "grey")}</span>
                 <SpriteInput
                     inputRef={fieldRefs[id]}
                     name={id}
-                    label={spec.label}
+                    label={label}
                     type={id === "email" ? "email" : "text"}
                     value={value}
                     onChange={(next) => { clearStatus(); onChange(next); }}
@@ -294,7 +272,7 @@ function ContactContent() {
                     maxLength={LIMITS[id]}
                     multiline={id === "message"}
                     rows={6}
-                    placeholder={spec.placeholder}
+                    selected={isFocused("fields", index)}
                     invalid={invalid.includes(id)}
                 />
             </li>
@@ -318,7 +296,7 @@ function ContactContent() {
                 one, so it is full width for the same reason every other page's
                 header is */}
             <ContentBox data-label="header" className="h-[84px] absolute">
-                {textToSprite(hint)}
+                {textToSprite(HEADING)}
             </ContentBox>
 
             {/* Absolutely positioned and overlapping, the same as Skills and
@@ -368,6 +346,7 @@ function ContactContent() {
                                     target="_blank"
                                     rel="noreferrer"
                                     className={styles.link}
+                                    data-text-color="yellow"
                                     data-focused={isFocused("links", index)}
                                     onMouseEnter={() => focus({ group: "links", index })}
                                     onClick={() => playSound("select", isSoundEnabled)}
@@ -378,12 +357,6 @@ function ContactContent() {
                             </li>
                         ))}
                     </ul>
-
-                    <div className={styles.note}>
-                        {NOTE.map((line, index) => (
-                            <p key={index}>{textToSprite(line, false, "grey")}</p>
-                        ))}
-                    </div>
                 </div>
             </ContentBox>
         </div>
