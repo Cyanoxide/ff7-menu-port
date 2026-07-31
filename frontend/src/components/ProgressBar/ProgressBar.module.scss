@@ -4,6 +4,12 @@
     height: 1.7rem;
     position: relative;
 
+    // The limit bar empties visibly when it is spent rather than snapping to
+    // nothing. Only this bar: the others are set once and never move.
+    &[data-limit=true]>div>div {
+        transition: width 0.45s ease-out;
+    }
+
     &>div {
         position: absolute;
         margin: 0.2rem 0.3rem;

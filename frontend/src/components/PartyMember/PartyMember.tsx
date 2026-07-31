@@ -168,16 +168,18 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
 
         const hit = (index: number, critical: boolean) => {
             const health = healthRef.current;
-            // A dead party member ends the sequence early rather than hitting a corpse
-            if (!health) return;
-
             const dealt = Math.floor(Math.random() * 21 + 130) * (critical ? 2 : 1);
+
+            // The cut always finishes, even if an earlier hit already emptied the
+            // bar — it just stops dealing damage rather than cutting away mid-swing
+            setLimitHits(index + 1);
+            playSound(critical ? "crit" : "slash", isSoundEnabled);
+
+            if (!health) return;
 
             setIsAttacking(true);
             setDamage(dealt);
-            setLimitHits(index + 1);
             dispatch({ type: "SET_CURRENT_HEALTH", payload: Math.max(0, health - dealt) });
-            playSound(critical ? "crit" : "slash", isSoundEnabled);
 
             if (dealt >= health) {
                 playSound("delete", isSoundEnabled);
@@ -250,9 +252,13 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
                                     height: `calc(${LIMIT_BOX.height} * var(--limit-unit))`,
                                 }}
                             >
-                                {LIMIT_SLASHES.slice(0, limitHits).map(({ sheet, at }, index) => (
+                                {/* Keyed by the slash itself, not by position: filtering
+                                    shifts the indices, and React would reuse the node that
+                                    was the right slash for the middle one and mount a fresh
+                                    node for the right — so the wrong slash animated in */}
+                                {LIMIT_SLASHES.filter(({ order }) => order < limitHits).map(({ sheet, at, order }) => (
                                     <span
-                                        key={index}
+                                        key={order}
                                         className={styles.limitSlash}
                                         style={{
                                             // Everything is expressed in the sheet's own pixels and
