@@ -309,14 +309,21 @@ function ContactContent() {
     };
 
     return (
-        <>
-            <ContentBox data-label="contactHeader" className="h-[84px] absolute">
+        // The two panels below overlap by 11px so their borders read as one seam.
+        // .contentBox fades in individually, so mid-animation both are translucent
+        // and the hidden border shows through — .panel-group moves the fade up a
+        // level, compositing the group first and applying the alpha after.
+        <div className="panel-group">
+            {/* Reuses the shared "header" label rather than a contact-specific
+                one, so it is full width for the same reason every other page's
+                header is */}
+            <ContentBox data-label="header" className="h-[84px] absolute">
                 {textToSprite(hint)}
             </ContentBox>
 
-            {/* Absolutely positioned, and flush rather than overlapping, the same
-                as the Projects page. Laying the two out with flex instead makes
-                them overrun the 1100px stage. */}
+            {/* Absolutely positioned and overlapping, the same as Skills and
+                Equip. Laying the two out with flex instead makes them overrun
+                the 1100px stage. */}
             <ContentBox data-label="contactForm" className="absolute top-[94px] bottom-0">
                 <div className={styles.formColumn}>
                     <input
@@ -379,7 +386,7 @@ function ContactContent() {
                     </div>
                 </div>
             </ContentBox>
-        </>
+        </div>
     );
 }
 

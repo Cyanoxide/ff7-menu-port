@@ -3,15 +3,22 @@
 // with everything around them.
 
 
-// Both columns are indented to leave room for the cursor, which hangs 76px to
-// the left of a row. That plus the panel's own 24px padding is all the gutter
-// there should be — any more reads as the form drifting away from its border.
-$cursor-gutter: 3.5rem;
+// The cursor hangs 76px to the left of a row and is allowed to sit partly
+// outside the panel — reserving the whole 76px inside pushed the form well off
+// its own border. With the panel's 24px padding this leaves roughly half the
+// cursor overhanging, which the stage has room for: it is 1100px inside a
+// 1250px design width, so there is 75px of margin either side.
+$form-gutter: 1rem;
+
+// The channels panel keeps the full gutter instead. Its left border has the form
+// panel behind it, so a cursor overhanging there would float over the other
+// panel rather than over empty stage — which is why the two differ.
+$links-gutter: 3.5rem;
 
 .formColumn {
     display: flex;
     flex-direction: column;
-    padding-left: $cursor-gutter;
+    padding-left: $form-gutter;
 }
 
 .fields {
@@ -84,7 +91,7 @@ $cursor-gutter: 3.5rem;
 .linkColumn {
     display: flex;
     flex-direction: column;
-    padding-left: $cursor-gutter;
+    padding-left: $links-gutter;
 }
 
 .linkHeading {
