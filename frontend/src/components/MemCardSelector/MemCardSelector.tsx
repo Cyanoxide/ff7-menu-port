@@ -7,10 +7,11 @@ import ContentBox from "../ContentBox/ContentBox";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { useContext } from "../../context/context";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCursorNav, markKeyboardNavigation } from "../../hooks/useCursorNav";
 import { closeNav } from "../../hooks/closeNav";
+import { elementUnderPointer } from "../../util/pointerActivity";
 import educationJSON from "../../data/education.json";
 import historyJSON from "../../data/history.json";
 import type { HistoryType } from "../../context/types";
@@ -40,16 +41,38 @@ const MemCardSelector = () => {
     const historyItems = (selectedHistoryType === "education") ? (educationJSON as HistoryType[]) : (historyJSON as HistoryType[]);
     const saveSlotCount = Math.max(MIN_SAVE_SLOTS, historyItems.length);
 
-    const onClickHandler = (historyType: string) => {
+    // Whether the option was picked with the mouse. A keyboard pick should land
+    // on the first save whatever the mouse happens to be resting over.
+    const pickedByMouse = useRef(false);
+
+    const onClickHandler = (historyType: string, viaMouse = false) => {
         if (!memoryCardLoaded) {
             playSound("error", isSoundEnabled);
             return;
         }
+        pickedByMouse.current = viaMouse;
         playSound("select", isSoundEnabled);
         setOptionSelected(true);
         setSelectedHistoryType(historyType)
 
     }
+
+    /**
+     * Which save row the pointer is already sitting on, if any.
+     *
+     * The list opens centred on where the options were, so the pointer is very
+     * often inside a row the moment it appears — usually the second. No
+     * mouseenter fires for that, because the content moved rather than the
+     * mouse, so the cursor sat on the first row while a click would have opened
+     * the second. Reading the pointer's position directly is the only way to
+     * reconcile the two without making the user jiggle the mouse.
+     */
+    const slotUnderPointer = (): number | null => {
+        if (!pickedByMouse.current) return null;
+        const slot = elementUnderPointer()?.closest("[data-slot]");
+        const index = slot ? Number(slot.getAttribute("data-slot")) : NaN;
+        return Number.isInteger(index) ? index : null;
+    };
 
     const { pos, focus, setPosSilently, isFocused } = useCursorNav({
         groups: [
@@ -148,7 +171,7 @@ const MemCardSelector = () => {
     // list once the memory card has loaded it (mouse flows keep no cursor)
     useEffect(() => {
         if (isListShown && pos && pos.group !== "saves") {
-            setPosSilently({ group: "saves", index: 0 });
+            setPosSilently({ group: "saves", index: slotUnderPointer() ?? 0 });
         }
     }, [isListShown]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -170,7 +193,7 @@ const MemCardSelector = () => {
             {!optionSelected && <ContentBox data-label="memCardSelector" className="absolute z-1 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                 <ul className={`${styles.historyOptions} flex flex-col items-center gap-1`}>
                     {OPTIONS.map((option, index) => (
-                        <li key={option} className="w-full flex justify-center mr-1" data-focused={isFocused("options", index) && memoryCardLoaded} onMouseEnter={() => focus({ group: "options", index })} onClick={() => { onClickHandler(option) }}>
+                        <li key={option} className="w-full flex justify-center mr-1" data-focused={isFocused("options", index) && memoryCardLoaded} onMouseEnter={() => focus({ group: "options", index })} onClick={() => { onClickHandler(option, true) }}>
                             <button>{textToSprite(option.charAt(0).toUpperCase() + option.slice(1), undefined, memoryCardLoaded ? "white" : "grey")}</button>
                         </li>
                     ))}

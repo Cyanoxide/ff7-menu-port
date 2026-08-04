@@ -24,13 +24,13 @@ const HistoryContent: React.FC<HistoryProps> = ({ historyType, focusedIndex = nu
     return (
         <>
             {history.map((item, index) => (
-                <HistorySave key={item.id} historyItem={item} historyType={historyType} focused={focusedIndex === index} onEnter={() => onItemEnter?.(index)} />
+                <HistorySave key={item.id} historyItem={item} historyType={historyType} focused={focusedIndex === index} onEnter={() => onItemEnter?.(index)} data-slot={index} />
             ))}
 
             {Array.from({ length: placeholdersNeeded }).map((_, index) => {
                 const slotIndex = history.length + index;
                 return (
-                    <div key={index} className={saveStyles.historySave} data-focused={focusedIndex === slotIndex} onMouseEnter={() => onItemEnter?.(slotIndex)} onClick={() => onEmptyClick?.()}>
+                    <div key={index} className={saveStyles.historySave} data-slot={slotIndex} data-focused={focusedIndex === slotIndex} onMouseEnter={() => onItemEnter?.(slotIndex)} onClick={() => onEmptyClick?.()}>
                         <ContentBox data-label="historySave" className="h-[235px] relative flex items-center"><span className="pl-32">{textToSprite("EMPTY", false, "yellow")}</span></ContentBox>
                     </div>
                 );
