@@ -12,6 +12,28 @@ import Config from "./pages/Config/Config";
 import Resume from "./pages/Resume/Resume";
 import NameEntry from "./pages/NameEntry/NameEntry";
 
+/**
+ * The canvas the app is scaled to fit.
+ *
+ * The height is the design height. The width only has to cover the 1100px stage
+ * plus the widest thing hung outside it. Cursors and the close button overhang:
+ * measured at 1440x900 and on a phone, the Projects tab cursor reaches ~40px
+ * past the left edge and the close button ~21px past the right. The canvas is
+ * centred on the stage, so it needs twice the worst side — 1100 + 2x40 = 1180 —
+ * and 1200 leaves a margin on top of that.
+ *
+ * It used to be 1250. The extra was never reached by anything, and on a phone,
+ * where the width is the limiting term, it letterboxed dead space onto both
+ * sides for nothing. Desktop is unaffected: an ordinary window is limited by its
+ * height, so min() still picks the height term and the scale is identical.
+ *
+ * If a page grows a wider overhang, this has to grow with it or the overhang
+ * clips at the screen edge. Check with a screenshot on the narrowest phone, not
+ * by eye on a desktop — desktop has hundreds of pixels of slack and hides it.
+ */
+const DESIGN_WIDTH = 1200;
+const DESIGN_HEIGHT = 975;
+
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -27,10 +49,10 @@ function App() {
         const viewportWidth = document.documentElement.clientWidth;
         const viewportHeight = document.documentElement.clientHeight;
         const scale = Math.min(
-          viewportWidth / 1250,
-          viewportHeight / 975
+          viewportWidth / DESIGN_WIDTH,
+          viewportHeight / DESIGN_HEIGHT
         );
-        const offsetY = Math.max(0, (viewportHeight - 975 * scale) / 2);
+        const offsetY = Math.max(0, (viewportHeight - DESIGN_HEIGHT * scale) / 2);
         app.style.transform = `translateY(${offsetY}px) scale(${scale})`;
       }
     }
