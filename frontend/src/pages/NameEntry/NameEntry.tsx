@@ -32,6 +32,14 @@ const ROWS = KEY_ROWS.length;
 
 const CONTROLS = ["Space", "Delete", "Select", "Default"];
 
+/**
+ * Everything the real keyboard can type: the glyphs on the on-screen keyboard,
+ * plus the space that the Space control inserts. Anything outside this set has
+ * no glyph in the sprite font, so it does nothing at all rather than being
+ * silently dropped into the name.
+ */
+const TYPEABLE = new Set<string>([...KEY_ROWS.flat().filter((ch): ch is string => ch !== null), " "]);
+
 const cellAt = (row: number, col: number): string | null =>
     (row >= 0 && row < ROWS && col >= 0 && col < COLS) ? KEY_ROWS[row][col] : null;
 
@@ -76,6 +84,45 @@ function NameEntry() {
         playSound("back", isSoundEnabled);
         setName(name.slice(0, -1));
     };
+
+    /**
+     * Typing on the real keyboard, alongside the on-screen one. Held in a ref
+     * and reassigned each render so the listener is registered once but always
+     * sees the current name.
+     */
+    const typeKey = useRef<(event: KeyboardEvent) => void>(() => { });
+    typeKey.current = (event: KeyboardEvent) => {
+        // Leave browser and OS shortcuts alone
+        if (event.metaKey || event.ctrlKey || event.altKey) return;
+
+        if (event.key === "Backspace") {
+            event.preventDefault();
+            event.stopPropagation();
+            deleteChar();
+            return;
+        }
+
+        // Anything with a longer name is a control key — the arrows, Enter,
+        // Escape — and belongs to the menu cursor, so it is left to pass through
+        if (event.key.length !== 1) return;
+
+        event.preventDefault();
+        // Consumed before useCursorNav can see it. Space is "cancel" there, so
+        // typing one would otherwise leave the page instead of adding a space.
+        event.stopPropagation();
+
+        // An unsupported character has no glyph in the sprite font, so it does
+        // nothing rather than being dropped into the name unseen
+        if (TYPEABLE.has(event.key)) appendChar(event.key);
+    };
+
+    useEffect(() => {
+        const onKeyDown = (event: KeyboardEvent) => typeKey.current(event);
+        // Capture phase: useCursorNav listens on window too, and a key this page
+        // claims has to be taken before that listener runs
+        window.addEventListener("keydown", onKeyDown, true);
+        return () => window.removeEventListener("keydown", onKeyDown, true);
+    }, []);
 
     const restoreDefault = () => {
         playSound("back", isSoundEnabled);
