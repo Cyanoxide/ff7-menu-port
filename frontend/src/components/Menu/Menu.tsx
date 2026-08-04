@@ -121,8 +121,15 @@ const Menu = () => {
         playSound("back", isSoundEnabled);
     }
 
-    const handleMouseEnter = (menuItem: MenuItem) => {
-        if (!isLanding) return;
+    /**
+     * Hover-to-focus, mouse only. A tap on a touch screen synthesises a
+     * mouseenter as well as the click, so both the hover's cursor sound and the
+     * click's select sound fired for one finger — two copies of the same clip a
+     * few milliseconds apart. pointerType tells the two inputs apart; the same
+     * guard is already on the Projects and Equip lists.
+     */
+    const handlePointerEnter = (event: React.PointerEvent, menuItem: MenuItem) => {
+        if (!isLanding || event.pointerType !== "mouse") return;
         focus({ group: "menu", index: navItems.indexOf(menuItem) });
     }
 
@@ -137,7 +144,7 @@ const Menu = () => {
 
         if (menuItem.path) {
             return (
-                <a className="flex w-100" title={menuItem.title || menuItem.name} href={menuItem.path} target="_blank" data-focused={focused} onClick={() => { playSound("select", isSoundEnabled) }} onMouseEnter={() => handleMouseEnter(menuItem)}>
+                <a className="flex w-100" title={menuItem.title || menuItem.name} href={menuItem.path} target="_blank" data-focused={focused} onClick={() => { playSound("select", isSoundEnabled) }} onPointerEnter={(event) => handlePointerEnter(event, menuItem)}>
                     {textToSprite(menuItem.name)}
                     <span className="font-glyph ml-2" data-sprite="external-link-icon"></span>
                 </a>
@@ -146,8 +153,8 @@ const Menu = () => {
 
         return (
             <>
-                <Link to={`/${menuItem.id}`} className={`${(location.pathname === `/${menuItem.id}`) ? styles.active : ""} w-100`} data-focused={focused && isLanding}><span onClick={() => handleOnClick()} onMouseEnter={() => handleMouseEnter(menuItem)}>{textToSprite(menuItem.name)}</span></Link>
-                {!isLanding && <Link to={"/"} data-label="close" data-focused={closeFocused} onClick={handleClose} onMouseEnter={() => playSound("select", isSoundEnabled)}><ContentBox className="absolute" data-label="close" >{textToSprite("X")}</ContentBox></Link>}
+                <Link to={`/${menuItem.id}`} className={`${(location.pathname === `/${menuItem.id}`) ? styles.active : ""} w-100`} data-focused={focused && isLanding}><span onClick={() => handleOnClick()} onPointerEnter={(event) => handlePointerEnter(event, menuItem)}>{textToSprite(menuItem.name)}</span></Link>
+                {!isLanding && <Link to={"/"} data-label="close" data-focused={closeFocused} onClick={handleClose} onPointerEnter={(event) => { if (event.pointerType === "mouse") playSound("select", isSoundEnabled); }}><ContentBox className="absolute" data-label="close" >{textToSprite("X")}</ContentBox></Link>}
             </>
         )
     }
