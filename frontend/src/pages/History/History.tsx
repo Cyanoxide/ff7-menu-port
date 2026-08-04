@@ -23,18 +23,14 @@ const HistoryContent: React.FC<HistoryProps> = ({ historyType, focusedIndex = nu
 
     return (
         <>
-            <div className="relative h-[84px] mb-[10px]">
-                <ContentBox data-label="historyHeader" className="h-full absolute top-0 left-0 right-0">{textToSprite("Select a file.")}</ContentBox>
-                <ContentBox data-label="historyFileLabel" className="h-full w-[225px] absolute top-0 right-[280px] flex">{textToSprite("FILE", false, "yellow")}{textToSprite((historyType !== "education") ? " 01" : " 02")}</ContentBox>
-            </div>
             {history.map((item, index) => (
-                <HistorySave key={item.id} historyItem={item} historyType={historyType} focused={focusedIndex === index} onEnter={() => onItemEnter?.(index)} />
+                <HistorySave key={item.id} historyItem={item} historyType={historyType} focused={focusedIndex === index} onEnter={() => onItemEnter?.(index)} data-slot={index} />
             ))}
 
             {Array.from({ length: placeholdersNeeded }).map((_, index) => {
                 const slotIndex = history.length + index;
                 return (
-                    <div key={index} className={saveStyles.historySave} data-focused={focusedIndex === slotIndex} onMouseEnter={() => onItemEnter?.(slotIndex)} onClick={() => onEmptyClick?.()}>
+                    <div key={index} className={saveStyles.historySave} data-slot={slotIndex} data-focused={focusedIndex === slotIndex} onMouseEnter={() => onItemEnter?.(slotIndex)} onClick={() => onEmptyClick?.()}>
                         <ContentBox data-label="historySave" className="h-[235px] relative flex items-center"><span className="pl-32">{textToSprite("EMPTY", false, "yellow")}</span></ContentBox>
                     </div>
                 );

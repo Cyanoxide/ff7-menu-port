@@ -7,6 +7,7 @@ import PartyMember from "../../components/PartyMember/PartyMember";
 import EquipmentSlots from "../../components/EquipmentSlots/EquipmentSlots";
 import Scrollbar from "../../components/Scrollbar/Scrollbar";
 import { isPointerMoving } from "../../util/pointerActivity";
+import { scrollIntoList } from "../../util/scrollIntoList";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import skillsJSON from "../../data/skills.json";
@@ -237,7 +238,7 @@ function SkillsContent() {
     // visible rows; snap alignment lands it on a whole-row boundary.
     useEffect(() => {
         if (pos?.group === "materia") {
-            materiaItemRefs.current[pos.index]?.scrollIntoView({ block: "nearest" });
+            scrollIntoList(materiaItemRefs.current[pos.index]);
         }
     }, [pos]);
 

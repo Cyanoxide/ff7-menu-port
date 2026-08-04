@@ -47,7 +47,16 @@ const Scrollbar: React.FC<ScrollbarProps> = ({ targetRef, onVisibleChange }) => 
                 return;
             }
             const height = Math.max(MIN_THUMB, Math.round(trackH * THUMB_FRACTION));
-            const top = Math.round((trackH - height) * (scrollTop / scrollable));
+            /**
+             * Clamped because scrollTop is not bounded on every platform. iOS
+             * rubber-bands past the ends, reporting a negative scrollTop at the
+             * top and more than the scrollable height at the bottom, which sent
+             * the thumb sliding out of its track and back again as the finger
+             * lifted. Pinning it to the ends instead reads as the list stretching
+             * under a thumb that has simply run out of travel.
+             */
+            const progress = Math.min(1, Math.max(0, scrollTop / scrollable));
+            const top = Math.round((trackH - height) * progress);
             setThumb({ visible: true, height, top });
         };
 
