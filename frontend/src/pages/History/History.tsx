@@ -23,10 +23,6 @@ const HistoryContent: React.FC<HistoryProps> = ({ historyType, focusedIndex = nu
 
     return (
         <>
-            <div className="relative h-[84px] mb-[10px]">
-                <ContentBox data-label="historyHeader" className="h-full absolute top-0 left-0 right-0">{textToSprite("Select a file.")}</ContentBox>
-                <ContentBox data-label="historyFileLabel" className="h-full w-[225px] absolute top-0 right-[280px] flex">{textToSprite("FILE", false, "yellow")}{textToSprite((historyType !== "education") ? " 01" : " 02")}</ContentBox>
-            </div>
             {history.map((item, index) => (
                 <HistorySave key={item.id} historyItem={item} historyType={historyType} focused={focusedIndex === index} onEnter={() => onItemEnter?.(index)} />
             ))}

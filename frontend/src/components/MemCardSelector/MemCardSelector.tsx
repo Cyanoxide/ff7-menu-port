@@ -18,6 +18,13 @@ import type { HistoryType } from "../../context/types";
 const MIN_SAVE_SLOTS = 3;
 const OPTIONS = ["work", "education"];
 
+/**
+ * How long a ContentBox takes to fade in — 0.25s, after a 0.2s delay. The save
+ * rows' cursor is a ::before on the row rather than on the box, so it does not
+ * fade with it and would otherwise sit over an empty panel for that beat.
+ */
+const CONTENT_FADE_MS = 450;
+
 const MemCardSelector = () => {
     const { isSoundEnabled } = useContext();
     const navigate = useNavigate();
@@ -25,6 +32,7 @@ const MemCardSelector = () => {
     const [optionSelected, setOptionSelected] = useState(false);
     const [selectedHistoryType, setSelectedHistoryType] = useState("work");
     const [memoryCardProgress, setMemoryCardProgress] = useState(0);
+    const [savesRevealed, setSavesRevealed] = useState(false);
 
     const isLoading = optionSelected && memoryCardProgress <= 100;
     const isListShown = optionSelected && memoryCardProgress > 100;
@@ -125,6 +133,17 @@ const MemCardSelector = () => {
 
     useEffect(() => () => closeNav.setFocus(false), []);
 
+    // Hold the cursor back until the save rows have finished fading in, the way
+    // the option rows already wait on memoryCardLoaded
+    useEffect(() => {
+        if (!isListShown) {
+            setSavesRevealed(false);
+            return;
+        }
+        const timer = setTimeout(() => setSavesRevealed(true), CONTENT_FADE_MS);
+        return () => clearTimeout(timer);
+    }, [isListShown]);
+
     // If keyboard navigation was in progress, move the cursor onto the save
     // list once the memory card has loaded it (mouse flows keep no cursor)
     useEffect(() => {
@@ -133,11 +152,21 @@ const MemCardSelector = () => {
         }
     }, [isListShown]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    const headerText = isListShown
+        ? "Select a file."
+        : isLoading ? "Checking Save Data File." : "Select a Save Data File.";
+
     return (
         <>
-            {!optionSelected && <div className="relative h-[84px] mb-[10px]">
-                <ContentBox data-label="MemCardHeader" className="h-full absolute top-0 left-0 right-0">{textToSprite("Select a Save Data File.")}</ContentBox>
-            </div>}
+            {/* One header box across all three states. Each state used to render
+                its own, so selecting an option unmounted the previous box and
+                mounted a new one — the bar faded out and back in at every step
+                rather than just changing its text. */}
+            <div className="relative h-[84px] mb-[10px]">
+                <ContentBox data-label="MemCardHeader" className="h-full absolute top-0 left-0 right-0">{textToSprite(headerText)}</ContentBox>
+                {isListShown && <ContentBox data-label="historyFileLabel" className="h-full w-[225px] absolute top-0 right-[280px] flex">{textToSprite("FILE", false, "yellow")}{textToSprite((selectedHistoryType !== "education") ? " 01" : " 02")}</ContentBox>}
+            </div>
+
             {!optionSelected && <ContentBox data-label="memCardSelector" className="absolute z-1 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                 <ul className={`${styles.historyOptions} flex flex-col items-center gap-1`}>
                     {OPTIONS.map((option, index) => (
@@ -149,7 +178,7 @@ const MemCardSelector = () => {
             </ContentBox>}
 
             {isLoading && <MemCardLoadingBar memoryCardProgress={memoryCardProgress} setMemoryCardProgress={setMemoryCardProgress} />}
-            {isListShown && <History historyType={selectedHistoryType} focusedIndex={pos?.group === "saves" ? pos.index : null} onItemEnter={(index) => focus({ group: "saves", index })} onEmptyClick={() => playSound("error", isSoundEnabled)} />}
+            {isListShown && <History historyType={selectedHistoryType} focusedIndex={savesRevealed && pos?.group === "saves" ? pos.index : null} onItemEnter={(index) => focus({ group: "saves", index })} onEmptyClick={() => playSound("error", isSoundEnabled)} />}
         </>
     );
 };
