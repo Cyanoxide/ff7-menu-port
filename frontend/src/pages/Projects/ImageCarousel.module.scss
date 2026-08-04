@@ -1,7 +1,19 @@
 // Screenshot carousel, sitting over the menu rather than inside a panel of it
 .overlay {
     position: fixed;
-    inset: 0;
+    /**
+     * Not `inset: 0`. #root carries a transform, which makes it the containing
+     * block for fixed children — so `0` is #root's box, not the viewport, and
+     * #root is only as wide as the 1100px stage. Anything hung outside that box
+     * stayed lit: the close button sits at `right: -43px`, and on a phone a
+     * third of it was left uncovered above the dimmed page.
+     *
+     * The overshoot is in design pixels, not vw/vh, because #root is already
+     * scaled and viewport units would be applied twice. 1000 is far more than
+     * the widest overhang and costs nothing — the element only paints a tint,
+     * and body has overflow hidden.
+     */
+    inset: -1000px;
     z-index: 40;
     display: flex;
     align-items: center;
