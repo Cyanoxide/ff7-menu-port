@@ -34,6 +34,23 @@ import NameEntry from "./pages/NameEntry/NameEntry";
 const DESIGN_WIDTH = 1200;
 const DESIGN_HEIGHT = 975;
 
+/**
+ * A phone gets a shorter canvas. The stage is 825 tall and sits in 975, so 150px
+ * of the height is margin that exists to give a desktop window some air. On a
+ * landscape phone that margin is most of the screen, and the menu ends up tiny
+ * with wide empty bands above and below.
+ *
+ * Only phone-sized viewports, deliberately: desktop is limited by its height, so
+ * shortening the canvas there would scale the whole app up and the user is happy
+ * with how it looks. "Phone" is the shorter side, which catches both
+ * orientations and leaves tablets and every desktop window alone.
+ */
+const COMPACT_MAX_SIDE = 500;
+const COMPACT_DESIGN_HEIGHT = 880;
+
+const canvasHeight = (width: number, height: number) =>
+    Math.min(width, height) < COMPACT_MAX_SIDE ? COMPACT_DESIGN_HEIGHT : DESIGN_HEIGHT;
+
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -50,9 +67,19 @@ function App() {
         const viewportHeight = document.documentElement.clientHeight;
         const scale = Math.min(
           viewportWidth / DESIGN_WIDTH,
-          viewportHeight / DESIGN_HEIGHT
+          viewportHeight / canvasHeight(viewportWidth, viewportHeight)
         );
-        const offsetY = Math.max(0, (viewportHeight - DESIGN_HEIGHT * scale) / 2);
+        /**
+         * Centres the element's own box, measured rather than assumed, and is
+         * allowed to go negative so a box taller than the window overhangs
+         * evenly instead of hanging off the bottom. offsetHeight is layout
+         * pixels, so the transform does not feed back into it.
+         *
+         * This used to centre the design canvas and clamp at 0, which is the
+         * same answer whenever the canvas and the box are the same height —
+         * every case before the compact canvas existed.
+         */
+        const offsetY = (viewportHeight - app.offsetHeight * scale) / 2;
         app.style.transform = `translateY(${offsetY}px) scale(${scale})`;
       }
     }
