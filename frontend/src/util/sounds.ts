@@ -53,6 +53,17 @@ type WebkitWindow = Window & { webkitAudioContext?: typeof AudioContext };
 let context: AudioContext | null = null;
 let contextUnavailable = false;
 
+/**
+ * Whether a user gesture has happened yet. Until one has, the context cannot be
+ * running, and a sound started against a suspended context is not dropped by the
+ * browser — it is scheduled. Every hover on the way to the first click piles up
+ * and the whole backlog fires the moment the context resumes.
+ *
+ * Sound is opt-in, but the setting is remembered, so a returning visitor has it
+ * on before they have touched anything and hits exactly that.
+ */
+let gestureSeen = false;
+
 const buffers = new Map<sounds, AudioBuffer>();
 const loading = new Map<sounds, Promise<void>>();
 const lastPlayed = new Map<sounds, number>();
@@ -110,6 +121,11 @@ const preload = () => {
  * genuinely gesture-backed.
  */
 const unlock = () => {
+    // Set before resume() is even asked for: the click that follows a
+    // pointerdown arrives long before the resume promise settles, and that
+    // click's own sound is one we do want to hear.
+    gestureSeen = true;
+
     const ctx = getContext();
     if (!ctx) return;
 
@@ -160,22 +176,34 @@ const playSound = (soundName: sounds, isSoundEnabled: boolean, isLoop: boolean =
     const ctx = getContext();
     if (!ctx) return;
 
+    // Nothing has unlocked audio yet, so this cannot be heard now and must not
+    // be scheduled for later — that is the backlog. Drop it. Hovering the menu
+    // before the first click is exactly this case, and silence there is correct
+    // rather than a compromise: the browser was never going to play it.
+    if (ctx.state !== "running" && !gestureSeen) return;
+
     const now = performance.now();
     if (now - (lastPlayed.get(soundName) ?? -Infinity) < DEDUPE_MS) return;
     lastPlayed.set(soundName, now);
 
-    // A sound asked for outside a gesture — a hover, say — still nudges the
-    // context. A no-op where the browser has already allowed audio.
-    if (ctx.state === "suspended") void ctx.resume();
+    const play = () => {
+        if (buffers.has(soundName)) {
+            start(soundName, isLoop);
+            return;
+        }
+        // Only reachable in the first moments of a session, before the preload
+        // finishes. Late beats silent, and it corrects itself immediately after.
+        void load(soundName).then(() => start(soundName, isLoop));
+    };
 
-    if (buffers.has(soundName)) {
-        start(soundName, isLoop);
+    if (ctx.state === "running") {
+        play();
         return;
     }
 
-    // Only reachable in the first moments of a session, before the preload
-    // finishes. Late beats silent, and it corrects itself immediately after.
-    void load(soundName).then(() => start(soundName, isLoop));
+    // A gesture has happened but resume() has not settled yet — the first click
+    // of a session. One sound, wanted, so it waits rather than being dropped.
+    void ctx.resume().then(play);
 };
 
 export default playSound;
