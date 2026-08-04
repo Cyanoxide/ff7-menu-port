@@ -137,13 +137,38 @@ const unlock = () => {
     source.start(0);
 };
 
-if (typeof window !== "undefined") {
-    const events = ["pointerdown", "touchend", "keydown"] as const;
-    const onFirstGesture = () => {
+/**
+ * Only these count. The activation events a browser will unlock audio on are
+ * pointer and key presses — a hover is not one, which is why no amount of moving
+ * the mouse around the menu will start the sound. touchend is here for iOS,
+ * which treats it as the activation rather than the pointerdown.
+ */
+const GESTURES = ["pointerdown", "touchend", "keydown"] as const;
+
+const armUnlock = () => {
+    const onGesture = () => {
         unlock();
-        events.forEach((type) => window.removeEventListener(type, onFirstGesture));
+        GESTURES.forEach((type) => window.removeEventListener(type, onGesture));
     };
-    events.forEach((type) => window.addEventListener(type, onFirstGesture, { passive: true }));
+    GESTURES.forEach((type) => window.addEventListener(type, onGesture, { passive: true }));
+};
+
+if (typeof window !== "undefined") {
+    armUnlock();
+
+    /**
+     * iOS suspends the context when the page goes into the background, and on an
+     * audio interruption such as a call. Coming back needs a fresh gesture, so
+     * the listeners are put back rather than being a one-time thing — otherwise
+     * sound simply stops working for the rest of the visit.
+     */
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState !== "visible") return;
+        if (context && context.state !== "running") {
+            gestureSeen = false;
+            armUnlock();
+        }
+    });
 }
 
 const start = (name: sounds, isLoop: boolean) => {
@@ -201,9 +226,18 @@ const playSound = (soundName: sounds, isSoundEnabled: boolean, isLoop: boolean =
         return;
     }
 
-    // A gesture has happened but resume() has not settled yet — the first click
-    // of a session. One sound, wanted, so it waits rather than being dropped.
-    void ctx.resume().then(play);
+    /**
+     * A gesture has happened but resume() has not settled yet — the first click
+     * of a session. One sound, wanted, so it waits rather than being dropped.
+     *
+     * Checked again on the way out: resume() settling does not promise the
+     * context actually started, and playing into one that is still suspended is
+     * what schedules a sound for later instead of playing it. That is the
+     * backlog this whole path exists to avoid.
+     */
+    void ctx.resume().then(() => {
+        if (ctx.state === "running") play();
+    });
 };
 
 export default playSound;
