@@ -1,0 +1,42 @@
+{
+  "_readme": [
+    "Every message the contact form can show, in one place. Read at runtime by",
+    "public/contact.php and imported at build time by pages/Contact/Contact.tsx,",
+    "so a string lives here once rather than once per runtime.",
+    "",
+    "WIDTH BUDGET: these render on one line beside the Send link, in a sprite",
+    "font that does not wrap. Anything much past ~26 characters runs under Send",
+    "and out of the panel. tests/message-widths.mjs measures every string below",
+    "against the real glyph widths in src/font.css and fails if one will not fit,",
+    "so you do not have to count characters by eye.",
+    "",
+    "Keys are referenced by name in both runtimes. Renaming one means changing it",
+    "in both; changing the text means changing nothing else.",
+    "",
+    "Lines starting with an underscore are ignored by everything that reads this."
+  ],
+
+  "sending": "Sending...",
+  "sent": "Message sent. Thank you!",
+
+  "emptyFields": "Please fill in all fields.",
+  "badEmail": "Invalid Email address.",
+  "tooLong": "Your message is too long.",
+  "tooManyLinks": "Message flagged as spam.",
+
+  "tooQuick": "Message flagged as spam.",
+  "expired": "Session expired. Please reload.",
+  "replay": "Message already sent.",
+
+  "rateLimited": "Message limit reached.",
+  "busy": "Form is busy. Try again later.",
+
+  "notConfigured": "Form is not configured.",
+  "closed": "The form is disabled.",
+  "methodNotAllowed": "Method not allowed.",
+  "badRequest": "Message could not be processed.",
+  "sendFailed": "Message could not be sent.",
+
+  "unreachable": "Could not reach the server.",
+  "fallback": "Something went wrong."
+}
