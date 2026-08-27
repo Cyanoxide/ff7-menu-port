@@ -61,27 +61,18 @@ function App() {
         const bandTop = window.visualViewport?.offsetTop ?? 0;
 
         /**
-         * And the document's own scroll, which is the part that was missing.
+         * Deliberately NOT adding window.scrollY here.
          *
-         * translateY places the app in *document* space, so a scrolled document
-         * carries it up the screen by exactly that much. Focusing a field is
-         * what does it: the browser scrolls to bring the field into view, and
-         * `overflow: hidden` on the body stops a *person* scrolling but not the
-         * browser. body is 975px tall inside a viewport of 731 or 775, so there
-         * is real room to scroll into.
+         * It was, briefly, and it made things worse. translateY moves the app
+         * in document space, so shifting it down by the scroll also moves the
+         * focused field down — the browser scrolls further to chase it, and the
+         * two push each other until the keyboard is covering the bottom.
          *
-         * Measured on a desktop Safari with the document scrolled 155px: the
-         * app was computed at 197.8 and rendered at 42.8, which is 197.8 - 155.
-         * With a keyboard up the offset is smaller than the scroll, so the top
-         * goes off screen — and nothing puts it back when the keyboard closes,
-         * because the scroll stays.
-         *
-         * Adding it back pins the app to the visible band whatever the document
-         * does, rather than fighting the browser for control of the scroll.
+         * #root is position:fixed instead (index.css), so it is out of flow,
+         * the document has nothing to scroll, and there is no scroll to correct
+         * for. Fixing the cause beats following the symptom.
          */
-        const scrolled = window.scrollY || document.documentElement.scrollTop || 0;
-
-        const offsetY = scrolled + bandTop + Math.max(0, (viewportHeight - 975 * scale) / 2);
+        const offsetY = bandTop + Math.max(0, (viewportHeight - 975 * scale) / 2);
         app.style.transform = `translateY(${offsetY}px) scale(${scale})`;
       }
     }
@@ -113,8 +104,7 @@ function App() {
     window.addEventListener("focusin", scaleAfterKeyboard);
     window.addEventListener("focusout", scaleAfterKeyboard);
     window.addEventListener("orientationchange", scaleApp);
-    // The browser scrolls the document to reveal a focused field; the app has
-    // to follow that or it is carried off the top of the screen.
+    // Still worth listening: if anything does manage to scroll, re-place the app
     window.addEventListener("scroll", scaleApp, { passive: true });
     window.visualViewport?.addEventListener("resize", scaleApp);
     window.visualViewport?.addEventListener("scroll", scaleApp);

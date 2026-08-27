@@ -99,7 +99,30 @@ body.crt-effect * {
   image-rendering: auto;
 }
 
+/**
+ * Fixed, so the document has nothing to scroll.
+ *
+ * In normal flow this is 975px tall inside a viewport of 731 or 775, which
+ * gives the browser real room to scroll into — and `overflow: hidden` on the
+ * body stops a person scrolling but not the browser. Focusing a field on a
+ * phone made it scroll to bring that field into view, carrying the app off the
+ * top of the screen and leaving it there when the keyboard closed. Measured on
+ * an iPhone: the document scrolled 155px, and the app rendered 155px above
+ * where it was placed.
+ *
+ * Out of flow, the body has no height to speak of, so there is no scroll to
+ * happen. Vertical position comes from the transform in App.tsx, which is
+ * measured against the visual viewport; `top: 0` with `transform-origin: top`
+ * means the translate *is* the on-screen position.
+ *
+ * left/right/margin keep the horizontal centring that `margin: 0 auto` gave it
+ * in flow.
+ */
 #root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   width: 1250px;
   height: 975px;
   transform-origin: top center;
