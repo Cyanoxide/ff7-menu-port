@@ -16,39 +16,155 @@
  * own 1.5rem padding, so there is no padding declaration to lose a specificity
  * tie with.
  */
+/**
+ * The channels panel is exactly as wide as the menu box in the top right, so
+ * pinned right it starts on the same canvas column (1060) and the two read as
+ * one edge down the page.
+ *
+ * Pixels, not percentages, because 270 is the figure that has to hold — the
+ * container is a fixed 1100 in design pixels, so there is nothing for a
+ * percentage to adapt to, and 24.5-something% only obscures where it came from.
+ *
+ * 841 + 270 = 1111, which overruns the 1100 container by the **11px overlap**.
+ * The right panel is pinned right, so the pair overlaps by that much and the
+ * two borders read as one seam rather than as a double line. Same trick as
+ * skillsContentLeft/Right. Change one and the other has to move with it.
+ */
 .formPanel {
-    width: 68%;
+    width: 841px;
+}
+
+/**
+ * The strip under the header. Its own class rather than data-label="description"
+ * — that shared rule adds a 2rem left inset, which put this text 8px right of
+ * the header above it and the labels below it. Width is all it needs from the
+ * shared styles; the 24px inset then comes from ContentBox's own padding, the
+ * same one the header uses.
+ */
+.descriptionPanel {
+    width: 100%;
 }
 
 .channelsPanel {
-    width: 33%;
+    width: 270px;
 }
 
 
 // No gutter: the fields have no hand cursor to leave room for, so the panel's
 // own 24px padding is the whole inset and the gap either side of an input
 // matches. Any padding here would show up as extra space on the left only.
+/**
+ * The right inset lives here, not on .fields, so the Send row shares it and a
+ * right-aligned Send finishes flush with the fields above it.
+ *
+ * 11px of it gives back the panel overlap: the panels are 68% + 33%, so the
+ * pair overruns the stage and the channels panel sits on top of the form
+ * panel's right edge. Without it the fields are symmetric in layout — 26px
+ * either side — but read as 15px on the right. The remaining 5px is breathing
+ * room on top of that parity.
+ *
+ * Note this cannot be padding-left: on the left there is no overlap to correct,
+ * so any padding there just moves the fields inward on one side.
+ */
+/**
+ * No left padding: the labels start on the panel's own 24px inset, so "Name",
+ * "Send me a message..." and the "P" of PHS all begin on the same column.
+ *
+ * The 6px inset the fields were given is on the *boxes* instead (see below),
+ * which is what was actually asked for — putting it here moved the labels off
+ * that column with them.
+ *
+ * The right padding stays: 11px of it gives back the panel overlap, 5px is
+ * breathing room.
+ */
 .formColumn {
     display: flex;
     flex-direction: column;
+    padding-right: 16px;
 }
 
+/**
+ * The 11px is the panel overlap, given back.
+ *
+ * The panels are 68% + 33%, so the pair overruns the stage by 11px and the
+ * channels panel sits on top of the form panel's right edge. The fields already
+ * sat symmetrically — measured 26px from the form panel on both sides — but the
+ * rightmost 11px of that gap is underneath the channels panel, so it reads as
+ * 15px on the right against 26px on the left.
+ *
+ * Insetting the fields by the overlap puts the *visible* gap back to 26px
+ * either side. Tied to the overlap, not chosen by eye: if the panel widths
+ * change, this has to change with them.
+ */
 .fields {
     display: flex;
     flex-direction: column;
     gap: 1.1rem;
 }
 
+// A glyph's box sits tight to its baseline, so 0.35rem left the descenders
+// almost touching the field's top border.
+/**
+ * A field row, and the anchor for its cursor.
+ *
+ * The hand is drawn against the *input box*, not the row: the row includes the
+ * label above it, so centring on the row would leave the finger pointing at the
+ * gap between the two. 87px is the label block (a 39px glyph plus its 1rem
+ * margin) plus half a 64px input — the first line of the message box as well as
+ * the whole of the single-line ones, so all three cursors line up.
+ */
+/**
+ * The input box, inset 6px either side. The label above it is not — it sits on
+ * the panel's column with the two headings.
+ *
+ * Targets the row's direct div because that is SpriteInput's root; the label
+ * beside it is a span and is untouched.
+ */
+.field > div {
+    margin-inline: 6px;
+}
+
+.field {
+    position: relative;
+
+    &[data-focused="true"]:before {
+        content: "";
+        position: absolute;
+        left: -76px;
+        top: 87px;
+        // Same finger-centring correction as the links and Send
+        transform: translateY(calc(-50% + 11px));
+        background-image: url("/cursor.png");
+        width: 76px;
+        height: 46px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        pointer-events: none;
+        z-index: 1;
+    }
+}
+
 .fieldLabel {
     display: block;
-    margin-bottom: 0.35rem;
+    margin-bottom: 1rem;
 }
 
 .sendRow {
     display: flex;
     align-items: center;
+    /**
+     * Status on the left, Send on the right. The status is a sentence and
+     * reads from the left margin like every other line on the page; Send stays
+     * flush with the fields above it.
+     *
+     * The two share one row, so an error has a width budget — see the note on
+     * respond() in contact.php. Nothing here wraps.
+     */
+    justify-content: space-between;
     gap: 1.5rem;
     margin-top: 1.6rem;
+    // Matches the boxes' own inset, so Send stays flush with their right edge
+    padding-right: 6px;
 }
 
 // Reads as a link rather than a control, matching the resume's yellow links.
@@ -64,7 +180,15 @@
         position: absolute;
         left: -76px;
         top: 50%;
-        transform: translateY(-50%);
+        /**
+         * Centres the *finger* on the text, not the image on the box.
+         *
+         * cursor.png is 24x16 and the pointing fingertip sits at rows 2-4 —
+         * centre row 3 of 16 — with the fist below it and rows 10-15 shadow. So
+         * a plain -50% centres the whole hand and leaves the finger pointing
+         * above the word.
+         */
+        transform: translateY(calc(-50% + 11px));
         background-image: url("/cursor.png");
         width: 76px;
         height: 46px;
@@ -83,6 +207,10 @@
     display: flex;
     align-items: center;
     min-height: 36px;
+    // Never let a long message push Send off its alignment; it clips instead,
+    // which is visible and fixable, rather than silently moving the layout.
+    min-width: 0;
+    overflow: hidden;
 }
 
 .linkColumn {
@@ -90,7 +218,7 @@
     flex-direction: column;
     // Enough that the cursor crosses the seam onto the form panel rather than
     // sitting clear of it, which is what the Skills list's cursor does.
-    padding-left: 2rem;
+    padding-left: 1rem;
 }
 
 .linkHeading {
@@ -113,7 +241,15 @@
         position: absolute;
         left: -76px;
         top: 50%;
-        transform: translateY(-50%);
+        /**
+         * Centres the *finger* on the text, not the image on the box.
+         *
+         * cursor.png is 24x16 and the pointing fingertip sits at rows 2-4 —
+         * centre row 3 of 16 — with the fist below it and rows 10-15 shadow. So
+         * a plain -50% centres the whole hand and leaves the finger pointing
+         * above the word.
+         */
+        transform: translateY(calc(-50% + 11px));
         background-image: url("/cursor.png");
         width: 76px;
         height: 46px;
