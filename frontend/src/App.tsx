@@ -1,4 +1,5 @@
 import { Provider } from "./context/provider";
+import { startViewportProbe } from "./util/viewportProbe";
 import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
@@ -72,6 +73,8 @@ function App() {
     let settle: ReturnType<typeof setTimeout>;
     function scaleAfterKeyboard() {
       scaleApp();
+    // No-op unless the URL carries ?probe=1
+    startViewportProbe();
       clearTimeout(settle);
       settle = setTimeout(scaleApp, 300);
     }
