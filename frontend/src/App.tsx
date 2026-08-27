@@ -73,7 +73,8 @@ function App() {
          * for. Fixing the cause beats following the symptom.
          */
         const offsetY = bandTop + Math.max(0, (viewportHeight - 975 * scale) / 2);
-        app.style.transform = `translateY(${offsetY}px) scale(${scale})`;
+        // translateX(-50%) pairs with left: 50% in index.css — see the note there
+        app.style.transform = `translateX(-50%) translateY(${offsetY}px) scale(${scale})`;
       }
     }
 

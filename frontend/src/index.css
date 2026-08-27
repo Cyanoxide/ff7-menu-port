@@ -115,18 +115,22 @@ body.crt-effect * {
  * measured against the visual viewport; `top: 0` with `transform-origin: top`
  * means the translate *is* the on-screen position.
  *
- * left/right/margin keep the horizontal centring that `margin: 0 auto` gave it
- * in flow.
+ * Horizontal centring is `left: 50%` plus a translateX(-50%) in the transform,
+ * NOT auto margins. Out of flow the centring that body's flex was doing is
+ * gone, and auto margins do not replace it: this box is 1250px wide, so on a
+ * phone it is wider than the viewport, the margins resolve to zero, and
+ * `transform-origin: top center` then scales the box out to one side. WebKit
+ * put it at x=430 in a 390px viewport — completely off screen, a black page.
+ * Chromium happened to hide it. The translate is arithmetic, not a negotiation,
+ * so both engines land in the same place.
  */
 #root {
   position: fixed;
   top: 0;
-  left: 0;
-  right: 0;
+  left: 50%;
   width: 1250px;
   height: 975px;
   transform-origin: top center;
-  margin: 0 auto;
 }
 
 @keyframes jitter {
