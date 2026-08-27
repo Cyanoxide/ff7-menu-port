@@ -30,9 +30,25 @@
         left: -100%;
     }
 
+    /**
+     * The right edge lands on the second character of the menu items beside
+     * it. Three numbers move together to do that, and they are not independent:
+     *
+     *   width (Landing.tsx)  894.8px   was 1000
+     *   right (below, open)  201.2px   was 96      = 1330 - 1128.8
+     *   padding-right        6.125rem  was 12.7rem = 98px
+     *
+     * The content is sized *by* the box — its inner width works out at exactly
+     * 741.6px — so narrowing the box without taking the same amount off the
+     * right padding squeezes the party rows instead of moving the edge. Width
+     * minus right padding has to stay at 796.8px, or the content shifts.
+     *
+     * Left, top and bottom are unchanged by construction: left is right minus
+     * width, and both moved by the same 105.2px.
+     */
     &[data-label="party"] {
         max-width: calc(100% - (3rem));
-        padding: 1.65rem 12.7rem 1.65rem 3.2rem;
+        padding: 1.65rem 6.125rem 1.65rem 3.2rem;
         right: -100%;
     }
 
@@ -43,7 +59,16 @@
         transition: all 0.3s ease-in 0.65s;
         overflow: hidden;
         animation: none;
-        padding: 1.5rem 1.25rem;
+        /*
+         * Vertical raised by 0.325rem each.
+         *
+         * Horizontal came *down* from 1.25rem, and not for looks: narrowing
+         * the box by 3.18px to line its border up with the portrait left the
+         * longest line 1px wider than the content box, and `overflow: hidden`
+         * simply cut it off. 1.125rem buys 2px back, which puts about 3px of
+         * slack under the widest line. Widen the text and check it again.
+         */
+        padding: 1.825rem 1.125rem;
     }
 
     &[data-label="header"],
@@ -176,8 +201,21 @@
 }
 
 [data-active="true"] {
+    /**
+     * The location strip, the time/gil box and the bio all drop by the same
+     * 14.7px, so the party box's bottom edge lands on the top of the location
+     * text. Each is anchored differently, so the same shift is spelled three
+     * ways: this one moves `top`, metaInfo takes it off `bottom`, and the bio's
+     * wrapper moves `top` inside the party box (both in Landing.tsx).
+     *
+     * 14.7 is measured to the top of the *letterforms*, not the glyph box —
+     * within a 39px cell a capital's ink starts 3px down, so aligning to the
+     * box would sit the edge 3px high.
+     *
+     * 44.8rem + 0.91875rem.
+     */
     [data-label="pageInfo"] {
-        top: 44.8rem;
+        top: 45.71875rem;
     }
 
     [data-label="menu"] {
@@ -189,12 +227,34 @@
     }
 
     [data-label="party"] {
-        right: 6rem;
+        // 201.2px: the stage's right edge (1330) less the target column (1128.8)
+        right: 12.575rem;
     }
 
+    /**
+     * 376.4px, up from 340. The box grows *upward only* — its bottom, left and
+     * right stay exactly where they were, and the extra height eats into the
+     * gap above it.
+     *
+     * Its wrapper centres it, so growing it alone would push the bottom down by
+     * half the difference. Landing.tsx moves that wrapper up by 18.2px (half of
+     * 36.4) to cancel it. **The two numbers are a pair**: change this height and
+     * the wrapper's `top` moves by half the change, or the bottom edge drifts.
+     *
+     * 376.4 is what the content needs: 2px border + 29.2px padding + 314px of
+     * paragraphs + 29.2px padding + 2px border. The paragraph total is six 36px
+     * lines plus the five gaps between them (13.2 + 29.2 + 29.2 + 13.2 + 13.2).
+     */
     [data-label="bio"] {
-        height: 340px;
-        width: 720px;
+        height: 376.4px;
+        /*
+         * 716.82, and the wrapper's `left` moves right by the same 3.18px, so
+         * the right edge does not move. That puts the *outer* edge of the
+         * border art on the portrait's left edge — the frame is drawn 5px
+         * outside the border box (border-image-outset), so the box itself sits
+         * 5px inside the line it appears to draw.
+         */
+        width: 716.82px;
         opacity: 1;
     }
 }

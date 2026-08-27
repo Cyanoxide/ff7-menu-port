@@ -31,20 +31,20 @@ function LandingContent() {
         // Fades as one group: the location and meta panels overlap the main one,
         // and fading them separately shows the hidden borders through each other
         <div className="panel-group">
-            <ContentBox className="w-[1000px] h-[720px] m-auto absolute top-[44px]" data-label="party">
+            <ContentBox className="w-[894.8px] h-[720px] m-auto absolute top-[44px]" data-label="party">
                 <PartyMember memberId={1} showProgressBars={true} healthReduction={true} />
-                <div className="flex items-center justify-center h-[340px] w-[720px] left-[53px] right-[220px] top-[294px] absolute">
+                <div className="flex items-center justify-center h-[340px] w-[716.82px] left-[56.18px] right-[220px] top-[290.5px] absolute">
                     <ContentBox data-label="bio">
-                        <p className="mb-2">{textToSprite("I'm a Senior Web Developer based in")}</p>
-                        <p className="mb-6">{textToSprite("Gloucester, UK.")}</p>
-                        <p className="mb-6">{textToSprite("Welcome to my personal sandbox.")}</p>
-                        <p className="mb-2">{textToSprite("I plan to add an ever-growing collection")}</p>
-                        <p className="mb-2">{textToSprite("of small technical projects here, mostly")}</p>
-                        <p className="mb-2">{textToSprite("built with PS1 aesthetics in mind.")}</p>
+                        <p className="mb-[13.2px]">{textToSprite("I'm a Senior Web Developer based in")}</p>
+                        <p className="mb-[29.2px]">{textToSprite("Gloucester, UK.")}</p>
+                        <p className="mb-[29.2px]">{textToSprite("Welcome to my personal sandbox.")}</p>
+                        <p className="mb-[13.2px]">{textToSprite("I plan to add an ever-growing collection")}</p>
+                        <p className="mb-[13.2px]">{textToSprite("of small technical projects here, mostly")}</p>
+                        <p className="mb-[13.2px]">{textToSprite("built with PS1 aesthetics in mind.")}</p>
                     </ContentBox>
                 </div>
             </ContentBox>
-            <ContentBox className="w-[280px] h-[110px] m-auto absolute right-0 bottom-[110px]" data-label="metaInfo">
+            <ContentBox className="w-[280px] h-[110px] m-auto absolute right-0 bottom-[94.2px]" data-label="metaInfo">
                 <ul className="flex justify-between flex-col h-full">
                     <li className="flex justify-between">
                         <span>{textToSprite("Time")}</span>
@@ -56,7 +56,7 @@ function LandingContent() {
                     </li>
                 </ul>
             </ContentBox>
-            <ContentBox className={`${styles.pageInfo} w-[535px] h-[95px] m-auto absolute right-0 top-0 flex items-center justify-between`} data-label="pageInfo">
+            <ContentBox className={`${styles.pageInfo} w-[535px] h-[88px] m-auto absolute right-0 top-0 flex items-center justify-between`} data-label="pageInfo">
                 <span>{textToSprite(location)}</span>
                 <span className={`${styles.refresh} font-glyph`} data-sprite="reset-icon" onClick={refreshLocation}></span>
             </ContentBox>
