@@ -7,6 +7,13 @@ export type NavDirection = "up" | "down" | "left" | "right";
 export type NavPageJump = "pageUp" | "pageDown";
 type NavAction = NavDirection | NavPageJump | "confirm" | "cancel";
 
+/**
+ * Where a cursor move came from. Pages use it to tell a deliberate keyboard
+ * move from the mouse happening to pass over something — the two want
+ * different behaviour on a page whose rows are text fields.
+ */
+export type FocusSource = "key" | "pointer" | "initial";
+
 export interface CursorPos {
     group: string;
     index: number;
@@ -25,9 +32,25 @@ export interface CursorNavOptions {
     fallback?: CursorPos;
     enabled: boolean;
     memoryKey?: string;
+    /**
+     * Keep handling the arrow keys while a text field has focus.
+     *
+     * Off by default, and it must stay off by default: every other page relies
+     * on the menu getting out of the way once you are typing — name entry most
+     * of all, where the arrows belong to the glyph grid.
+     *
+     * A page that turns this on is saying its rows *are* the fields, so moving
+     * between them is navigation rather than editing. The cost is that the
+     * arrows no longer move the text caret inside a field; Home, End and the
+     * mouse still do.
+     *
+     * Only the four directions are taken. Enter, Escape, Space and the rest are
+     * left to the field, so typing, newlines and Escape-to-blur are unaffected.
+     */
+    navigateWhileEditing?: boolean;
     resolveMove: (pos: CursorPos, dir: NavDirection, helpers: { wrap: (index: number, delta: 1 | -1, size: number) => number }) => CursorPos | null;
     resolvePageJump?: (pos: CursorPos, dir: NavPageJump) => CursorPos | null;
-    onFocus: (pos: CursorPos) => void;
+    onFocus: (pos: CursorPos, source: FocusSource) => void;
     onConfirm: (pos: CursorPos) => void;
     onCancel?: () => boolean;
     onSwitch?: () => void;
@@ -95,7 +118,7 @@ export function useCursorNav(options: CursorNavOptions) {
         if (memoryKey) cursorMemory.set(memoryKey, next);
     };
 
-    const moveTo = useCallback((next: CursorPos, silent: boolean) => {
+    const moveTo = useCallback((next: CursorPos, silent: boolean, source: FocusSource = "pointer") => {
         const { options: opts, pos: current, isSoundEnabled: sound } = stateRef.current;
         const group = opts.groups.find(g => g.id === next.group);
         if (!group || next.index < 0 || next.index >= group.size) return;
@@ -105,10 +128,13 @@ export function useCursorNav(options: CursorNavOptions) {
         setPos(next);
         remember(next);
         if (!silent) playSound("select", sound);
-        opts.onFocus(next);
+        opts.onFocus(next, source);
     }, []);
 
-    const focus = useCallback((next: CursorPos) => moveTo(next, false), [moveTo]);
+    const focus = useCallback(
+        (next: CursorPos, source: FocusSource = "pointer") => moveTo(next, false, source),
+        [moveTo],
+    );
     const setPosSilently = useCallback((next: CursorPos | null) => {
         setPos(next);
         if (next) remember(next);
@@ -118,7 +144,7 @@ export function useCursorNav(options: CursorNavOptions) {
     useEffect(() => {
         if (initialFocusSentRef.current) return;
         initialFocusSentRef.current = true;
-        if (stateRef.current.pos) stateRef.current.options.onFocus(stateRef.current.pos);
+        if (stateRef.current.pos) stateRef.current.options.onFocus(stateRef.current.pos, "initial");
     }, []);
 
     // Clamp when a group shrinks underneath the cursor
@@ -141,10 +167,16 @@ export function useCursorNav(options: CursorNavOptions) {
                 ctrlComboUsedRef.current = false;
                 return;
             }
-            if (isEditableTarget(e.target)) return;
-
             const action = KEY_MAP[e.code];
             if (!action) return;
+
+            if (isEditableTarget(e.target)) {
+                // A page that navigates between fields still wants the arrows;
+                // everything else — Enter, Escape, Space — belongs to the field.
+                const isDirection = action === "up" || action === "down"
+                    || action === "left" || action === "right";
+                if (!opts.navigateWhileEditing || !isDirection) return;
+            }
             if (e.metaKey || e.altKey || e.ctrlKey) return;
 
             e.preventDefault();
@@ -152,7 +184,7 @@ export function useCursorNav(options: CursorNavOptions) {
 
             if (action === "confirm") {
                 if (current) opts.onConfirm(current);
-                else if (opts.fallback) moveTo(opts.fallback, false);
+                else if (opts.fallback) moveTo(opts.fallback, false, "key");
                 return;
             }
 
@@ -165,7 +197,7 @@ export function useCursorNav(options: CursorNavOptions) {
             }
 
             if (!current) {
-                if (opts.fallback) moveTo(opts.fallback, false);
+                if (opts.fallback) moveTo(opts.fallback, false, "key");
                 return;
             }
 
@@ -173,7 +205,7 @@ export function useCursorNav(options: CursorNavOptions) {
                 ? opts.resolvePageJump?.(current, action) ?? null
                 : opts.resolveMove(current, action, { wrap });
 
-            if (next) moveTo(next, false);
+            if (next) moveTo(next, false, "key");
         };
 
         const handleKeyUp = (e: KeyboardEvent) => {
