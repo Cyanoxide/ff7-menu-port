@@ -20,18 +20,13 @@
         "position": 3
     },
     {
-        "id": "config",
-        "name": "Config",
-        "position": 4
+        "id": "resume",
+        "name": "Resume",
+        "position": 5
     },
     {
         "id": "contact",
         "name": "Contact",
-        "position": 5
-    },
-    {
-        "id": "resume",
-        "name": "Resume",
         "position": 6
     },
     {
@@ -47,5 +42,10 @@
         "title": "My Ko-Fi Donation Page",
         "path": "https://ko-fi.com/cyanoxide",
         "position": 8
+    },
+    {
+        "id": "config",
+        "name": "Config",
+        "position": 10
     }
 ]

@@ -1,3 +1,17 @@
+/**
+ * The menu box on a screen that has no menu. Hidden rather than unmounted, so
+ * its fade-in does not replay when the screen closes — see Menu.tsx.
+ *
+ * visibility, not display: none, because toggling display restarts the CSS
+ * animation in some browsers, which is the very thing this avoids. It also
+ * takes the links and the close button out of the tab order and the
+ * accessibility tree, so nothing inside is reachable while it is off screen.
+ */
+.offstage {
+    visibility: hidden;
+    pointer-events: none;
+}
+
 .menu {
     height: 100%;
 

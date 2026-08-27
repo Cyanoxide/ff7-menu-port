@@ -152,13 +152,28 @@ const Menu = () => {
         )
     }
 
-    // Standalone screens (e.g. the name-entry page) aren't in the menu; hide the
-    // menu box entirely rather than leaving an empty stray box in the corner.
+    /**
+     * Standalone screens — the name-entry page — aren't in the menu, so the box
+     * is hidden there rather than left as an empty stray in the corner.
+     *
+     * Hidden, not unmounted. Unmounting replays `.contentBox`'s fade-in on the
+     * way back to the landing screen, and that fade runs on exactly the same
+     * clock as the landing panels' own `.panel-group` fade. For a quarter of a
+     * second both are part-transparent at once, and because the party box
+     * overlaps this one, it shows straight through it.
+     *
+     * That is why the menu-linked pages never had the problem: the box stays
+     * mounted and opaque across those, so the panels fade in behind it. Staying
+     * mounted here gives the same behaviour.
+     */
     const isMenuPage = isLanding || navItems.some((item) => `/${item.id}` === location.pathname);
-    if (!isMenuPage) return null;
 
     return (
-        <ContentBox className={`m-auto w-[270px] absolute right-0 ${(!isLanding) ? "h-[84px]" : "h-[530px]"}`} data-label="menu" data-animated={isLanding} >
+        <ContentBox
+            className={`m-auto w-[270px] absolute right-0 ${(!isLanding) ? "h-[84px]" : "h-[535px]"} ${!isMenuPage ? styles.offstage : ""}`}
+            data-label="menu"
+            data-animated={isLanding}
+        >
             <ul className={styles.menu}>
                 {Array.from({ length: 11 }).map((_, position) => {
                     const menuItem = menuItems.find((item) => item.position === position);
