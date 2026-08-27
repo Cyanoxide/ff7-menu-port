@@ -424,7 +424,6 @@ function ContactContent() {
                     inputRef={fieldRefs[id]}
                     name={id}
                     label={label}
-                    type={id === "email" ? "email" : "text"}
                     value={value}
                     onChange={(next) => { clearStatus(); onChange(next); }}
                     maxLength={LIMITS[id]}

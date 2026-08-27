@@ -60,7 +60,12 @@ interface SpriteInputProps {
     rows?: number;
     label: string;
     name: string;
-    type?: "text" | "email";
+    /*
+     * There is deliberately no `type` here any more. Every field renders as
+     * type="text": type="email" is the strongest trigger there is for the
+     * browser's own autofill, and inputMode="email" made iOS abandon opening
+     * the keyboard. Validity is checked by the page and again by the handler.
+     */
     invalid?: boolean;
     /** The menu cursor is on this field's row, without it being typed into yet */
     selected?: boolean;
@@ -69,7 +74,7 @@ interface SpriteInputProps {
 }
 
 const SpriteInput: React.FC<SpriteInputProps> = ({
-    value, onChange, maxLength, multiline, rows = 4, label, name, type = "text", invalid, selected, inputRef,
+    value, onChange, maxLength, multiline, rows = 4, label, name, invalid, selected, inputRef,
 }) => {
     const { isSoundEnabled } = useContext();
     const ownRef = useRef<(HTMLInputElement & HTMLTextAreaElement) | null>(null);
@@ -531,9 +536,19 @@ const SpriteInput: React.FC<SpriteInputProps> = ({
                      *
                      * It also sidesteps setSelectionRange throwing outright on
                      * an email input, which does not support selection.
+                     *
+                     * No inputMode either, though it is tempting for the @ key.
+                     * inputMode="email" makes iOS build a *different* keyboard,
+                     * and these fields are focused programmatically — the tap
+                     * is preventDefault-ed so the caret can be placed by
+                     * measurement rather than by the browser's own hit testing.
+                     * A keyboard-type switch on a programmatic focus made the
+                     * keyboard start opening and then close again, on the email
+                     * field only, in both Safari and Firefox on iOS. It was the
+                     * one attribute distinguishing it from the two fields that
+                     * worked.
                      */
                     type="text"
-                    inputMode={type === "email" ? "email" : undefined}
                     aria-label={label}
                     value={value}
                     maxLength={maxLength}
