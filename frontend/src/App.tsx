@@ -1,4 +1,5 @@
 import { Provider } from "./context/provider";
+import { startTapProbe } from "./util/tapProbe";
 import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
@@ -107,6 +108,8 @@ function App() {
         if (!deferred) return;
         deferred = false;
         scaleApp();
+    // No-op unless the URL carries ?probe=1
+    startTapProbe();
       }, TAP_SETTLES_IN + 20);
     };
 
