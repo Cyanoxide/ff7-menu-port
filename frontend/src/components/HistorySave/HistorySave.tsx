@@ -12,6 +12,8 @@ interface historySaveProps {
     historyType: string;
     focused?: boolean;
     onEnter?: () => void;
+    /** Slot index, so a stationary pointer can be matched to a row */
+    "data-slot"?: number;
 };
 
 const HistorySave: React.FC<historySaveProps> = ({ historyItem, historyType, focused = false, onEnter, ...props }) => {

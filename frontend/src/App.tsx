@@ -13,6 +13,45 @@ import Resume from "./pages/Resume/Resume";
 import Contact from "./pages/Contact/Contact";
 import NameEntry from "./pages/NameEntry/NameEntry";
 
+/**
+ * The canvas the app is scaled to fit.
+ *
+ * The height is the design height. The width only has to cover the 1100px stage
+ * plus the widest thing hung outside it. Cursors and the close button overhang:
+ * measured at 1440x900 and on a phone, the Projects tab cursor reaches ~40px
+ * past the left edge and the close button ~21px past the right. The canvas is
+ * centred on the stage, so it needs twice the worst side — 1100 + 2x40 = 1180 —
+ * and 1200 leaves a margin on top of that.
+ *
+ * It used to be 1250. The extra was never reached by anything, and on a phone,
+ * where the width is the limiting term, it letterboxed dead space onto both
+ * sides for nothing. Desktop is unaffected: an ordinary window is limited by its
+ * height, so min() still picks the height term and the scale is identical.
+ *
+ * If a page grows a wider overhang, this has to grow with it or the overhang
+ * clips at the screen edge. Check with a screenshot on the narrowest phone, not
+ * by eye on a desktop — desktop has hundreds of pixels of slack and hides it.
+ */
+const DESIGN_WIDTH = 1200;
+const DESIGN_HEIGHT = 975;
+
+/**
+ * A phone gets a shorter canvas. The stage is 825 tall and sits in 975, so 150px
+ * of the height is margin that exists to give a desktop window some air. On a
+ * landscape phone that margin is most of the screen, and the menu ends up tiny
+ * with wide empty bands above and below.
+ *
+ * Only phone-sized viewports, deliberately: desktop is limited by its height, so
+ * shortening the canvas there would scale the whole app up and the user is happy
+ * with how it looks. "Phone" is the shorter side, which catches both
+ * orientations and leaves tablets and every desktop window alone.
+ */
+const COMPACT_MAX_SIDE = 500;
+const COMPACT_DESIGN_HEIGHT = 880;
+
+const canvasHeight = (width: number, height: number) =>
+    Math.min(width, height) < COMPACT_MAX_SIDE ? COMPACT_DESIGN_HEIGHT : DESIGN_HEIGHT;
+
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -47,31 +86,43 @@ function App() {
         // The layout viewport stays stable while pinch-zooming, unlike innerWidth/innerHeight
         const viewportWidth = document.documentElement.clientWidth;
         const viewportHeight = availableHeight();
-        const scale = Math.min(
-          viewportWidth / 1250,
-          viewportHeight / 975
-        );
+
+        /**
+         * Which canvas applies is decided from the *layout* viewport, but the
+         * fit is measured against the visual one.
+         *
+         * canvasHeight asks whether this is a phone by looking at the shorter
+         * side. Handing it the visual height would make a keyboard the answer:
+         * on a tablet or a small window the band drops under 500px while the
+         * keyboard is up, the compact canvas kicks in, and the whole app
+         * changes size mid-sentence. The device does not stop being a tablet
+         * because someone is typing.
+         */
+        const canvas = canvasHeight(viewportWidth, document.documentElement.clientHeight);
+        const scale = Math.min(viewportWidth / DESIGN_WIDTH, viewportHeight / canvas);
         /**
          * offsetTop is where the visible band starts. It is 0 for a keyboard
          * docked at the bottom, but not once the browser has panned the visual
          * viewport, and without it the app would be centred on a band that has
          * moved out from under it.
+         *
+         * The centring itself is measured from the element's own box rather
+         * than assumed from the canvas, and is allowed to go negative so a box
+         * taller than the window overhangs evenly instead of hanging off the
+         * bottom. offsetHeight is layout pixels, so the transform does not feed
+         * back into it.
+         *
+         * Deliberately NOT adding window.scrollY. It was, briefly, and it made
+         * things worse: translateY moves the app in document space, so shifting
+         * it down by the scroll moves the focused field down too, the browser
+         * scrolls further to chase it, and the two push each other until the
+         * keyboard is covering the bottom. #root is position:fixed instead, so
+         * the document has nothing to scroll and there is no scroll to correct
+         * for. html's own `overflow: hidden` stops a stray swipe; being out of
+         * flow is what stops the browser scrolling to a focused field.
          */
         const bandTop = window.visualViewport?.offsetTop ?? 0;
-
-        /**
-         * Deliberately NOT adding window.scrollY here.
-         *
-         * It was, briefly, and it made things worse. translateY moves the app
-         * in document space, so shifting it down by the scroll also moves the
-         * focused field down — the browser scrolls further to chase it, and the
-         * two push each other until the keyboard is covering the bottom.
-         *
-         * #root is position:fixed instead (index.css), so it is out of flow,
-         * the document has nothing to scroll, and there is no scroll to correct
-         * for. Fixing the cause beats following the symptom.
-         */
-        const offsetY = bandTop + Math.max(0, (viewportHeight - 975 * scale) / 2);
+        const offsetY = bandTop + (viewportHeight - app.offsetHeight * scale) / 2;
         // translateX(-50%) pairs with left: 50% in index.css — see the note there
         app.style.transform = `translateX(-50%) translateY(${offsetY}px) scale(${scale})`;
       }

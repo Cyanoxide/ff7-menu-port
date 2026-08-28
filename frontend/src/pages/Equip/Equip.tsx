@@ -7,6 +7,7 @@ import PartyMember from "../../components/PartyMember/PartyMember";
 import MateriaSlotPreview from "../../components/MateriaSlotPreview/MateriaSlotPreview";
 import Scrollbar from "../../components/Scrollbar/Scrollbar";
 import { isPointerMoving } from "../../util/pointerActivity";
+import { scrollIntoList } from "../../util/scrollIntoList";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { getEquipmentById, getDerivedStats, slotCount, resizeMateriaRow } from "../../util/equipment";
@@ -195,7 +196,7 @@ function Equip() {
     // Keep the keyboard-focused equipment row on screen as the cursor moves.
     useEffect(() => {
         if (pos?.group === "items") {
-            equipItemRefs.current[pos.index]?.scrollIntoView({ block: "nearest" });
+            scrollIntoList(equipItemRefs.current[pos.index]);
         }
     }, [pos]);
 

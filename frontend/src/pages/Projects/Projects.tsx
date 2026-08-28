@@ -6,6 +6,7 @@ import ContentBox from "../../components/ContentBox/ContentBox";
 import ImageCarousel, { type Shot } from "./ImageCarousel";
 import Scrollbar from "../../components/Scrollbar/Scrollbar";
 import { isPointerMoving } from "../../util/pointerActivity";
+import { scrollIntoList } from "../../util/scrollIntoList";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { useCursorNav, markKeyboardNavigation } from "../../hooks/useCursorNav";
@@ -213,7 +214,11 @@ function ProjectsContent() {
         ],
         initial: null,
         fallback: { group: "tabs", index: 0 },
-        enabled: true,
+        // Frozen while the captures are open. The arrow keys belong to the
+        // carousel then, and moving the selection underneath it left the
+        // carousel showing image 4 of an entry that only has 2 — the same
+        // reason the Config page disables this while a colour picker is up.
+        enabled: !showImages,
         resolveMove: (pos, dir) => {
             // The tab row is a row, so it is the one place left and right mean
             // anything. Everywhere else they are ignored, as before.
@@ -305,7 +310,7 @@ function ProjectsContent() {
     // Keep the keyboard-focused project on screen as the cursor moves.
     useEffect(() => {
         if (pos?.group === "items") {
-            projectItemRefs.current[pos.index]?.scrollIntoView({ block: "nearest" });
+            scrollIntoList(projectItemRefs.current[pos.index]);
         }
     }, [pos]);
 
@@ -451,7 +456,10 @@ function ProjectsContent() {
             </ContentBox>
 
             {showImages && selected && (
-                <ImageCarousel entry={selected} onClose={() => setShowImages(false)} />
+                // Keyed by entry so a different project always gets a fresh
+                // carousel starting at its first image, rather than inheriting
+                // an index the new entry may not have
+                <ImageCarousel key={selected.key} entry={selected} onClose={() => setShowImages(false)} />
             )}
         </>
     );

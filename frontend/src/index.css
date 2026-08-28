@@ -1,5 +1,25 @@
 @import "tailwindcss";
 
+/* The black has to be on html, not only on body.
+ *
+ * iOS insets the layout viewport from the notch and the home indicator, and in
+ * landscape that leaves a band down each side of the screen. Those bands are
+ * outside body, so they are painted from the root element — which had no
+ * background and so came out white. */
+html {
+  background: #000;
+  /* Declares the page as dark, so browser-drawn UI — form controls, scrollbars,
+   * and the address bar on anything that does not read theme-color — picks its
+   * dark variant instead of assuming a white page. */
+  color-scheme: dark;
+  /* body's overflow only hides its own; the document itself stays scrollable,
+   * and on a short viewport the layout box is taller than the window. Nothing
+   * here wants the document to scroll — every page scrolls inside its own
+   * panel — so this stops a stray swipe shifting the whole app. It does not
+   * stop programmatic scrolling: see the note on Skills in CLAUDE.md. */
+  overflow: hidden;
+}
+
 body {
   background: #000;
   color: #fff;
