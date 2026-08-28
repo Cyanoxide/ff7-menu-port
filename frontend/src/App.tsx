@@ -1,5 +1,4 @@
 import { Provider } from "./context/provider";
-import { startTapProbe } from "./util/tapProbe";
 import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
@@ -80,9 +79,6 @@ function App() {
       if (viewport && Math.abs(viewport.scale - 1) < 0.01) return viewport.height;
       return document.documentElement.clientHeight;
     }
-
-    // No-op unless the URL carries ?probe=1
-    startTapProbe();
 
     function scaleApp() {
 
