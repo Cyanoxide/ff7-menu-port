@@ -81,6 +81,9 @@ function App() {
       return document.documentElement.clientHeight;
     }
 
+    // No-op unless the URL carries ?probe=1
+    startTapProbe();
+
     /**
      * The app must not move while a finger is still down.
      *
@@ -108,8 +111,6 @@ function App() {
         if (!deferred) return;
         deferred = false;
         scaleApp();
-    // No-op unless the URL carries ?probe=1
-    startTapProbe();
       }, TAP_SETTLES_IN + 20);
     };
 
