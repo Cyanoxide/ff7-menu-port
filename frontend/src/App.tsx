@@ -84,41 +84,7 @@ function App() {
     // No-op unless the URL carries ?probe=1
     startTapProbe();
 
-    /**
-     * The app must not move while a finger is still down.
-     *
-     * A tap resolves in two parts: the field is focused when the pointer goes
-     * down, and the browser settles the click a moment later. The keyboard
-     * starts opening in between — measured on the device, the visual viewport
-     * resizes about 107ms after focusin — and the app shifts up by roughly
-     * 173px to centre in what is left. That is more than half its height on a
-     * phone, so whatever the click lands on is no longer what was tapped:
-     * tapping Name focused Message, and tapping Email put the focus somewhere
-     * with no field at all, which closed the keyboard again.
-     *
-     * So a reposition asked for mid-tap is deferred rather than dropped, and
-     * runs once the tap has resolved. The delay is shorter than the keyboard's
-     * own animation, so nothing appears slower.
-     */
-    let holdUntil = 0;
-    let deferred = false;
-    const TAP_SETTLES_IN = 400;
-
-    const holdLayout = () => { holdUntil = Number.POSITIVE_INFINITY; };
-    const releaseLayout = () => {
-      holdUntil = Date.now() + TAP_SETTLES_IN;
-      setTimeout(() => {
-        if (!deferred) return;
-        deferred = false;
-        scaleApp();
-      }, TAP_SETTLES_IN + 20);
-    };
-
     function scaleApp() {
-      if (Date.now() < holdUntil) {
-        deferred = true;
-        return;
-      }
 
       const app = document.getElementById("root");
       if (app) {
@@ -186,15 +152,6 @@ function App() {
       if (event.touches.length > 1) event.preventDefault();
     };
 
-    // Pointer and touch both, because iOS fires them in different combinations
-    // depending on the browser and whether the tap became a scroll.
-    window.addEventListener("pointerdown", holdLayout, true);
-    window.addEventListener("pointerup", releaseLayout, true);
-    window.addEventListener("pointercancel", releaseLayout, true);
-    window.addEventListener("touchstart", holdLayout, { capture: true, passive: true });
-    window.addEventListener("touchend", releaseLayout, { capture: true, passive: true });
-    window.addEventListener("touchcancel", releaseLayout, { capture: true, passive: true });
-
     window.addEventListener("load", scaleApp);
     window.addEventListener("resize", scaleApp);
     // Focus moving in and out of a field is what raises and drops the keyboard
@@ -213,12 +170,6 @@ function App() {
 
     return () => {
       clearTimeout(settle);
-      window.removeEventListener("pointerdown", holdLayout, true);
-      window.removeEventListener("pointerup", releaseLayout, true);
-      window.removeEventListener("pointercancel", releaseLayout, true);
-      window.removeEventListener("touchstart", holdLayout, true);
-      window.removeEventListener("touchend", releaseLayout, true);
-      window.removeEventListener("touchcancel", releaseLayout, true);
       window.removeEventListener("load", scaleApp);
       window.removeEventListener("resize", scaleApp);
       window.removeEventListener("focusin", scaleAfterKeyboard);

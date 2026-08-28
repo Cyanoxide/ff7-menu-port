@@ -102,6 +102,35 @@ const SpriteInput: React.FC<SpriteInputProps> = ({
     // How far the painted text is pushed out of view to keep the caret on screen
     const [scroll, setScroll] = useState({ x: 0, y: 0 });
 
+    /**
+     * Suppress the compatibility mouse events iOS fires after a touch.
+     *
+     * On iOS the soft keyboard opening scrolls the document to reveal the
+     * focused field - measured on an iPhone, 108px about 90ms after focusin.
+     * The touch sequence itself is unaffected: pointerdown and touchend both
+     * report the field that was actually touched. But roughly 150ms later the
+     * browser synthesises mousedown/mouseup/click by re-hit-testing the
+     * original screen coordinates, and the page has moved under them by then.
+     *
+     * That synthesised mousedown lands on whatever now occupies the spot and
+     * takes the focus with it: touching Name focused Message, and touching
+     * Email landed on no field at all, which closed the keyboard again as
+     * quickly as it had opened.
+     *
+     * preventDefault on touchend is what stops the compatibility events being
+     * generated. Nothing is lost by it - focus and the caret are both set from
+     * pointerdown, which fires at the right target - and a real mouse never
+     * sends touch events, so the desktop path is untouched.
+     */
+    useEffect(() => {
+        const field = fieldRef.current;
+        if (!field) return;
+        const suppress = (event: TouchEvent) => event.preventDefault();
+        // Must be non-passive, or preventDefault is ignored
+        field.addEventListener("touchend", suppress, { passive: false });
+        return () => field.removeEventListener("touchend", suppress);
+    }, [fieldRef]);
+
     // The caret follows the real field's selection, so it lands where editing
     // will actually happen rather than always at the end
     const syncCaret = useCallback(() => {
