@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ContentBox from "../../components/ContentBox/ContentBox";
 import PartyMember from "../../components/PartyMember/PartyMember";
 import Time from "../../components/Time/Time";
@@ -8,6 +8,100 @@ import { useContext } from "../../context/context";
 import locations from "../../data/locations.json";
 import styles from "./Landing.module.scss";
 
+// The bio types itself out on arrival, one character at a time.
+//
+// The glyphs are sprite spans of differing widths, so the un-typed ones are
+// rendered but hidden rather than omitted: dropping them would make each line
+// grow as it types and shift the whole block inside its centred container.
+const BIO_LINES: [string, string][] = [
+    ["I'm a Senior Web Developer based in", "mb-[13.2px]"],
+    ["Gloucester, UK.", "mb-[29.2px]"],
+    ["Welcome to my personal sandbox.", "mb-[29.2px]"],
+    ["I plan to add an ever-growing collection", "mb-[13.2px]"],
+    ["of small technical projects here, mostly", "mb-[13.2px]"],
+    ["built with nostalgic aesthetics in mind.", "mb-[13.2px]"],
+];
+
+const CHAR_MS = 13;       // per character
+const LINE_PAUSE_MS = 110;  // extra beat at the end of each line
+
+// The bio box opens on its own transition, separate from the panel fade:
+// `transition: all 0.3s ease-in 0.65s` in ContentBox.module.scss, so it isn't
+// fully open until ~950ms. Start after that, plus a beat, or the first line or
+// two types inside a box that is still zero-height and clipping it.
+const START_DELAY_MS = 1100;
+
+// Cumulative character count at the end of each line, so the pause at a line
+// break lands in the right place.
+const LINE_ENDS = BIO_LINES.reduce<number[]>((acc, [line]) => {
+    acc.push((acc[acc.length - 1] ?? 0) + line.length);
+    return acc;
+}, []);
+
+const TOTAL_CHARS = LINE_ENDS[LINE_ENDS.length - 1];
+
+// How many characters should be showing after `elapsed` ms of typing. Driven by
+// elapsed time rather than by a timer per character: setTimeout can't fire
+// faster than a frame, so a per-character timer quantises the rate to whole
+// characters per 16ms frame and CHAR_MS stops meaning anything between about
+// 8 and 16.
+function charsAt(elapsed: number) {
+    let budget = elapsed - START_DELAY_MS;
+    if (budget <= 0) return 0;
+
+    for (let n = 0; n < TOTAL_CHARS; n++) {
+        budget -= CHAR_MS;
+        if (budget < 0) return n;
+        if (LINE_ENDS.includes(n + 1)) budget -= LINE_PAUSE_MS;
+    }
+    return TOTAL_CHARS;
+}
+
+function TypedBio() {
+    const [typed, setTyped] = useState(0);
+
+    useEffect(() => {
+        const started = performance.now();
+        let frame = 0;
+
+        const step = () => {
+            const n = charsAt(performance.now() - started);
+            setTyped(n);
+            if (n < TOTAL_CHARS) frame = requestAnimationFrame(step);
+        };
+
+        frame = requestAnimationFrame(step);
+        return () => cancelAnimationFrame(frame);
+    }, []);
+
+    let consumed = 0;
+
+    return (
+        <>
+            {BIO_LINES.map(([line, margin]) => {
+                const shown = Math.max(0, Math.min(line.length, typed - consumed));
+                consumed += line.length;
+
+                return (
+                    <p key={line} className={margin}>
+                        <span className="font flex" data-text-color="white">
+                            {line.split("").map((glyph, index) => (
+                                <span
+                                    key={index}
+                                    className="font-glyph"
+                                    data-sprite={glyph}
+                                    style={{ visibility: index < shown ? "visible" : "hidden" }}
+                                >
+                                    {glyph}
+                                </span>
+                            ))}
+                        </span>
+                    </p>
+                );
+            })}
+        </>
+    );
+}
 function LandingContent() {
     const { isSoundEnabled } = useContext();
 
@@ -35,12 +129,7 @@ function LandingContent() {
                 <PartyMember memberId={1} showProgressBars={true} healthReduction={true} />
                 <div className="flex items-center justify-center h-[340px] w-[716.82px] left-[56.18px] right-[220px] top-[290.5px] absolute">
                     <ContentBox data-label="bio">
-                        <p className="mb-[13.2px]">{textToSprite("I'm a Senior Web Developer based in")}</p>
-                        <p className="mb-[29.2px]">{textToSprite("Gloucester, UK.")}</p>
-                        <p className="mb-[29.2px]">{textToSprite("Welcome to my personal sandbox.")}</p>
-                        <p className="mb-[13.2px]">{textToSprite("I plan to add an ever-growing collection")}</p>
-                        <p className="mb-[13.2px]">{textToSprite("of small technical projects here, mostly")}</p>
-                        <p className="mb-[13.2px]">{textToSprite("built with PS1 aesthetics in mind.")}</p>
+                        <TypedBio />
                     </ContentBox>
                 </div>
             </ContentBox>
