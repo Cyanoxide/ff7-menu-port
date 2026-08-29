@@ -13,6 +13,9 @@ import { landingNav } from "../../hooks/landingNav.ts";
 import useHeadbang from "../../hooks/useHeadbang.ts";
 import useBlink from "../../hooks/useBlink.ts";
 import { BLINK_DIRECTION } from "../../hooks/useLookDirection.ts";
+
+/** How long the portrait holds front-and-centre with its eyes open after a revive */
+const WAKE_MS = 600;
 import styles from "./PartyMember.module.scss";
 import ContentBox from "../ContentBox/ContentBox.tsx";
 import Portrait from "../Portrait/Portrait.tsx";
@@ -49,6 +52,9 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     const [headbangLook, startHeadbang] = useHeadbang();
     // Blinks on its own every so often, and on every hit that lands
     const [blinking, blinkNow] = useBlink();
+    // The beat after a revive: eyes open, facing front, before the mouse has him back
+    const [waking, setWaking] = useState(false);
+    const wakeTimerRef = useRef(0);
     const attackRef = useRef<() => void>(() => { });
     const reviveRef = useRef<() => void>(() => { });
 
@@ -61,6 +67,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     useEffect(() => () => {
         limitTimersRef.current.forEach(clearTimeout);
         limitTimersRef.current = [];
+        window.clearTimeout(wakeTimerRef.current);
     }, []);
 
     // Expose the avatar interactions to the landing page keyboard cursor
@@ -243,6 +250,13 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
             playSound("heal", isSoundEnabled);
             dispatch({ type: "SET_CURRENT_HEALTH", payload: partyMemberData!.hp });
             dispatch({ type: "SET_CURRENT_MANA", payload: Math.max(0, currentMana - 34) });
+
+            // Opens his eyes where the closed frame was, and holds there a beat
+            // before the mouse takes over -- coming round, rather than snapping
+            // straight to whichever way the pointer happens to be sitting.
+            window.clearTimeout(wakeTimerRef.current);
+            setWaking(true);
+            wakeTimerRef.current = window.setTimeout(() => setWaking(false), WAKE_MS);
         } else {
             playSound("error", isSoundEnabled);
         }
@@ -261,10 +275,15 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
      * The limit break holds him at centre for the length of the cut so the
      * flinch on each hit reads. Off-centre he has no blink frame, so the hits
      * would land with nothing to see.
+     *
+     * Waking is the beat after a revive: the eyes open where the closed frame
+     * was and stay front for a moment before the mouse has him back.
      */
     const isDead = healthReduction && currentHealth === 0;
-    const portraitLook = isDead || limitActive ? BLINK_DIRECTION : headbangLook;
-    const portraitBlink = isDead || blinking;
+    const portraitLook = isDead || limitActive || waking ? BLINK_DIRECTION : headbangLook;
+    // Waking suppresses the idle blink too: the point of the beat is the eyes
+    // being open, so it must not open them and shut them again.
+    const portraitBlink = isDead || (blinking && !waking);
 
     let content;
 
