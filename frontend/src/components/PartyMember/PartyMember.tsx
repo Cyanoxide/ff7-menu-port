@@ -12,6 +12,7 @@ import { markKeyboardNavigation } from "../../hooks/useCursorNav.ts";
 import { landingNav } from "../../hooks/landingNav.ts";
 import useHeadbang from "../../hooks/useHeadbang.ts";
 import useBlink from "../../hooks/useBlink.ts";
+import { BLINK_DIRECTION } from "../../hooks/useLookDirection.ts";
 import styles from "./PartyMember.module.scss";
 import ContentBox from "../ContentBox/ContentBox.tsx";
 import Portrait from "../Portrait/Portrait.tsx";
@@ -32,6 +33,9 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     // Cross Slash: how many slashes have landed, and whether they are spinning away
     const [limitHits, setLimitHits] = useState(0);
     const [limitSpinning, setLimitSpinning] = useState(false);
+    // Mirrors limitRunningRef for rendering. The ref guards re-entry from event
+    // handlers and cannot drive the portrait, since writing it repaints nothing.
+    const [limitActive, setLimitActive] = useState(false);
     // Held outside React so it keeps filling while you are on another page
     const limitCharge = useSyncExternalStore(limitGauge.subscribe, limitGauge.getCharge);
     const [limitDraining, setLimitDraining] = useState(false);
@@ -169,6 +173,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
         }
 
         limitRunningRef.current = true;
+        setLimitActive(true);
         limitGauge.spend();
         setLimitDraining(true);
         setLimitHits(0);
@@ -216,6 +221,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
         after(LIMIT_TIMING.drain, () => setLimitDraining(false));
         after(lastHitAt + LIMIT_TIMING.beforeSpin + LIMIT_TIMING.spin, () => {
             limitRunningRef.current = false;
+            setLimitActive(false);
             limitTimersRef.current = [];
         });
     };
@@ -245,6 +251,21 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     attackRef.current = handleOnClick;
     reviveRef.current = handleHealClick;
 
+    /**
+     * What the portrait is doing, in precedence order.
+     *
+     * Dead outranks everything, the konami nod included: eyes shut and facing
+     * front, no mouse tracking, until he is revived. (A limit break cannot
+     * start from 0 HP anyway -- runLimitBreak refuses it.)
+     *
+     * The limit break holds him at centre for the length of the cut so the
+     * flinch on each hit reads. Off-centre he has no blink frame, so the hits
+     * would land with nothing to see.
+     */
+    const isDead = healthReduction && currentHealth === 0;
+    const portraitLook = isDead || limitActive ? BLINK_DIRECTION : headbangLook;
+    const portraitBlink = isDead || blinking;
+
     let content;
 
     if (partyMemberData) {
@@ -259,7 +280,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
                         {/* healthReduction marks the landing instance -- the same flag
                             gates the cursor, the revive and the limit break. The copies
                             on Equip and Skills are static. */}
-                        <Portrait src={image_path} width={145} look={headbangLook} blink={blinking} follow={healthReduction} />
+                        <Portrait src={image_path} width={145} look={portraitLook} blink={portraitBlink} follow={healthReduction} />
                         {limitHits > 0 && (
                             <div
                                 className={styles.limitSlashes}

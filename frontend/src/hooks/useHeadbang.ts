@@ -10,7 +10,7 @@ import type { LookDirection } from "./useLookDirection";
 const SEQUENCE: LookDirection[] = ["up-right", "right"];
 
 /** Per frame. Four frames to the cycle, so a nod is a little over half a second. */
-const BEAT_MS = 120;
+const BEAT_MS = 240;
 
 /**
  * Drives the portrait through a nodding loop for a set time, then hands it back.
