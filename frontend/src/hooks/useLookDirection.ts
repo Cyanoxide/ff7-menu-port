@@ -16,6 +16,16 @@ export const lookFrameSrc = (direction: LookDirection) =>
     `/portrait--look-${direction}.png`;
 
 /**
+ * Eyes closed. The only variant frame there is, and it is drawn over the centre
+ * pose, so a blink can only show while he is looking straight ahead -- glancing
+ * anywhere else has no closed-eye frame to swap to.
+ */
+export const BLINK_SRC = "/portrait--look-center--blink.png";
+
+/** The one direction BLINK_SRC is drawn for. */
+export const BLINK_DIRECTION: LookDirection = "center";
+
+/**
  * The frame every static portrait uses. The nine exist for the landing page's
  * mouse tracking; everywhere else picks one and stays on it.
  */

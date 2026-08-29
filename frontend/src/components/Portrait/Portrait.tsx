@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useContext } from "../../context/context";
-import useLookDirection, { LOOK_DIRECTIONS, STATIC_LOOK, lookFrameSrc, type LookDirection } from "../../hooks/useLookDirection";
+import useLookDirection, { LOOK_DIRECTIONS, STATIC_LOOK, BLINK_SRC, BLINK_DIRECTION, lookFrameSrc, type LookDirection } from "../../hooks/useLookDirection";
 import styles from "./Portrait.module.scss";
 import {
     resolvePortrait,
@@ -17,6 +17,11 @@ interface PortraitProps {
      * Ignored by the character portraits, which have only the one frame.
      */
     look?: LookDirection | null;
+    /**
+     * Shuts his eyes while true. Only has a frame for the centre pose, so a
+     * blink is invisible while he is glancing anywhere else.
+     */
+    blink?: boolean;
     /**
      * Whether the portrait follows the mouse. Only the landing page does; the
      * copies on Equip, Skills, Name Entry and the resume are static.
@@ -48,7 +53,7 @@ interface PortraitProps {
 /** How long a glance takes to cross-fade. Short enough to feel like a reaction. */
 const FADE_MS = 20;
 
-const LookingPortrait: React.FC<{ src: string; width: number; className?: string; alt: string; look?: LookDirection | null }> = ({ src, width, className, alt, look }) => {
+const LookingPortrait: React.FC<{ src: string; width: number; className?: string; alt: string; look?: LookDirection | null; blink?: boolean }> = ({ src, width, className, alt, look, blink }) => {
     const ref = useRef<HTMLDivElement>(null);
     const pointing = useLookDirection(ref);
 
@@ -79,9 +84,9 @@ const LookingPortrait: React.FC<{ src: string; width: number; className?: string
     // fades in an image the browser has not fetched, so the transition plays
     // over nothing and lands as a hard cut.
     useEffect(() => {
-        for (const frame of LOOK_DIRECTIONS) {
+        for (const url of [...LOOK_DIRECTIONS.map(lookFrameSrc), BLINK_SRC]) {
             const preload = new Image();
-            preload.src = lookFrameSrc(frame);
+            preload.src = url;
         }
     }, []);
 
@@ -102,6 +107,12 @@ const LookingPortrait: React.FC<{ src: string; width: number; className?: string
         >
             <img src={lookFrameSrc(layers.under)} alt="" aria-hidden className={styles.frame} onError={onError} />
             {/*
+              * The blink swaps the top layer's src without touching its key, so
+              * it is a straight cut with no cross-fade: eyes shut and open
+              * again, they do not dissolve. It also means a blink cannot
+              * interrupt a glance that is mid-fade.
+              */}
+            {/*
               * Keyed by direction so each glance mounts a fresh element and the
               * CSS animation runs from the start. Restarting an animation on a
               * persistent node means clearing it and forcing a reflow between,
@@ -110,7 +121,7 @@ const LookingPortrait: React.FC<{ src: string; width: number; className?: string
               */}
             <img
                 key={layers.over}
-                src={lookFrameSrc(layers.over)}
+                src={blink && layers.over === BLINK_DIRECTION ? BLINK_SRC : lookFrameSrc(layers.over)}
                 alt=""
                 aria-hidden
                 className={`${styles.frame} ${styles.incoming}`}
@@ -122,13 +133,13 @@ const LookingPortrait: React.FC<{ src: string; width: number; className?: string
 
 // Renders the party member's portrait, swapping to an FF7 character's face from
 // the shared spritesheet when the (case-insensitive) name matches one.
-const Portrait: React.FC<PortraitProps> = ({ src, width = 145, className, name, alt = "Party Member Portrait", look, follow = false }) => {
+const Portrait: React.FC<PortraitProps> = ({ src, width = 145, className, name, alt = "Party Member Portrait", look, blink, follow = false }) => {
     const { userName } = useContext();
     const sprite = resolvePortrait(name ?? userName);
 
     if (!sprite) {
         if (follow) {
-            return <LookingPortrait src={src} width={width} className={className} alt={alt} look={look} />;
+            return <LookingPortrait src={src} width={width} className={className} alt={alt} look={look} blink={blink} />;
         }
         // Deliberately the plain element: no pointer listener, no preloading and
         // no cross-fade layers for a portrait that is never going to change.

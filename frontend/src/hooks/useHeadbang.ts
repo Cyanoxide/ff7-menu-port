@@ -6,7 +6,8 @@ import type { LookDirection } from "./useLookDirection";
  * middle frame the head teleports between the two extremes and reads as a
  * flicker rather than a nod -- the portrait has a centre frame, so use it.
  */
-const SEQUENCE: LookDirection[] = ["up", "center", "down-left", "center", "up", "center", "down-right", "center"];
+// const SEQUENCE: LookDirection[] = ["up", "center", "down-left", "center", "up", "center", "down-right", "center"];
+const SEQUENCE: LookDirection[] = ["up-right", "right"];
 
 /** Per frame. Four frames to the cycle, so a nod is a little over half a second. */
 const BEAT_MS = 120;

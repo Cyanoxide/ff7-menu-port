@@ -11,6 +11,7 @@ import { useContext } from "../../context/context.tsx";
 import { markKeyboardNavigation } from "../../hooks/useCursorNav.ts";
 import { landingNav } from "../../hooks/landingNav.ts";
 import useHeadbang from "../../hooks/useHeadbang.ts";
+import useBlink from "../../hooks/useBlink.ts";
 import styles from "./PartyMember.module.scss";
 import ContentBox from "../ContentBox/ContentBox.tsx";
 import Portrait from "../Portrait/Portrait.tsx";
@@ -42,6 +43,8 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     const keyboardFocus = healthReduction ? landingFocus : null;
     // Konami code: the portrait nods along to the fanfare
     const [headbangLook, startHeadbang] = useHeadbang();
+    // Blinks on its own every so often, and on every hit that lands
+    const [blinking, blinkNow] = useBlink();
     const attackRef = useRef<() => void>(() => { });
     const reviveRef = useRef<() => void>(() => { });
 
@@ -150,6 +153,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
 
         const sound = (damage * multiplier > 200) ? "crit" : "slash";
         playSound(sound, isSoundEnabled);
+        blinkNow();
     }
 
     /**
@@ -183,6 +187,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
             // bar — it just stops dealing damage rather than cutting away mid-swing
             setLimitHits(index + 1);
             playSound(critical ? "crit" : "slash", isSoundEnabled);
+            blinkNow();
 
             if (!health) return;
 
@@ -254,7 +259,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
                         {/* healthReduction marks the landing instance -- the same flag
                             gates the cursor, the revive and the limit break. The copies
                             on Equip and Skills are static. */}
-                        <Portrait src={image_path} width={145} look={headbangLook} follow={healthReduction} />
+                        <Portrait src={image_path} width={145} look={headbangLook} blink={blinking} follow={healthReduction} />
                         {limitHits > 0 && (
                             <div
                                 className={styles.limitSlashes}
