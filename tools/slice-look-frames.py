@@ -2,7 +2,15 @@
 """
 Slices a 3x3 sheet of portrait poses into the nine look-at-cursor frames.
 
-    python3 tools/slice-look-frames.py <sheet.png>
+    python3 tools/slice-look-frames.py <sheet.png> [zoom]
+
+`zoom` (default 0.78) tightens the shared crop toward the top of the heads.
+At 1.0 the box is the full union of the nine poses, which leaves every frame
+some slack -- the box has to fit the widest pose and the tallest, so no single
+frame ever fills it and the face reads as too small and too far away. Below 1.0
+the box closes in, the outermost poses bleed off the edges, and the face fills
+the frame the way public/portrait.png does. The crop stays shared, so the head
+still does not move between frames.
 
 The sheet is read in the same order the effect uses:
 
@@ -46,7 +54,7 @@ TW, TH = 107, 122
 INK = 720
 
 
-def main(sheet_path: str) -> int:
+def main(sheet_path: str, zoom: float) -> int:
     out_dir = Path(__file__).resolve().parent.parent / "frontend" / "public"
     src = Image.open(sheet_path).convert("RGB")
     sw, sh = src.size
@@ -73,6 +81,18 @@ def main(sheet_path: str) -> int:
             top, bottom = min(top, ys.min()), max(bottom, ys.max())
 
     w, h = right - left + 1, bottom - top + 1
+
+    # Close in on the heads. Anchored to the top of the union and the horizontal
+    # centre: the crown stays where it is and the shoulders run off the bottom,
+    # which is how the original portrait was framed (its ink reaches all four
+    # edges). Shrinking about the centre instead would leave a gap above the
+    # head and cut the chin.
+    if zoom != 1.0:
+        centre_x = (left + right) / 2
+        w, h = w * zoom, h * zoom
+        left, right = centre_x - w / 2, centre_x + w / 2
+        bottom = top + h
+
     if w / h > TW / TH:
         pad = (round(w * TH / TW) - h) / 2
         top, bottom = top - pad, bottom + pad
@@ -94,15 +114,16 @@ def main(sheet_path: str) -> int:
         out = out_dir / f"portrait--look-{name}.png"
         frame.resize((TW, TH), Image.LANCZOS).save(out, optimize=True)
 
-        # The top and bottom edges must stay clear: content reaching the sides
-        # is legitimate (the front-facing pose has the widest shoulders), but a
-        # dark top or bottom edge means the overrun was filled rather than
-        # padded, i.e. the black-band bug is back.
+        # Look for the black-band bug specifically -- an out-of-bounds crop
+        # filled with pure black -- not merely for a dark edge. Artwork running
+        # off an edge is expected once the zoom closes in (the shoulders bleed
+        # off the bottom by design, and the darkest shirt pixels still sum to
+        # ~290), so a brightness threshold flags the intended crop as a fault.
         a = np.asarray(Image.open(out).convert("RGB")).astype(int)
-        for edge_name, edge in (("top", a[0]), ("bottom", a[-1])):
-            dark = int((edge.sum(axis=1) < 600).sum())
-            if dark:
-                print(f"  !! {name}: {dark} dark px on {edge_name} edge", file=sys.stderr)
+        for edge_name, edge in (("top", a[0]), ("bottom", a[-1]), ("left", a[:, 0]), ("right", a[:, -1])):
+            filled = int((edge.sum(axis=1) < 24).sum())
+            if filled:
+                print(f"  !! {name}: {filled} px of black fill on {edge_name} edge", file=sys.stderr)
                 failures += 1
         print(f"  {out.name}  {out.stat().st_size // 1024}K")
 
@@ -112,7 +133,7 @@ def main(sheet_path: str) -> int:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) not in (2, 3):
         print(__doc__, file=sys.stderr)
         sys.exit(2)
-    sys.exit(main(sys.argv[1]))
+    sys.exit(main(sys.argv[1], float(sys.argv[2]) if len(sys.argv) == 3 else 0.78))
