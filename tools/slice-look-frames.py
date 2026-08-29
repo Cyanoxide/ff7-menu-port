@@ -20,11 +20,19 @@ The sheet is read in the same order the effect uses:
 
 Two things here are not obvious, and both were bugs first:
 
-* **One crop box, shared by all nine frames** -- the union of their ink
-  bounding boxes, grown to the portrait's 107:122 aspect rather than squashed
-  to it. Cropping each pose to its own content instead rescales and recentres
-  it, so the head jumps in size and position as it looks about, which ruins
-  the effect it is there to create.
+* **One crop *size*, shared by all nine frames**, and one shared horizontal
+  window -- the union of their ink bounding boxes, grown to the portrait's
+  107:122 aspect rather than squashed to it. Size and horizontal placement have
+  to be shared or the head jumps and rescales as it looks about, and the
+  sideways turn is exactly what the horizontal window is carrying.
+
+* **Vertically each frame is anchored to its own crown**, not to the shared
+  union. The artist drew the bottom row about 23px higher in its cells than the
+  other two, so a shared vertical anchor gave the top six frames a band of dead
+  white above the head and cut the same amount off their shoulders. The crown
+  is the one landmark that is stable across all nine poses -- he is bald, so it
+  is a clean arc in every frame -- and the vertical drawing offset carries no
+  pose information worth keeping.
 
 * **Composite onto white before resizing.** The shared box is taller than a
   cell, so on the top and bottom rows it overruns the artwork. PIL fills an
@@ -64,7 +72,7 @@ def main(sheet_path: str, zoom: float) -> int:
         return 1
     cw, ch = sw // 3, sh // 3
 
-    origins, box = {}, None
+    origins, crowns = {}, {}
     left = top = 10 ** 9
     right = bottom = -1
 
@@ -79,37 +87,31 @@ def main(sheet_path: str, zoom: float) -> int:
                 return 1
             left, right = min(left, xs.min()), max(right, xs.max())
             top, bottom = min(top, ys.min()), max(bottom, ys.max())
+            crowns[name] = int(ys.min())
 
     w, h = right - left + 1, bottom - top + 1
 
-    # Close in on the heads. Anchored to the top of the union and the horizontal
-    # centre: the crown stays where it is and the shoulders run off the bottom,
-    # which is how the original portrait was framed (its ink reaches all four
-    # edges). Shrinking about the centre instead would leave a gap above the
-    # head and cut the chin.
-    if zoom != 1.0:
-        centre_x = (left + right) / 2
-        w, h = w * zoom, h * zoom
-        left, right = centre_x - w / 2, centre_x + w / 2
-        bottom = top + h
-
-    if w / h > TW / TH:
-        pad = (round(w * TH / TW) - h) / 2
-        top, bottom = top - pad, bottom + pad
-    else:
-        pad = (round(h * TW / TH) - w) / 2
-        left, right = left - pad, right + pad
-    box = (round(left), round(top), round(right) + 1, round(bottom) + 1)
-    bw, bh = box[2] - box[0], box[3] - box[1]
-    print(f"cells {cw}x{ch}, shared crop {bw}x{bh} (aspect {bw/bh:.4f}, target {TW/TH:.4f})")
+    # Close in on the heads horizontally; the height then follows from the
+    # portrait's aspect rather than from the union, since the vertical placement
+    # is per-frame below.
+    centre_x = (left + right) / 2
+    bw = round((right - left + 1) * zoom)
+    bh = round(bw * TH / TW)
+    bx = round(centre_x - bw / 2)
+    print(f"cells {cw}x{ch}, crop {bw}x{bh} (aspect {bw/bh:.4f}, target {TW/TH:.4f}), "
+          f"crown offsets {min(crowns.values())}..{max(crowns.values())}")
 
     failures = 0
     for name, (ox, oy) in origins.items():
+        # Vertical origin is this frame's own crown, so the top of the head
+        # lands on the top of the picture in all nine.
+        by = crowns[name]
+
         frame = Image.new("RGB", (bw, bh), (255, 255, 255))
-        x0, y0 = max(0, ox + box[0]), max(0, oy + box[1])
-        x1, y1 = min(sw, ox + box[2]), min(sh, oy + box[3])
+        x0, y0 = max(0, ox + bx), max(0, oy + by)
+        x1, y1 = min(sw, ox + bx + bw), min(sh, oy + by + bh)
         if x1 > x0 and y1 > y0:
-            frame.paste(src.crop((x0, y0, x1, y1)), (x0 - (ox + box[0]), y0 - (oy + box[1])))
+            frame.paste(src.crop((x0, y0, x1, y1)), (x0 - (ox + bx), y0 - (oy + by)))
 
         out = out_dir / f"portrait--look-{name}.png"
         frame.resize((TW, TH), Image.LANCZOS).save(out, optimize=True)
