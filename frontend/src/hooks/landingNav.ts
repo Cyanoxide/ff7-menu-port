@@ -12,8 +12,6 @@ export const landingNav = {
         revive?: () => void;
         /** Registered by the Menu so mouse hover on the avatar/revive moves the shared cursor */
         focusTarget?: (target: "avatar" | "revive") => void;
-        /** Konami code: nod the portrait along for the length of the fanfare */
-        headbang?: (durationMs: number) => void;
     },
 
     getFocus(): LandingFocus {

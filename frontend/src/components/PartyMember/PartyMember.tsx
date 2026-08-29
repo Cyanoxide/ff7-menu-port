@@ -10,7 +10,6 @@ import playSound from "../../util/sounds.ts";
 import { useContext } from "../../context/context.tsx";
 import { markKeyboardNavigation } from "../../hooks/useCursorNav.ts";
 import { landingNav } from "../../hooks/landingNav.ts";
-import useHeadbang from "../../hooks/useHeadbang.ts";
 import useBlink from "../../hooks/useBlink.ts";
 import { BLINK_DIRECTION } from "../../hooks/useLookDirection.ts";
 
@@ -48,8 +47,6 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     const navigate = useNavigate();
     const landingFocus = useSyncExternalStore(landingNav.subscribe, landingNav.getFocus);
     const keyboardFocus = healthReduction ? landingFocus : null;
-    // Konami code: the portrait nods along to the fanfare
-    const [headbangLook, startHeadbang] = useHeadbang();
     // Blinks on its own every so often, and on every hit that lands
     const [blinking, blinkNow] = useBlink();
     // The beat after a revive: eyes open, facing front, before the mouse has him back
@@ -75,14 +72,12 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
         if (!healthReduction) return;
         landingNav.actions.attack = () => attackRef.current();
         landingNav.actions.revive = () => reviveRef.current();
-        landingNav.actions.headbang = startHeadbang;
         return () => {
             landingNav.actions.attack = undefined;
             landingNav.actions.revive = undefined;
-            landingNav.actions.headbang = undefined;
             landingNav.setFocus(null);
         };
-    }, [healthReduction, startHeadbang]);
+    }, [healthReduction]);
 
     useEffect(() => {
         if (currentHealth === null) {
@@ -268,9 +263,9 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     /**
      * What the portrait is doing, in precedence order.
      *
-     * Dead outranks everything, the konami nod included: eyes shut and facing
-     * front, no mouse tracking, until he is revived. (A limit break cannot
-     * start from 0 HP anyway -- runLimitBreak refuses it.)
+     * Dead outranks everything: eyes shut and facing front, no mouse tracking,
+     * until he is revived. (A limit break cannot start from 0 HP anyway --
+     * runLimitBreak refuses it.)
      *
      * The limit break holds him at centre for the length of the cut so the
      * flinch on each hit reads. Off-centre he has no blink frame, so the hits
@@ -280,7 +275,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
      * was and stay front for a moment before the mouse has him back.
      */
     const isDead = healthReduction && currentHealth === 0;
-    const portraitLook = isDead || limitActive || waking ? BLINK_DIRECTION : headbangLook;
+    const portraitLook = isDead || limitActive || waking ? BLINK_DIRECTION : null;
     // Waking suppresses the idle blink too: the point of the beat is the eyes
     // being open, so it must not open them and shut them again.
     const portraitBlink = isDead || (blinking && !waking);

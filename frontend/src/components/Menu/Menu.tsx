@@ -3,17 +3,13 @@ import { useContext } from "../../context/context";
 import styles from "./Menu.module.scss";
 import textToSprite from "../../util/textToSprite";
 import ContentBox from "../ContentBox/ContentBox";
-import playSound, { soundDuration } from "../../util/sounds";
+import playSound from "../../util/sounds";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCursorNav, markKeyboardNavigation, consumeKeyboardNavIntent } from "../../hooks/useCursorNav";
 import { useKonamiCode } from "../../hooks/useKonamiCode";
 import { landingNav } from "../../hooks/landingNav";
 import { closeNav } from "../../hooks/closeNav";
 import menuJSON from "../../data/menu.json";
-
-/** public/audio/fanfare.mp3, measured with ffprobe. Only a fallback -- the
- *  decoded buffer is asked first, so re-encoding the clip needs no change here. */
-const FANFARE_MS = 3712;
 import type { MenuItem } from "../../context/types";
 
 const Menu = () => {
@@ -89,14 +85,7 @@ const Menu = () => {
         },
     });
 
-    useKonamiCode(() => {
-        playSound("fanfare", isSoundEnabled);
-        // Nods for the length of the clip. The fallback is only reached when
-        // sound has never been enabled, in which case nothing has decoded the
-        // buffer to ask -- the nod still runs, so the easter egg is not silent
-        // *and* invisible for anyone playing with the sound off.
-        landingNav.actions.headbang?.(soundDuration("fanfare") ?? FANFARE_MS);
-    }, isLanding);
+    useKonamiCode(() => playSound("fanfare", isSoundEnabled), isLanding);
 
     // Mouse hover on the landing avatar/revive moves the shared cursor
     useEffect(() => {
