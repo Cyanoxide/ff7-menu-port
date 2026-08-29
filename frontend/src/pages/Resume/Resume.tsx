@@ -8,6 +8,7 @@ import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { useCursorNav, markKeyboardNavigation } from "../../hooks/useCursorNav";
 import { closeNav } from "../../hooks/closeNav";
+import { lookFrameSrc, STATIC_LOOK } from "../../hooks/useLookDirection";
 
 import skillsJSON from "../../data/skills.json";
 import historyJSON from "../../data/history.json";
@@ -214,7 +215,7 @@ function ResumeContent() {
                             </div>
                             {separator("sep-title")}
                             <div className={styles.profileRow}>
-                                <img src="/portrait.png" alt="Portrait" className={styles.portrait} />
+                                <img src={lookFrameSrc(STATIC_LOOK)} alt="Portrait" className={styles.portrait} />
                                 <ul className={styles.stats}>
                                     {CONTACT.map(([label, value]) => (
                                         <li key={label} className="flex justify-between">

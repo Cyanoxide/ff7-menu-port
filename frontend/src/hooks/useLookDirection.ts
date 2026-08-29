@@ -16,6 +16,12 @@ export const lookFrameSrc = (direction: LookDirection) =>
     `/portrait--look-${direction}.png`;
 
 /**
+ * The frame every static portrait uses. The nine exist for the landing page's
+ * mouse tracking; everywhere else picks one and stays on it.
+ */
+export const STATIC_LOOK: LookDirection = "up";
+
+/**
  * The eight compass sectors, in the order atan2 sweeps them starting from
  * "pointing left" (-PI) and going clockwise on screen, since y grows downward.
  */

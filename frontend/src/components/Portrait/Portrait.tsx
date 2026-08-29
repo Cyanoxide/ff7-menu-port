@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useContext } from "../../context/context";
-import useLookDirection, { LOOK_DIRECTIONS, lookFrameSrc, type LookDirection } from "../../hooks/useLookDirection";
+import useLookDirection, { LOOK_DIRECTIONS, STATIC_LOOK, lookFrameSrc, type LookDirection } from "../../hooks/useLookDirection";
 import styles from "./Portrait.module.scss";
 import {
     resolvePortrait,
@@ -17,6 +17,15 @@ interface PortraitProps {
      * Ignored by the character portraits, which have only the one frame.
      */
     look?: LookDirection | null;
+    /**
+     * Whether the portrait follows the mouse. Only the landing page does; the
+     * copies on Equip, Skills, Name Entry and the resume are static.
+     *
+     * Off by default, so a new use of this component is static unless it asks
+     * otherwise -- the tracking costs a window pointer listener and nine
+     * preloaded frames, which is not something to acquire by accident.
+     */
+    follow?: boolean;
     width?: number;
     className?: string;
     /** Override the name used to resolve the portrait; defaults to the saved user name */
@@ -113,12 +122,25 @@ const LookingPortrait: React.FC<{ src: string; width: number; className?: string
 
 // Renders the party member's portrait, swapping to an FF7 character's face from
 // the shared spritesheet when the (case-insensitive) name matches one.
-const Portrait: React.FC<PortraitProps> = ({ src, width = 145, className, name, alt = "Party Member Portrait", look }) => {
+const Portrait: React.FC<PortraitProps> = ({ src, width = 145, className, name, alt = "Party Member Portrait", look, follow = false }) => {
     const { userName } = useContext();
     const sprite = resolvePortrait(name ?? userName);
 
     if (!sprite) {
-        return <LookingPortrait src={src} width={width} className={className} alt={alt} look={look} />;
+        if (follow) {
+            return <LookingPortrait src={src} width={width} className={className} alt={alt} look={look} />;
+        }
+        // Deliberately the plain element: no pointer listener, no preloading and
+        // no cross-fade layers for a portrait that is never going to change.
+        return (
+            <img
+                src={lookFrameSrc(STATIC_LOOK)}
+                alt={alt}
+                width={width}
+                className={`object-contain ${className ?? ""}`}
+                onError={event => { event.currentTarget.src = src; }}
+            />
+        );
     }
 
     const scale = width / PORTRAIT_WIDTH;
