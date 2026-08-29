@@ -142,8 +142,8 @@
     }
 
     &[data-label="healButton"] {
-        padding: .5rem .7rem .5rem .55rem;
-        margin-top: calc(0.85rem - 2px);
+        padding: .5rem .7rem .5rem .35rem;
+        margin-top: calc(0.85rem - 19px);
         opacity: 0;
         animation: fadeIn 0.2s linear forwards;
         cursor: pointer;
@@ -201,6 +201,7 @@
 }
 
 [data-active="true"] {
+
     /**
      * The location strip, the time/gil box and the bio all drop by the same
      * 14.7px, so the party box's bottom edge lands on the top of the location
