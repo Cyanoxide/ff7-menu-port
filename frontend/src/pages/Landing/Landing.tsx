@@ -57,10 +57,20 @@ function charsAt(elapsed: number) {
     return TOTAL_CHARS;
 }
 
+// Only type on a real page load, not every time the router brings us back to
+// Landing from another page. Module state survives client-side navigation and
+// resets on an actual document load, which is the distinction we want. (There
+// is no StrictMode here, so the effect runs once per mount and this is not
+// tripped by a double-invoked mount in development.)
+let hasTyped = false;
+
 function TypedBio() {
-    const [typed, setTyped] = useState(0);
+    const [typed, setTyped] = useState(hasTyped ? TOTAL_CHARS : 0);
 
     useEffect(() => {
+        if (hasTyped) return;
+        hasTyped = true;
+
         const started = performance.now();
         let frame = 0;
 
