@@ -8,7 +8,8 @@ import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { useCursorNav, markKeyboardNavigation } from "../../hooks/useCursorNav";
 import { closeNav } from "../../hooks/closeNav";
-import StaticPortrait from "../../components/Portrait/StaticPortrait";
+import LookingPortrait from "../../components/Portrait/LookingPortrait";
+import useBlink from "../../hooks/useBlink";
 
 import skillsJSON from "../../data/skills.json";
 import historyJSON from "../../data/history.json";
@@ -93,6 +94,9 @@ function ResumeContent() {
     const { isSoundEnabled, isCRTEnabled } = useContext();
     const navigate = useNavigate();
     const scrollRef = useRef<HTMLDivElement>(null);
+    // The portrait follows the mouse here as it does everywhere; blinking is the
+    // caller's to own, and this page wants nothing but the idle rhythm.
+    const [blinking] = useBlink();
 
     // PostgreSQL is dropped here only (keeps the resume grid an even count).
     const skills = (skillsJSON as SkillType[]).filter((s) => s.name !== "PostgreSQL");
@@ -215,7 +219,7 @@ function ResumeContent() {
                             </div>
                             {separator("sep-title")}
                             <div className={styles.profileRow}>
-                                <StaticPortrait src="/portrait.png" alt="Portrait" className={styles.portrait} />
+                                <LookingPortrait src="/portrait.png" alt="Portrait" className={styles.portrait} blink={blinking} />
                                 <ul className={styles.stats}>
                                     {CONTACT.map(([label, value]) => (
                                         <li key={label} className="flex justify-between">

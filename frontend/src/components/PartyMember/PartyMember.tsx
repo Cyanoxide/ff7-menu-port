@@ -296,10 +296,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
                 <div className={styles.portrait} data-shake={isAttacking} data-dying={isDying} data-interactive={healthReduction} data-health={currentHealth?.toString()} data-focused={keyboardFocus === "avatar"}>
                     {isAttacking && <p className="absolute">{textToSprite(damage.toString(), true)}</p>}
                     <div className="self-center relative" onClick={handleOnClick} onMouseEnter={handleMouseEnter}>
-                        {/* healthReduction marks the landing instance -- the same flag
-                            gates the cursor, the revive and the limit break. The copies
-                            on Equip and Skills are static. */}
-                        <Portrait src={image_path} width={145} look={portraitLook} blink={portraitBlink} follow={healthReduction} />
+                        <Portrait src={image_path} width={145} look={portraitLook} blink={portraitBlink} />
                         {limitHits > 0 && (
                             <div
                                 className={styles.limitSlashes}
