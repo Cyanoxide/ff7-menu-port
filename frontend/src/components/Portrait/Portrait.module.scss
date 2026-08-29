@@ -9,17 +9,37 @@
  */
 .look {
     position: relative;
+    overflow: hidden;
+    /*
+     * Both layers are absolutely positioned, so nothing in flow gives this box
+     * a height. The frames are the portrait's native 107x122 (PORTRAIT_WIDTH and
+     * PORTRAIT_HEIGHT in data/portraits.ts), and the ratio holds at whatever
+     * width the caller sets -- an inline one on the landing page, a class on the
+     * resume.
+     */
+    aspect-ratio: 107 / 122;
 }
 
-.frame {
-    display: block;
-    width: 100%;
-    height: auto;
+/*
+ * One image, showing one frame of it. `height: 100%` with `width: auto` lets the
+ * whole strip scale off the box's height, so a frame is exactly 1/--frames of
+ * the element's own width whatever size it renders at -- which is what makes the
+ * offset a plain percentage rather than pixel arithmetic against the app scale.
+ *
+ * max-width defeats any inherited `max-width: 100%`, which would squash the
+ * whole strip into one frame's width and shrink the face to a tenth.
+ */
+.sheet {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: auto;
+    max-width: none;
+    transform: translateX(calc(var(--frame) * -100% / var(--frames)));
 }
 
 .incoming {
-    position: absolute;
-    inset: 0;
     // Duration comes from the component so the two cannot drift apart
     animation: portraitCrossFade var(--portrait-fade) ease-out;
 }

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * The nine frames of the look-at-cursor portrait, as they appear on disk:
- * `/portrait--look-<direction>.png`.
+ * The nine poses of the look-at-cursor portrait. Their sources are the files in
+ * frontend/art/portrait-frames/; what ships is the sheet they are packed into.
  */
 export const LOOK_DIRECTIONS = [
     "up-left", "up", "up-right",
@@ -12,18 +12,31 @@ export const LOOK_DIRECTIONS = [
 
 export type LookDirection = typeof LOOK_DIRECTIONS[number];
 
-export const lookFrameSrc = (direction: LookDirection) =>
-    `/portrait--look-${direction}.png`;
+/** One row of frames, built by tools/pack-look-sheet.py. */
+export const LOOK_SHEET = "/portrait-look-spritesheet.png";
 
 /**
- * Eyes closed. The only variant frame there is, and it is drawn over the centre
- * pose, so a blink can only show while he is looking straight ahead -- glancing
- * anywhere else has no closed-eye frame to swap to.
+ * The sheet's frame order, left to right. **The order is the contract with
+ * tools/pack-look-sheet.py** -- the code offsets into the sheet by index, so
+ * changing one without the other points every glance the wrong way.
+ *
+ * The tenth is the eyes-closed frame, drawn over the centre pose. It is the
+ * only variant there is, so a blink can only show while he is looking straight
+ * ahead; glancing anywhere else has no closed-eye frame to swap to.
  */
-export const BLINK_SRC = "/portrait--look-center--blink.png";
+export const SHEET_FRAMES = [...LOOK_DIRECTIONS, "blink"] as const;
 
-/** The one direction BLINK_SRC is drawn for. */
+/** The one direction the blink frame is drawn for. */
 export const BLINK_DIRECTION: LookDirection = "center";
+
+/**
+ * Which frame of the sheet to show. Blinking only has a frame for
+ * BLINK_DIRECTION, so anywhere else it is ignored rather than approximated.
+ */
+export const lookFrameIndex = (direction: LookDirection, blinking = false) =>
+    blinking && direction === BLINK_DIRECTION
+        ? SHEET_FRAMES.length - 1
+        : LOOK_DIRECTIONS.indexOf(direction);
 
 /**
  * The eight compass sectors, in the order atan2 sweeps them starting from

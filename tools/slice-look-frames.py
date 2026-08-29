@@ -39,8 +39,11 @@ Two things here are not obvious, and both were bugs first:
   out-of-bounds crop with black, which shipped once as black bands across the
   top and bottom of six frames.
 
-Writes frontend/public/portrait--look-<direction>.png and checks the edges of
-each result, since a black band is easy to miss on a dark page.
+Writes frontend/art/portrait-frames/portrait--look-<direction>.png and checks
+the edges of each result, since a black band is easy to miss on a dark page.
+
+Those are sources, not shipped assets. Run tools/pack-look-sheet.py afterwards
+to build the spritesheet the site actually loads -- nothing does it for you.
 """
 import sys
 from pathlib import Path
@@ -63,7 +66,7 @@ INK = 720
 
 
 def main(sheet_path: str, zoom: float) -> int:
-    out_dir = Path(__file__).resolve().parent.parent / "frontend" / "public"
+    out_dir = Path(__file__).resolve().parent.parent / "frontend" / "art" / "portrait-frames"
     src = Image.open(sheet_path).convert("RGB")
     sw, sh = src.size
 

@@ -1,5 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import useLookDirection, { LOOK_DIRECTIONS, BLINK_SRC, BLINK_DIRECTION, lookFrameSrc, type LookDirection } from "../../hooks/useLookDirection";
+import { useLayoutEffect, useRef, useState } from "react";
+import useLookDirection, { LOOK_SHEET, SHEET_FRAMES, lookFrameIndex, type LookDirection } from "../../hooks/useLookDirection";
 import styles from "./Portrait.module.scss";
 
 /** How long a glance takes to cross-fade. Short enough to feel like a reaction. */
@@ -59,19 +59,14 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
         setLayers(prev => (prev.over === direction ? prev : { under: prev.over, over: direction }));
     }, [direction]);
 
-    // Decode all ten up front. Without this the first glance in each direction
-    // fades in an image the browser has not fetched, so the transition plays
-    // over nothing and lands as a hard cut.
-    useEffect(() => {
-        for (const url of [...LOOK_DIRECTIONS.map(lookFrameSrc), BLINK_SRC]) {
-            const preload = new Image();
-            preload.src = url;
-        }
-    }, []);
-
-    const onError = (event: React.SyntheticEvent<HTMLImageElement>) => {
-        event.currentTarget.src = src;
-    };
+    // One sheet, so there is nothing to preload: the first paint fetches every
+    // frame, and a glance is a transform rather than a request. Both layers
+    // point at the same file, so it is still one fetch.
+    const [failed, setFailed] = useState(false);
+    if (failed) {
+        // The sheet did not load. Better the plain portrait than an empty box.
+        return <img src={src} width={width} className={className} alt={alt} />;
+    }
 
     return (
         <div
@@ -80,9 +75,22 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
             aria-label={alt}
             data-look={direction}
             className={`${styles.look} ${className ?? ""}`}
-            style={{ width: width ? `${width}px` : undefined, "--portrait-fade": `${FADE_MS}ms` } as React.CSSProperties}
+            style={{
+                width: width ? `${width}px` : undefined,
+                "--portrait-fade": `${FADE_MS}ms`,
+                // From the sheet itself, so the two cannot disagree about how
+                // far one frame is
+                "--frames": SHEET_FRAMES.length,
+            } as React.CSSProperties}
         >
-            <img src={lookFrameSrc(layers.under)} alt="" aria-hidden className={styles.frame} onError={onError} />
+            <img
+                src={LOOK_SHEET}
+                alt=""
+                aria-hidden
+                className={styles.sheet}
+                style={{ "--frame": lookFrameIndex(layers.under) } as React.CSSProperties}
+                onError={() => setFailed(true)}
+            />
             {/*
               * Keyed by direction so each glance mounts a fresh element and the
               * CSS animation runs from the start. Restarting an animation on a
@@ -90,17 +98,18 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
               * which is easy to get subtly wrong; a remount cannot half-apply.
               * The frames are preloaded, so the new node has nothing to fetch.
               *
-              * The blink changes this layer's src *without* touching the key, so
-              * it is a straight cut: eyes shut and open again, they do not
+              * The blink changes this layer's *frame* without touching the key,
+              * so it is a straight cut: eyes shut and open again, they do not
               * dissolve, and a blink cannot interrupt a glance that is fading.
               */}
             <img
                 key={layers.over}
-                src={blink && layers.over === BLINK_DIRECTION ? BLINK_SRC : lookFrameSrc(layers.over)}
+                src={LOOK_SHEET}
                 alt=""
                 aria-hidden
-                className={`${styles.frame} ${styles.incoming}`}
-                onError={onError}
+                className={`${styles.sheet} ${styles.incoming}`}
+                style={{ "--frame": lookFrameIndex(layers.over, blink) } as React.CSSProperties}
+                onError={() => setFailed(true)}
             />
         </div>
     );
