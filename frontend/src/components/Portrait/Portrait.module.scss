@@ -1,0 +1,35 @@
+/*
+ * The look-at-cursor portrait crossfades between its nine frames.
+ *
+ * Two layers, and the lower one is always fully opaque: the incoming frame
+ * fades in *over* the outgoing one rather than the two fading past each other.
+ * Cross-fading both would leave the composite short of full opacity in the
+ * middle of every transition -- the frames are opaque white-backed art on a
+ * black panel, so that reads as the portrait dipping darker on each glance.
+ */
+.look {
+    position: relative;
+}
+
+.frame {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.incoming {
+    position: absolute;
+    inset: 0;
+    // Duration comes from the component so the two cannot drift apart
+    animation: portraitCrossFade var(--portrait-fade) ease-out;
+}
+
+@keyframes portraitCrossFade {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useContext } from "../../context/context";
-import useLookDirection, { LOOK_DIRECTIONS, lookFrameSrc } from "../../hooks/useLookDirection";
+import useLookDirection, { LOOK_DIRECTIONS, lookFrameSrc, type LookDirection } from "../../hooks/useLookDirection";
+import styles from "./Portrait.module.scss";
 import {
     resolvePortrait,
     PORTRAIT_SHEET,
@@ -30,13 +31,34 @@ interface PortraitProps {
  * only exists while this portrait is the one on screen — a character portrait
  * mounts no tracking at all.
  */
+/** How long a glance takes to cross-fade. Short enough to feel like a reaction. */
+const FADE_MS = 120;
+
 const LookingPortrait: React.FC<{ src: string; width: number; className?: string; alt: string }> = ({ src, width, className, alt }) => {
-    const ref = useRef<HTMLImageElement>(null);
+    const ref = useRef<HTMLDivElement>(null);
     const direction = useLookDirection(ref);
 
+    /**
+     * The two layers. `under` is whatever was last shown and stays fully
+     * opaque; `over` is the frame fading in on top of it. Advancing both in a
+     * single state update matters: `under` has to take the outgoing frame in
+     * the same commit that `over` takes the incoming one, or the pair repaint
+     * out of step and the portrait flicks back to an older frame for a frame.
+     */
+    const [layers, setLayers] = useState<{ under: LookDirection; over: LookDirection }>(
+        { under: "center", over: "center" }
+    );
+
+    // Layout effect, not an effect: this runs on the same commit that changed
+    // the direction, so the swap is painted once rather than showing the old
+    // frame for a beat first.
+    useLayoutEffect(() => {
+        setLayers(prev => (prev.over === direction ? prev : { under: prev.over, over: direction }));
+    }, [direction]);
+
     // Decode all nine up front. Without this the first glance in each direction
-    // swaps to an image the browser has not fetched, and the portrait blinks
-    // empty for a frame on its way round.
+    // fades in an image the browser has not fetched, so the transition plays
+    // over nothing and lands as a hard cut.
     useEffect(() => {
         for (const frame of LOOK_DIRECTIONS) {
             const preload = new Image();
@@ -44,22 +66,38 @@ const LookingPortrait: React.FC<{ src: string; width: number; className?: string
         }
     }, []);
 
+    // `src` is the portrait shipped in the data file, used if a look frame is
+    // ever missing, so a 404 shows the face rather than a broken image.
+    const onError = (event: React.SyntheticEvent<HTMLImageElement>) => {
+        event.currentTarget.src = src;
+    };
+
     return (
-        <img
+        <div
             ref={ref}
-            src={lookFrameSrc(direction)}
-            // The nine frames differ only in where the eyes point, so React
-            // must not treat a direction change as a new element -- keying it
-            // by src would remount and refetch on every glance.
-            alt={alt}
-            width={width}
-            className={`object-contain ${className ?? ""}`}
+            role="img"
+            aria-label={alt}
             data-look={direction}
-            // `src` is the portrait shipped in the data file. It is the fallback
-            // if a look frame is ever missing, so a 404 shows the face rather
-            // than a broken image.
-            onError={event => { event.currentTarget.src = src; }}
-        />
+            className={`${styles.look} ${className ?? ""}`}
+            style={{ width: `${width}px`, "--portrait-fade": `${FADE_MS}ms` } as React.CSSProperties}
+        >
+            <img src={lookFrameSrc(layers.under)} alt="" aria-hidden className={styles.frame} onError={onError} />
+            {/*
+              * Keyed by direction so each glance mounts a fresh element and the
+              * CSS animation runs from the start. Restarting an animation on a
+              * persistent node means clearing it and forcing a reflow between,
+              * which is easy to get subtly wrong; a remount cannot half-apply.
+              * The frames are preloaded, so the new node has nothing to fetch.
+              */}
+            <img
+                key={layers.over}
+                src={lookFrameSrc(layers.over)}
+                alt=""
+                aria-hidden
+                className={`${styles.frame} ${styles.incoming}`}
+                onError={onError}
+            />
+        </div>
     );
 };
 
