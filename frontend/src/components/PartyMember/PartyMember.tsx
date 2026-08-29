@@ -280,7 +280,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
                             </div>
                         )}
                     </div>
-                    {healthReduction && currentHealth === 0 && <div onClick={handleHealClick} onMouseEnter={() => landingNav.actions.focusTarget?.("revive")} className="absolute top-full"><ContentBox data-label="healButton" data-focused={keyboardFocus === "revive"}>{textToSprite("Revive", false, (!currentMana || currentMana < 34) ? "grey" : "")}</ContentBox></div>}
+                    {healthReduction && currentHealth === 0 && <div onClick={handleHealClick} onMouseEnter={() => landingNav.actions.focusTarget?.("revive")} className={styles.reviveButton}><ContentBox data-label="healButton" data-focused={keyboardFocus === "revive"}>{textToSprite("Revive", false, (!currentMana || currentMana < 34) ? "grey" : "")}</ContentBox></div>}
                 </div>
                 <div className="mt-2 ml-8">
                     {healthReduction ? (

@@ -177,3 +177,50 @@
 .limitBar[data-ready=true] {
     cursor: pointer;
 }
+
+/*
+ * The Revive button hangs below the portrait on `top: 100%`, so it reaches down
+ * into the bio panel. The bio is rendered after PartyMember in the DOM and both
+ * sat at `z-index: auto`, so document order put the bio on top and it cut the
+ * button in half — visible only once the bio had text in it.
+ *
+ * The geometry is all about `border-image-outset`: the border art is drawn 5px
+ * *outside* the border box, so the box sits 5px inside the line it appears to
+ * draw. Everything below is the visible line, not the box.
+ *
+ *   portrait: 145px wide (`<Portrait width={145} />`), its left edge 53.2px
+ *   into the party panel (2px border + 3.2rem padding-left).
+ *
+ * The bio's left border art lands on 53.18px, which is why it already lines up
+ * with the portrait — see the width note on [data-label="bio"] in
+ * ContentBox.module.scss. Matching the portrait therefore matches the bio too.
+ *
+ *   left:  5px  puts the drawn line on the portrait's left edge (0 + 5 outset).
+ *   width: 135px puts the drawn right line on 145 (5 + 135 + 5 outset).
+ *
+ * Both are 5px in from where you would write them if the art were on the box.
+ */
+.reviveButton {
+    position: absolute;
+    top: 100%;
+    left: 5px;
+    width: 135px;
+    z-index: 2;
+
+    >div {
+        width: 100%;
+        margin-bottom: 0;
+        /*
+         * 1px under the natural 56px (2px border + 8px padding + 36px .font +
+         * 8px + 2px). The .font overhangs the shortened box by that 1px;
+         * nothing clips it, so it does not show.
+         *
+         * What actually lands the bottom border on the bio's top border is
+         * healButton's `margin-top: calc(0.85rem - 19px)` in
+         * ContentBox.module.scss, which lifts the button 17px. **The two are a
+         * pair** — change this height and that margin moves by the same amount,
+         * or the borders come apart again.
+         */
+        height: 55px;
+    }
+}
