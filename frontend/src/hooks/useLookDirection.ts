@@ -27,9 +27,12 @@ export const BLINK_DIRECTION: LookDirection = "center";
 
 /**
  * The frame every static portrait uses. The nine exist for the landing page's
- * mouse tracking; everywhere else picks one and stays on it.
+ * mouse tracking; everywhere else holds this one.
+ *
+ * It has to stay a direction that has a blink frame -- the static portraits
+ * blink on the idle timer, and only this pose is drawn with the eyes shut.
  */
-export const STATIC_LOOK: LookDirection = "up";
+export const STATIC_LOOK: LookDirection = BLINK_DIRECTION;
 
 /**
  * The eight compass sectors, in the order atan2 sweeps them starting from

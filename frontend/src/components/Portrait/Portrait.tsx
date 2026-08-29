@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useContext } from "../../context/context";
-import useLookDirection, { LOOK_DIRECTIONS, STATIC_LOOK, BLINK_SRC, BLINK_DIRECTION, lookFrameSrc, type LookDirection } from "../../hooks/useLookDirection";
+import useLookDirection, { LOOK_DIRECTIONS, BLINK_SRC, BLINK_DIRECTION, lookFrameSrc, type LookDirection } from "../../hooks/useLookDirection";
 import styles from "./Portrait.module.scss";
+import StaticPortrait from "./StaticPortrait";
 import {
     resolvePortrait,
     PORTRAIT_SHEET,
@@ -141,17 +142,7 @@ const Portrait: React.FC<PortraitProps> = ({ src, width = 145, className, name, 
         if (follow) {
             return <LookingPortrait src={src} width={width} className={className} alt={alt} look={look} blink={blink} />;
         }
-        // Deliberately the plain element: no pointer listener, no preloading and
-        // no cross-fade layers for a portrait that is never going to change.
-        return (
-            <img
-                src={lookFrameSrc(STATIC_LOOK)}
-                alt={alt}
-                width={width}
-                className={`object-contain ${className ?? ""}`}
-                onError={event => { event.currentTarget.src = src; }}
-            />
-        );
+        return <StaticPortrait src={src} width={width} className={`object-contain ${className ?? ""}`} alt={alt} />;
     }
 
     const scale = width / PORTRAIT_WIDTH;
