@@ -5,6 +5,9 @@ import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import type { HistoryType } from "../../context/types";
 
+import LookingPortrait from "../Portrait/LookingPortrait";
+import useBlink from "../../hooks/useBlink";
+
 import styles from "./HistorySave.module.scss";
 
 interface historySaveProps {
@@ -18,6 +21,7 @@ interface historySaveProps {
 
 const HistorySave: React.FC<historySaveProps> = ({ historyItem, historyType, focused = false, onEnter, ...props }) => {
     const { isSoundEnabled } = useContext();
+    const [blinking] = useBlink();
     if (!historyItem) return;
 
     return (
@@ -26,7 +30,9 @@ const HistorySave: React.FC<historySaveProps> = ({ historyItem, historyType, foc
                 <ContentBox data-label="historySave" className="h-[235px] relative">
                     <div className="mr-[414px] flex gap-5">
                         <img className="h-[11.5rem] w-auto" src={historyItem.image_path} />
-                        <img className="h-[11.5rem] w-auto" src="/portrait.png" />
+                        {/* Sized from its height, so no width prop -- the
+                            aspect ratio on .look supplies the other side */}
+                        <LookingPortrait src="/portrait.png" className="h-[11.5rem] w-auto" blink={blinking} />
                         <div className="ml-2 mt-[1.3rem]">
                             <p className="mb-4">{textToSprite(historyItem.user)}</p>
                             <p className="flex"><span className="font-glyph" data-sprite="lv">lv</span><span>{textToSprite(historyItem.level.toString(), true)}</span></p>
