@@ -240,4 +240,19 @@ const playSound = (soundName: sounds, isSoundEnabled: boolean, isLoop: boolean =
     });
 };
 
+/**
+ * How long a clip runs, in ms, for anything that has to keep time with a sound
+ * rather than merely start one.
+ *
+ * Null until the buffer is decoded, so the caller picks its own fallback rather
+ * than being handed a zero it cannot tell apart from a real answer. In practice
+ * it is decoded: preload runs as soon as a context exists, and a context exists
+ * after the first gesture. It is genuinely null when sound has never been
+ * enabled, since nothing has built a context to decode into.
+ */
+export const soundDuration = (soundName: sounds): number | null => {
+    const buffer = buffers.get(soundName);
+    return buffer ? buffer.duration * 1000 : null;
+};
+
 export default playSound;

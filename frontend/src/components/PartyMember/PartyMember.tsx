@@ -10,6 +10,7 @@ import playSound from "../../util/sounds.ts";
 import { useContext } from "../../context/context.tsx";
 import { markKeyboardNavigation } from "../../hooks/useCursorNav.ts";
 import { landingNav } from "../../hooks/landingNav.ts";
+import useHeadbang from "../../hooks/useHeadbang.ts";
 import styles from "./PartyMember.module.scss";
 import ContentBox from "../ContentBox/ContentBox.tsx";
 import Portrait from "../Portrait/Portrait.tsx";
@@ -39,6 +40,8 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     const navigate = useNavigate();
     const landingFocus = useSyncExternalStore(landingNav.subscribe, landingNav.getFocus);
     const keyboardFocus = healthReduction ? landingFocus : null;
+    // Konami code: the portrait nods along to the fanfare
+    const [headbangLook, startHeadbang] = useHeadbang();
     const attackRef = useRef<() => void>(() => { });
     const reviveRef = useRef<() => void>(() => { });
 
@@ -58,12 +61,14 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
         if (!healthReduction) return;
         landingNav.actions.attack = () => attackRef.current();
         landingNav.actions.revive = () => reviveRef.current();
+        landingNav.actions.headbang = startHeadbang;
         return () => {
             landingNav.actions.attack = undefined;
             landingNav.actions.revive = undefined;
+            landingNav.actions.headbang = undefined;
             landingNav.setFocus(null);
         };
-    }, [healthReduction]);
+    }, [healthReduction, startHeadbang]);
 
     useEffect(() => {
         if (currentHealth === null) {
@@ -246,7 +251,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
                 <div className={styles.portrait} data-shake={isAttacking} data-dying={isDying} data-interactive={healthReduction} data-health={currentHealth?.toString()} data-focused={keyboardFocus === "avatar"}>
                     {isAttacking && <p className="absolute">{textToSprite(damage.toString(), true)}</p>}
                     <div className="self-center relative" onClick={handleOnClick} onMouseEnter={handleMouseEnter}>
-                        <Portrait src={image_path} width={145} />
+                        <Portrait src={image_path} width={145} look={headbangLook} />
                         {limitHits > 0 && (
                             <div
                                 className={styles.limitSlashes}

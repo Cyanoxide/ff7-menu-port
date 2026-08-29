@@ -12,6 +12,11 @@ import {
 interface PortraitProps {
     /** The default portrait image (used when the name isn't an FF7 character) */
     src: string;
+    /**
+     * Forces a look frame, overriding the pointer, for as long as it is set.
+     * Ignored by the character portraits, which have only the one frame.
+     */
+    look?: LookDirection | null;
     width?: number;
     className?: string;
     /** Override the name used to resolve the portrait; defaults to the saved user name */
@@ -32,11 +37,16 @@ interface PortraitProps {
  * mounts no tracking at all.
  */
 /** How long a glance takes to cross-fade. Short enough to feel like a reaction. */
-const FADE_MS = 120;
+const FADE_MS = 20;
 
-const LookingPortrait: React.FC<{ src: string; width: number; className?: string; alt: string }> = ({ src, width, className, alt }) => {
+const LookingPortrait: React.FC<{ src: string; width: number; className?: string; alt: string; look?: LookDirection | null }> = ({ src, width, className, alt, look }) => {
     const ref = useRef<HTMLDivElement>(null);
-    const direction = useLookDirection(ref);
+    const pointing = useLookDirection(ref);
+
+    // An override takes the portrait off the pointer for as long as it lasts.
+    // The hook keeps tracking underneath, so the glance is already correct for
+    // wherever the mouse ended up by the time it hands back.
+    const direction = look ?? pointing;
 
     /**
      * The two layers. `under` is whatever was last shown and stays fully
@@ -103,12 +113,12 @@ const LookingPortrait: React.FC<{ src: string; width: number; className?: string
 
 // Renders the party member's portrait, swapping to an FF7 character's face from
 // the shared spritesheet when the (case-insensitive) name matches one.
-const Portrait: React.FC<PortraitProps> = ({ src, width = 145, className, name, alt = "Party Member Portrait" }) => {
+const Portrait: React.FC<PortraitProps> = ({ src, width = 145, className, name, alt = "Party Member Portrait", look }) => {
     const { userName } = useContext();
     const sprite = resolvePortrait(name ?? userName);
 
     if (!sprite) {
-        return <LookingPortrait src={src} width={width} className={className} alt={alt} />;
+        return <LookingPortrait src={src} width={width} className={className} alt={alt} look={look} />;
     }
 
     const scale = width / PORTRAIT_WIDTH;
