@@ -27,6 +27,12 @@
   RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
   RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
 
+  # The CV used to carry a year in its filename. Anything already sent out
+  # pointing at the old name still resolves. Deliberately unconditional: the
+  # old file may well still be sitting on the server, and serving the outdated
+  # CV to someone who kept the link is the thing being prevented.
+  RewriteRule ^Jamie_Pates_Resume_2025\.pdf$ /Jamie_Pates_Resume.pdf [L,R=301]
+
   # Single-page app: unknown paths are routes, so hand them to index.html and
   # let React Router work out what they mean.
   #
