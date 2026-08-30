@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 
 /**
- * The nine poses of the look-at-cursor portrait. Their sources are the files in
- * frontend/art/portrait-frames/; what ships is the sheet they are packed into.
+ * The nine poses of the look-at-cursor portrait.
  */
 export const LOOK_DIRECTIONS = [
     "up-left", "up", "up-right",
@@ -12,16 +11,24 @@ export const LOOK_DIRECTIONS = [
 
 export type LookDirection = typeof LOOK_DIRECTIONS[number];
 
-/** One row of frames, built by tools/pack-look-sheet.py. */
+/** The portrait spritesheet, uploaded by hand -- nothing in the repo builds it. */
 export const LOOK_SHEET = "/portrait-look-spritesheet.png";
 
 /**
- * The sheet's frame order, left to right. **The order is the contract with
- * tools/pack-look-sheet.py** -- the code offsets into the sheet by index, so
- * changing one without the other points every glance the wrong way.
+ * The sheet's frame order, left to right, and the whole specification of its
+ * layout. **This list is the contract with the artwork.** The code offsets into
+ * the sheet by index and by a fraction of its width, so the sheet must be:
  *
- * The tenth is the eyes-closed frame, drawn over the centre pose. It is the
- * only variant there is, so a blink can only show while he is looking straight
+ *   - a single row, no padding, no gaps;
+ *   - exactly SHEET_FRAMES.length frames of identical width;
+ *   - in this order.
+ *
+ * A sheet with a frame missing, an extra one, or the poses reordered will still
+ * render -- it will simply point every glance the wrong way, which is easy to
+ * mistake for a bug in the tracking. Change this list and the artwork together.
+ *
+ * The last is the eyes-closed frame, drawn over the centre pose. It is the only
+ * variant there is, so a blink can only show while he is looking straight
  * ahead; glancing anywhere else has no closed-eye frame to swap to.
  */
 export const SHEET_FRAMES = [...LOOK_DIRECTIONS, "blink"] as const;
