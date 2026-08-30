@@ -1,7 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-/** Idle gap between blinks. */
+/** Average idle gap between blinks. */
 const IDLE_MS = 15000;
+
+/**
+ * Fraction of IDLE_MS the gap is allowed to wander by, and how much of the
+ * first gap is random.
+ *
+ * A page can show several portraits -- the history list has three of the same
+ * face -- and they mount together. On a fixed interval they blink in perfect
+ * unison, which reads as one mechanism driving three puppets rather than three
+ * people. The jitter is what separates them, and it keeps the single portrait
+ * on the landing page from being metronomic too.
+ */
+const JITTER = 0.35;
+
+const nextGap = () => IDLE_MS * (1 + (Math.random() * 2 - 1) * JITTER);
 
 /** How long the eyes stay shut. A real blink is about this. */
 const BLINK_MS = 110;
@@ -27,11 +41,14 @@ export default function useBlink(): [boolean, () => void] {
             // Every blink restarts the idle countdown, so a hit that has just
             // made him blink is not followed by an idle one a moment later.
             window.clearTimeout(idle.current);
-            idle.current = window.setTimeout(blink, IDLE_MS);
+            idle.current = window.setTimeout(blink, nextGap());
         };
 
         blinkRef.current = blink;
-        idle.current = window.setTimeout(blink, IDLE_MS);
+        // The first gap is fully random rather than jittered around the mean, so
+        // portraits mounting together are spread out immediately instead of
+        // drifting apart over the first few minutes.
+        idle.current = window.setTimeout(blink, IDLE_MS * Math.random());
 
         return () => {
             window.clearTimeout(idle.current);
