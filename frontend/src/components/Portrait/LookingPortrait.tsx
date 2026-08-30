@@ -3,7 +3,7 @@ import useLookDirection, { LOOK_SHEET, SHEET_FRAMES, lookFrameIndex, type LookDi
 import styles from "./Portrait.module.scss";
 
 /** How long a glance takes to cross-fade. Short enough to feel like a reaction. */
-const FADE_MS = 20;
+const FADE_MS = 60;
 
 interface LookingPortraitProps {
     /** Fallback if a look frame is missing, so a 404 shows the face */
