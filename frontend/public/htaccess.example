@@ -12,6 +12,21 @@
   RewriteEngine On
   RewriteBase /
 
+  # Canonical host: send www to the bare domain, in the same hop as HTTPS.
+  #
+  # The two are separate origins as far as the browser is concerned, and
+  # localStorage is per-origin — so the saved window colour, name, sound and
+  # CRT settings and the play timer all silently reset on crossing between
+  # them. That is the reason for this rule. The SEO argument is much weaker:
+  # search engines pick one of a duplicate pair themselves and do not penalise
+  # the other, so it is untidy rather than harmful.
+  #
+  # %1 is the host with the "www." taken off, so this leaves subdomains alone
+  # instead of hardcoding the domain. It belongs before any HTTP-to-HTTPS rule,
+  # or an http://www. URL takes two redirects instead of one.
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
   # Single-page app: unknown paths are routes, so hand them to index.html and
   # let React Router work out what they mean.
   #
