@@ -32,7 +32,7 @@ const CONTACT: [string, string][] = [
 ];
 
 const LINKS: [string, string][] = [
-    ["Download PDF", "/Jamie_Pates_Resume_2025.pdf"],
+    ["Download PDF", "/Jamie_Pates_Resume.pdf"],
     ["GitHub", "https://github.com/Cyanoxide"],
     ["LinkedIn", "https://www.linkedin.com/in/jamiepates/"],
 ];
