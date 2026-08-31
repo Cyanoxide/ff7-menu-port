@@ -1,6 +1,7 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 import { useContext } from "../../context/context";
+import type { WindowColor } from "../../context/types";
 
 import styles from './contentBox.module.scss';
 
@@ -8,13 +9,32 @@ interface contentBoxProps {
     children?: ReactNode;
     className?: string,
     style?: object,
+    /**
+     * Paint this box in its own colours rather than the ones the config screen
+     * set. The history saves use it so each employer's save carries its own
+     * background, the way each FF7 save file does.
+     */
+    windowColor?: WindowColor,
 }
 
-const ContentBox: React.FC<contentBoxProps> = ({ children, className, style, ...props }) => {
-    const { windowColor } = useContext();
+/**
+ * The FF7 window: two crossed gradients, one corner colour at each end.
+ *
+ * Built here rather than in a stylesheet because all four corners are user
+ * data. `style` still wins outright, so a caller that wants no gradient at all
+ * can still say so.
+ */
+const windowGradient = (color: WindowColor) => {
+    const rgb = (channel: [number, number, number]) => `rgb(${channel[0]},${channel[1]},${channel[2]})`;
+    return `linear-gradient(135deg, ${rgb(color.topLeft)} 0%, transparent 50%, ${rgb(color.bottomRight)} 100%), `
+        + `linear-gradient(45deg, ${rgb(color.bottomLeft)} 0%, ${rgb(color.topRight)} 100%)`;
+};
+
+const ContentBox: React.FC<contentBoxProps> = ({ children, className, style, windowColor, ...props }) => {
+    const { windowColor: configuredColor } = useContext();
     return (
         <div className={`${styles.contentBox} ${className}`} style={style || {
-            backgroundImage: `linear-gradient(135deg, rgb(${windowColor.topLeft[0]},${windowColor.topLeft[1]},${windowColor.topLeft[2]}) 0%, transparent 50%, rgb(${windowColor.bottomRight[0]}, ${windowColor.bottomRight[1]}, ${windowColor.bottomRight[2]}) 100%), linear-gradient(45deg, rgb(${windowColor.bottomLeft[0]},${windowColor.bottomLeft[1]},${windowColor.bottomLeft[2]}) 0%, rgb(${windowColor.topRight[0]},${windowColor.topRight[1]},${windowColor.topRight[2]}) 100%)`
+            backgroundImage: windowGradient(windowColor ?? configuredColor)
         }} {...props}>
             {children}
         </div>

@@ -1,6 +1,19 @@
 
 export type PartyMemberType = { id: number; name: string; limit_level: number; age_epoch: number; hp: number; mp: number; image_path: string; };
-export type HistoryType = { id: number; name: string; link: string; user: string; level: number; role: string; year: string; image_path: string; };
+/**
+ * Four corner colours in the same order the FF7 config screen names them:
+ * top-left, top-right, bottom-left, bottom-right. A plain array rather than
+ * WindowColor's named corners, because these are written by hand in the data
+ * files and never edited through the picker.
+ */
+export type CornerColors = [
+    [number, number, number],
+    [number, number, number],
+    [number, number, number],
+    [number, number, number],
+];
+
+export type HistoryType = { id: number; name: string; link: string; user: string; level: number; role: string; year: string; image_path: string; windowColor?: CornerColors; };
 export type SkillType = { id: number; name: string; color: "green" | "red" | "yellow" | "blue" | "pink" | null; description: string; score: number; ap: number; toNextLevel: number; abilities: string[]; };
 export type EquipmentStats = { attack?: number; attackPct?: number; magicAtk?: number; defense?: number; defensePct?: number; magicDefPct?: number; };
 export type EquipmentItemType = { id: number; name: string; type: "weapon" | "armor" | "accessory"; description: string; stats: EquipmentStats; slots?: { multiSlots: number; singleSlots: number; growth?: "Normal" | "Double" | "Triple" }; };

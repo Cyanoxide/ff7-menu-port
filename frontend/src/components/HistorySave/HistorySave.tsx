@@ -1,6 +1,7 @@
 
 import { useContext } from "../../context/context";
 import ContentBox from "../ContentBox/ContentBox";
+import type { WindowColor } from "../../context/types";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import type { HistoryType } from "../../context/types";
@@ -21,6 +22,19 @@ const HISTORY_FRAMES = 4;
 /** Frames are 53x61, not the look sheet's 107x122 */
 const HISTORY_ASPECT = "53 / 61";
 
+/**
+ * The data files give four corners as a flat array, in the order the config
+ * screen names them. Undefined leaves the save on whatever colour the player
+ * has chosen, so an entry without one is not a special case anywhere.
+ */
+const cornersToWindowColor = (corners?: HistoryType["windowColor"]): WindowColor | undefined =>
+    corners && {
+        topLeft: corners[0],
+        topRight: corners[1],
+        bottomLeft: corners[2],
+        bottomRight: corners[3],
+    };
+
 const HISTORY_FRAME: Record<string, number> = {
     "/history__plymouth.png": 0,
     "/history__gloscol.png": 0,
@@ -40,12 +54,13 @@ interface historySaveProps {
 
 const HistorySave: React.FC<historySaveProps> = ({ historyItem, historyType, focused = false, onEnter, ...props }) => {
     const { isSoundEnabled } = useContext();
+    const windowColor = cornersToWindowColor(historyItem?.windowColor);
     if (!historyItem) return;
 
     return (
         <>
             <a href={historyItem.link} onMouseEnter={() => onEnter?.()} onClick={() => playSound("saveSelect", isSoundEnabled)} title={historyItem.name} target="_blank" className={`${styles.historySave} cursor-pointer`} data-focused={focused} {...props}>
-                <ContentBox data-label="historySave" className="h-[235px] relative">
+                <ContentBox data-label="historySave" className="h-[235px] relative" windowColor={windowColor}>
                     <div className="mr-[414px] flex gap-5">
                         <img className="h-[11.5rem] w-auto" src={historyItem.image_path} />
                         {/* Held rather than tracking: three of these render at
@@ -66,7 +81,7 @@ const HistorySave: React.FC<historySaveProps> = ({ historyItem, historyType, foc
                             <p className="flex"><span className="font-glyph" data-sprite="lv">lv</span><span>{textToSprite(historyItem.level.toString(), true)}</span></p>
                         </div>
                     </div>
-                    <ContentBox data-label="historySaveMeta" className="absolute w-[27rem] h-[7rem] top-[31px] right-[-2px]">
+                    <ContentBox data-label="historySaveMeta" className="absolute w-[27rem] h-[7rem] top-[31px] right-[-2px]" windowColor={windowColor}>
                         <ul>
                             <li className="flex justify-between mb-3">
                                 {historyType !== "education" && <span>{textToSprite("Role")}</span>}
@@ -78,7 +93,7 @@ const HistorySave: React.FC<historySaveProps> = ({ historyItem, historyType, foc
                             </li>
                         </ul>
                     </ContentBox>
-                    <ContentBox data-label="historySave" className="absolute w-[43.8rem] h-[5rem] bottom-[-11px] right-[-2px]">{textToSprite(historyItem.name)}</ContentBox>
+                    <ContentBox data-label="historySave" className="absolute w-[43.8rem] h-[5rem] bottom-[-11px] right-[-2px]" windowColor={windowColor}>{textToSprite(historyItem.name)}</ContentBox>
                 </ContentBox>
             </a>
         </>

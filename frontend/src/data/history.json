@@ -7,7 +7,13 @@
         "level": 34,
         "role": "Senior Web Dev.",
         "year": "2020-25",
-        "image_path": "/history__dos.png"
+        "image_path": "/history__dos.png",
+        "windowColor": [
+            [2, 120, 140],
+            [2, 94, 110],
+            [0, 66, 78],
+            [0, 30, 37]
+        ]
     },
     {
         "id": 2,
@@ -17,7 +23,13 @@
         "level": 28,
         "role": "Head Web Dev.",
         "year": "2014-19",
-        "image_path": "/history__ruroc.png"
+        "image_path": "/history__ruroc.png",
+        "windowColor": [
+            [168, 30, 22],
+            [131, 22, 16],
+            [95, 13, 9],
+            [45, 4, 2]
+        ]
     },
     {
         "id": 3,
@@ -27,6 +39,12 @@
         "level": 22,
         "role": "WordPress Dev.",
         "year": "2012-13",
-        "image_path": "/history__tangymedia.png"
+        "image_path": "/history__tangymedia.png",
+        "windowColor": [
+            [120, 26, 168],
+            [94, 20, 131],
+            [68, 12, 95],
+            [32, 4, 45]
+        ]
     }
 ]
