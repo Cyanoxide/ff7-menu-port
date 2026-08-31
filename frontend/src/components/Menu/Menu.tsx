@@ -161,6 +161,16 @@ const Menu = () => {
             ? subsection.charAt(0).toUpperCase() + subsection.slice(1)
             : menuItem.name;
 
+    /**
+     * "Education" is the longest heading the box carries, long enough that from
+     * the shared left edge it runs up against the X hanging off the right. It
+     * is nudged left rather than the box being widened or the X moved, so both
+     * stay exactly where they are on every page and only the glyphs shift --
+     * which reads as less wrong than the crowding does.
+     */
+    const isCrowdedHeading = (menuItem: MenuItem) =>
+        subsection === "education" && `/${menuItem.id}` === sectionPath;
+
     const menuItemContent = (menuItem?: MenuItem) => {
         if (!menuItem) return;
         const focused = isFocused("menu", navItems.indexOf(menuItem));
@@ -176,7 +186,7 @@ const Menu = () => {
 
         return (
             <>
-                <Link to={`/${menuItem.id}`} className={`${(sectionPath === `/${menuItem.id}`) ? styles.active : ""} w-100`} data-focused={focused && isLanding}><span onClick={() => handleOnClick()} onPointerEnter={(event) => handlePointerEnter(event, menuItem)}>{textToSprite(menuItemLabel(menuItem))}</span></Link>
+                <Link to={`/${menuItem.id}`} className={`${(sectionPath === `/${menuItem.id}`) ? styles.active : ""} w-100`} data-focused={focused && isLanding}><span className={isCrowdedHeading(menuItem) ? styles.longHeading : undefined} onClick={() => handleOnClick()} onPointerEnter={(event) => handlePointerEnter(event, menuItem)}>{textToSprite(menuItemLabel(menuItem))}</span></Link>
                 {!isLanding && <Link to={closeTo} data-label="close" data-focused={closeFocused} onClick={handleClose} onPointerEnter={(event) => { if (event.pointerType === "mouse") playSound("select", isSoundEnabled); }}><ContentBox className="absolute" data-label="close" >{textToSprite("X")}</ContentBox></Link>}
             </>
         )
