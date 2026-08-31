@@ -57,12 +57,26 @@ function charsAt(elapsed: number) {
     return TOTAL_CHARS;
 }
 
-// Only type on a real page load, not every time the router brings us back to
-// Landing from another page. Module state survives client-side navigation and
-// resets on an actual document load, which is the distinction we want. (There
-// is no StrictMode here, so the effect runs once per mount and this is not
-// tripped by a double-invoked mount in development.)
-let hasTyped = false;
+/**
+ * Whether the browser loaded *this* page, rather than some other route.
+ *
+ * Read at module scope, so it is the URL of the initial document load and not
+ * of wherever the router has since gone. Refreshing on /history and then
+ * navigating here leaves it false, which is the case the plain "have we typed
+ * yet" flag got wrong: the module reloaded, so the flag was clear, and the bio
+ * typed itself on what was to the visitor a return visit.
+ */
+const LOADED_ON_LANDING = typeof window !== "undefined" && window.location.pathname === "/";
+
+/**
+ * Set once the reveal has run, so coming back from another page shows the
+ * finished text. Starts already set when the document was loaded elsewhere, so
+ * the animation belongs to a load of the landing page and nothing else.
+ *
+ * (There is no StrictMode here, so the effect runs once per mount and this is
+ * not tripped by a double-invoked mount in development.)
+ */
+let hasTyped = !LOADED_ON_LANDING;
 
 function TypedBio() {
     const [typed, setTyped] = useState(hasTyped ? TOTAL_CHARS : 0);
