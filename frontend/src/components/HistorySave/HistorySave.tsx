@@ -1,7 +1,7 @@
 
 import { useContext } from "../../context/context";
 import ContentBox from "../ContentBox/ContentBox";
-import type { WindowColor } from "../../context/types";
+import type { PartialWindowColor } from "../../context/types";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import type { HistoryType } from "../../context/types";
@@ -25,9 +25,10 @@ const HISTORY_ASPECT = "53 / 61";
 /**
  * The data files give four corners as a flat array, in the order the config
  * screen names them. Undefined leaves the save on whatever colour the player
- * has chosen, so an entry without one is not a special case anywhere.
+ * has chosen, so an entry without one is not a special case anywhere -- and a
+ * null corner does the same for that corner alone, which ContentBox resolves.
  */
-const cornersToWindowColor = (corners?: HistoryType["windowColor"]): WindowColor | undefined =>
+const cornersToWindowColor = (corners?: HistoryType["windowColor"]): PartialWindowColor | undefined =>
     corners && {
         topLeft: corners[0],
         topRight: corners[1],

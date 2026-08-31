@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 import { useContext } from "../../context/context";
-import type { WindowColor } from "../../context/types";
+import type { WindowColor, PartialWindowColor } from "../../context/types";
 
 import styles from './contentBox.module.scss';
 
@@ -13,8 +13,12 @@ interface contentBoxProps {
      * Paint this box in its own colours rather than the ones the config screen
      * set. The history saves use it so each employer's save carries its own
      * background, the way each FF7 save file does.
+     *
+     * Per corner: one left out or set to null keeps the player's colour for
+     * that corner, so a box can tint one edge without restating the other
+     * three, and stays in step with the config screen where it has no opinion.
      */
-    windowColor?: WindowColor,
+    windowColor?: PartialWindowColor,
 }
 
 /**
@@ -32,9 +36,19 @@ const windowGradient = (color: WindowColor) => {
 
 const ContentBox: React.FC<contentBoxProps> = ({ children, className, style, windowColor, ...props }) => {
     const { windowColor: configuredColor } = useContext();
+
+    // Corner by corner rather than box by box, so a partly-specified colour
+    // fills its gaps from the config screen instead of falling back wholesale.
+    const color: WindowColor = {
+        topLeft: windowColor?.topLeft ?? configuredColor.topLeft,
+        topRight: windowColor?.topRight ?? configuredColor.topRight,
+        bottomLeft: windowColor?.bottomLeft ?? configuredColor.bottomLeft,
+        bottomRight: windowColor?.bottomRight ?? configuredColor.bottomRight,
+    };
+
     return (
         <div className={`${styles.contentBox} ${className}`} style={style || {
-            backgroundImage: windowGradient(windowColor ?? configuredColor)
+            backgroundImage: windowGradient(color)
         }} {...props}>
             {children}
         </div>
