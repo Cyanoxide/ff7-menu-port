@@ -14,11 +14,10 @@ import styles from "./HistorySave.module.scss";
  * EXPERIMENT: a face per save slot, ageing across the career.
  *
  * Keyed on the employer logo rather than on the slot's position, so reordering
- * or adding an entry cannot silently hand someone else's face to a job. Both
- * education entries share the youngest frame.
+ * or adding an entry cannot silently hand someone else's face to a job.
  */
 const HISTORY_SHEET = "/portraits-history-spritesheet.png";
-const HISTORY_FRAMES = 4;
+const HISTORY_FRAMES = 5;
 /** Frames are 53x61, not the look sheet's 107x122 */
 const HISTORY_ASPECT = "53 / 61";
 
@@ -36,12 +35,18 @@ const cornersToWindowColor = (corners?: HistoryType["windowColor"]): PartialWind
         bottomRight: corners[3],
     };
 
+/**
+ * Sheet order is chronological, oldest first, so the frames read as him ageing
+ * across the list. Keyed on the employer logo rather than on the slot's
+ * position: history.json runs newest-first, and education is a separate file
+ * again, so an index would be both reversed and per-list.
+ */
 const HISTORY_FRAME: Record<string, number> = {
-    "/history__plymouth.png": 0,
     "/history__gloscol.png": 0,
-    "/history__tangymedia.png": 1,
-    "/history__ruroc.png": 2,
-    "/history__dos.png": 3,
+    "/history__plymouth.png": 1,
+    "/history__tangymedia.png": 2,
+    "/history__ruroc.png": 3,
+    "/history__dos.png": 4,
 };
 
 interface historySaveProps {
@@ -94,7 +99,7 @@ const HistorySave: React.FC<historySaveProps> = ({ historyItem, historyType, foc
                             </li>
                         </ul>
                     </ContentBox>
-                    <ContentBox data-label="historySave" className="absolute w-[43.8rem] h-[5rem] bottom-[-11px] right-[-2px]" windowColor={windowColor}>{textToSprite(historyItem.name)}</ContentBox>
+                    <ContentBox data-label="historySave" className="absolute w-[43.8rem] h-[5rem] bottom-[-11px] right-[-2px]" windowColor={windowColor}><div className="mt-[-4.5px]">{textToSprite(historyItem.name)}</div></ContentBox>
                 </ContentBox>
             </a>
         </>
