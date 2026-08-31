@@ -19,6 +19,21 @@ const Menu = () => {
     const menuItems = (menuJSON as MenuItem[]);
     const navItems = menuItems.slice().sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
     const isLanding = location.pathname === "/";
+
+    /**
+     * A page may have a level below it -- /history/work under /history -- and
+     * the heading box belongs to the section, not to the exact URL. Matching on
+     * the whole pathname hid the box entirely on a sub-route, which left no way
+     * back from a save list.
+     *
+     * On a sub-route the box takes the sub-route's name and its X goes up one
+     * level rather than home, so closing a save list lands on the selector and
+     * closing that lands on the menu. Same box, same size, same X, one rung
+     * further down.
+     */
+    const [, section, subsection] = location.pathname.split("/");
+    const sectionPath = section ? `/${section}` : "/";
+    const closeTo = subsection ? sectionPath : "/";
     const lastMenuIndexRef = useRef(0);
     const closeFocused = useSyncExternalStore(closeNav.subscribe, closeNav.getFocus);
 
@@ -103,7 +118,9 @@ const Menu = () => {
             if (consumeKeyboardNavIntent()) setPosSilently({ group: "menu", index: lastMenuIndexRef.current });
             return;
         }
-        const index = navItems.findIndex((item) => `/${item.id}` === location.pathname);
+        // Section, not pathname: arriving on /history/work should still remember
+        // History as the row to come back to.
+        const index = navItems.findIndex((item) => `/${item.id}` === sectionPath);
         if (index !== -1) lastMenuIndexRef.current = index;
         setPosSilently(null);
         landingNav.setFocus(null);
@@ -138,6 +155,12 @@ const Menu = () => {
         playSound("select", isSoundEnabled);
     }
 
+    /** The open sub-route's name stands in for the section's on the heading box */
+    const menuItemLabel = (menuItem: MenuItem) =>
+        (subsection && `/${menuItem.id}` === sectionPath)
+            ? subsection.charAt(0).toUpperCase() + subsection.slice(1)
+            : menuItem.name;
+
     const menuItemContent = (menuItem?: MenuItem) => {
         if (!menuItem) return;
         const focused = isFocused("menu", navItems.indexOf(menuItem));
@@ -153,8 +176,8 @@ const Menu = () => {
 
         return (
             <>
-                <Link to={`/${menuItem.id}`} className={`${(location.pathname === `/${menuItem.id}`) ? styles.active : ""} w-100`} data-focused={focused && isLanding}><span onClick={() => handleOnClick()} onPointerEnter={(event) => handlePointerEnter(event, menuItem)}>{textToSprite(menuItem.name)}</span></Link>
-                {!isLanding && <Link to={"/"} data-label="close" data-focused={closeFocused} onClick={handleClose} onPointerEnter={(event) => { if (event.pointerType === "mouse") playSound("select", isSoundEnabled); }}><ContentBox className="absolute" data-label="close" >{textToSprite("X")}</ContentBox></Link>}
+                <Link to={`/${menuItem.id}`} className={`${(sectionPath === `/${menuItem.id}`) ? styles.active : ""} w-100`} data-focused={focused && isLanding}><span onClick={() => handleOnClick()} onPointerEnter={(event) => handlePointerEnter(event, menuItem)}>{textToSprite(menuItemLabel(menuItem))}</span></Link>
+                {!isLanding && <Link to={closeTo} data-label="close" data-focused={closeFocused} onClick={handleClose} onPointerEnter={(event) => { if (event.pointerType === "mouse") playSound("select", isSoundEnabled); }}><ContentBox className="absolute" data-label="close" >{textToSprite("X")}</ContentBox></Link>}
             </>
         )
     }
@@ -173,7 +196,7 @@ const Menu = () => {
      * mounted and opaque across those, so the panels fade in behind it. Staying
      * mounted here gives the same behaviour.
      */
-    const isMenuPage = isLanding || navItems.some((item) => `/${item.id}` === location.pathname);
+    const isMenuPage = isLanding || navItems.some((item) => `/${item.id}` === sectionPath);
 
     return (
         <ContentBox
@@ -185,7 +208,7 @@ const Menu = () => {
                 {Array.from({ length: 11 }).map((_, position) => {
                     const menuItem = menuItems.find((item) => item.position === position);
                     return (
-                        <li key={position} className={`${["/", `/${menuItem && menuItem.id}`].includes(location.pathname) ? "h-[29px] mb-4" : "h-0 invisible"} flex justify-between`}>
+                        <li key={position} className={`${["/", `/${menuItem && menuItem.id}`].includes(sectionPath) ? "h-[29px] mb-4" : "h-0 invisible"} flex justify-between`}>
                             {menuItemContent(menuItem)}
                         </li>
                     )
