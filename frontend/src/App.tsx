@@ -189,7 +189,7 @@ function App() {
             <Route path="/skills" element={<Skills />} />
             <Route path="/equip" element={<Equip />} />
             <Route path="/projects" element={<Projects />} />
-            <Route path="/history" element={<MemCardSelector />} />
+            <Route path="/history/:historyType?" element={<MemCardSelector />} />
             <Route path="/config" element={<Config />} />
             <Route path="/resume" element={<Resume />} />
             <Route path="/contact" element={<Contact />} />
