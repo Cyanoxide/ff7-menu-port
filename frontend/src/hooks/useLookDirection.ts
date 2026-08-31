@@ -46,13 +46,37 @@ export const lookFrameIndex = (direction: LookDirection, blinking = false) =>
         : LOOK_DIRECTIONS.indexOf(direction);
 
 /**
- * The eight compass sectors, in the order atan2 sweeps them starting from
- * "pointing left" (-PI) and going clockwise on screen, since y grows downward.
+ * The eight directions in eighths clockwise from "right", since y grows
+ * downward on screen.
  */
-const SECTORS: LookDirection[] = [
-    "left", "up-left", "up", "up-right",
+const COMPASS: LookDirection[] = [
     "right", "down-right", "down", "down-left",
+    "left", "up-left", "up", "up-right",
 ];
+
+/**
+ * How far a cardinal sector reaches either side of dead-on, in degrees. The
+ * diagonals take whatever is left.
+ *
+ * Not 22.5 each, which is what even eighths would give. The menu sits about
+ * 845px to the right of the landing portrait but spans only ~490px vertically,
+ * so its whole column subtends a narrow band around the horizontal and every
+ * item read as a flat "right".
+ *
+ * And not symmetrical either. Measured against the menu, the boundary that
+ * looks right above the horizontal is tighter than the one below it: 7 degrees
+ * up puts the top item in "up-right", while the same 7 below started
+ * "down-right" as high as the Resume row. 11.5 moves that down to Github.
+ *
+ * CCW and CW are the two sides going clockwise on screen, so on the right-hand
+ * cardinal CCW is upward and CW is downward. The same skew applies to all four,
+ * which keeps one rule rather than special-casing the horizontal.
+ *
+ * Both are derived from the menu's layout, so if the menu or the portrait
+ * moves, hover the top and bottom rows and check they still read as diagonals.
+ */
+const CARDINAL_ARC_CCW = 7;
+const CARDINAL_ARC_CW = 11.5;
 
 /**
  * How close the pointer has to be before the character stops tracking it and
@@ -158,12 +182,14 @@ export default function useLookDirection(ref: React.RefObject<HTMLElement | null
             return;
         }
 
-        // atan2 returns -PI..PI. Shift by half a sector so each sector is
-        // centred on its compass point rather than starting at it, then
-        // bucket into eighths.
-        const turn = (Math.atan2(dy, dx) + Math.PI) / (2 * Math.PI);
-        const sector = Math.floor(turn * 8 + 0.5) % 8;
-        setDirection(SECTORS[sector]);
+        // Degrees clockwise from "right". Round to the nearest cardinal, then
+        // keep it only if the pointer is inside that cardinal's arc -- otherwise
+        // take the diagonal on whichever side it fell.
+        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+        const cardinal = Math.round(angle / 90);
+        const offset = angle - cardinal * 90;
+        const eighth = offset < -CARDINAL_ARC_CCW ? -1 : offset > CARDINAL_ARC_CW ? 1 : 0;
+        setDirection(COMPASS[(cardinal * 2 + eighth + 8) % 8]);
     }), [ref]);
 
     return direction;
