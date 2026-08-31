@@ -16,8 +16,11 @@
      * PORTRAIT_HEIGHT in data/portraits.ts), and the ratio holds at whatever
      * width the caller sets -- an inline one on the landing page, a class on the
      * resume.
+     *
+     * A sheet whose frames are a different shape passes --portrait-aspect; the
+     * history sheet's frames are 53x61 rather than the look sheet's 107x122.
      */
-    aspect-ratio: 107 / 122;
+    aspect-ratio: var(--portrait-aspect, 107 / 122);
 }
 
 /*
