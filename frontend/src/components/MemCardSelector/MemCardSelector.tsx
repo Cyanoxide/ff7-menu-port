@@ -19,6 +19,9 @@ import type { HistoryType } from "../../context/types";
 const MIN_SAVE_SLOTS = 3;
 const OPTIONS = ["work", "education"];
 
+/** Past the bar's 100, so the list shows without it having run */
+const LOADED_PROGRESS = 101;
+
 /**
  * How long a ContentBox takes to fade in — 0.25s, after a 0.2s delay. The save
  * rows' cursor is a ::before on the row rather than on the box, so it does not
@@ -46,7 +49,17 @@ const MemCardSelector = () => {
     const optionSelected = selectedType !== null;
     const selectedHistoryType = selectedType ?? OPTIONS[0];
 
-    const [memoryCardProgress, setMemoryCardProgress] = useState(0);
+    /**
+     * Landing straight on a list URL skips the loading bar and shows the saves.
+     *
+     * The bar is the memory card being read, which is a thing that happens when
+     * you pick an option -- not something to sit through because you refreshed
+     * a page you were already on. Picking an option still plays it, because
+     * that arrives by navigation with the bar already at zero.
+     */
+    const [memoryCardProgress, setMemoryCardProgress] = useState(
+        () => (selectedType ? LOADED_PROGRESS : 0)
+    );
     const [savesRevealed, setSavesRevealed] = useState(false);
 
     const isLoading = optionSelected && memoryCardProgress <= 100;
@@ -175,8 +188,16 @@ const MemCardSelector = () => {
      * The bar belongs to whichever list is open, so it starts over when the URL
      * moves between them -- and rewinds when cancelling back to the options,
      * which is what makes re-picking replay it.
+     *
+     * Skipped on the first run, or it would immediately undo the initial state
+     * above and play the bar on a refresh after all.
      */
+    const settled = useRef(false);
     useEffect(() => {
+        if (!settled.current) {
+            settled.current = true;
+            return;
+        }
         setMemoryCardProgress(0);
 
         // Closing the list from the menu's X leaves the cursor pointing at the
