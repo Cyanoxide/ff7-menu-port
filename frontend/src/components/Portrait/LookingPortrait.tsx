@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import useLookDirection, { LOOK_SHEET, SHEET_FRAMES, lookFrameIndex, type LookDirection } from "../../hooks/useLookDirection";
+import useLookDirection, { LOOK_SHEET, SHEET_FRAMES, DEFAULT_LOOK, lookFrameIndex, type LookDirection } from "../../hooks/useLookDirection";
 import styles from "./Portrait.module.scss";
 
 /** How long a glance takes to cross-fade. Short enough to feel like a reaction. */
@@ -49,7 +49,7 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
      * out of step and the portrait flicks back to an older frame for a frame.
      */
     const [layers, setLayers] = useState<{ under: LookDirection; over: LookDirection }>(
-        { under: "center", over: "center" }
+        { under: DEFAULT_LOOK, over: DEFAULT_LOOK }
     );
 
     // Layout effect, not an effect: this runs on the same commit that changed

@@ -1,4 +1,4 @@
-import { LOOK_SHEET, SHEET_FRAMES, lookFrameIndex, type LookDirection } from "../../hooks/useLookDirection";
+import { LOOK_SHEET, SHEET_FRAMES, DEFAULT_LOOK, lookFrameIndex, type LookDirection } from "../../hooks/useLookDirection";
 import styles from "./Portrait.module.scss";
 
 interface StaticPortraitProps {
@@ -36,7 +36,7 @@ interface StaticPortraitProps {
  * has any use for.
  */
 const StaticPortrait: React.FC<StaticPortraitProps> = ({
-    src, look = "center", sheet, frame, frames, aspect, width, className, alt = "Portrait",
+    src, look = DEFAULT_LOOK, sheet, frame, frames, aspect, width, className, alt = "Portrait",
 }) => (
     <div
         role="img"

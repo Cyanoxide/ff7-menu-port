@@ -37,6 +37,17 @@ export const SHEET_FRAMES = [...LOOK_DIRECTIONS, "blink"] as const;
 export const BLINK_DIRECTION: LookDirection = "center";
 
 /**
+ * The resting pose: what a portrait shows before the mouse has said anything,
+ * and what it returns to when the pointer leaves the window. It is also what a
+ * touch device sees for the whole visit, since there is no pointer to track.
+ *
+ * Not the same as the dead zone, which stays "center" -- that is the pointer
+ * resting *on* the portrait, and looking away from a cursor that is on your
+ * face reads as avoiding it rather than as a neutral pose.
+ */
+export const DEFAULT_LOOK: LookDirection = "up-right";
+
+/**
  * Which frame of the sheet to show. Blinking only has a frame for
  * BLINK_DIRECTION, so anywhere else it is ignored rather than approximated.
  */
@@ -155,18 +166,19 @@ const subscribePointer = (listener: PointerListener) => {
 
 /**
  * Tracks which of the nine directions the pointer sits in, relative to the
- * centre of `ref`'s element. Returns "center" when the pointer is close by, has
- * left the window, or is not a mouse at all.
+ * centre of `ref`'s element. Returns "center" when the pointer is resting on
+ * the portrait, and DEFAULT_LOOK when there is no pointer to read -- it has
+ * left the window, or was never a mouse.
  */
 export default function useLookDirection(ref: React.RefObject<HTMLElement | null>) {
-    const [direction, setDirection] = useState<LookDirection>("center");
+    const [direction, setDirection] = useState<LookDirection>(DEFAULT_LOOK);
 
     useEffect(() => subscribePointer(at => {
         const element = ref.current;
         if (!element) return;
 
         if (!at) {
-            setDirection("center");
+            setDirection(DEFAULT_LOOK);
             return;
         }
 
