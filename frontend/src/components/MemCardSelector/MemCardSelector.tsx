@@ -17,7 +17,11 @@ import historyJSON from "../../data/history.json";
 import type { HistoryType } from "../../context/types";
 
 const MIN_SAVE_SLOTS = 3;
-const OPTIONS = ["work", "education"];
+/**
+ * Also the URL segment and the heading label, capitalised. Only "education" is
+ * ever compared against, so the other is free to be renamed.
+ */
+const OPTIONS = ["career", "education"];
 
 /** Past the bar's 100, so the list shows without it having run */
 const LOADED_PROGRESS = 101;
