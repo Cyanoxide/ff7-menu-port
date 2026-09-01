@@ -17,8 +17,8 @@ interface PortraitProps {
      */
     look?: LookDirection | null;
     /**
-     * Shuts his eyes while true. Only has a frame for the centre pose, so a
-     * blink is invisible while he is glancing anywhere else.
+     * Shuts his eyes while true, whichever way he is looking -- the sheet
+     * carries a closed-eye frame for every pose.
      */
     blink?: boolean;
     width?: number;
