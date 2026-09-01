@@ -4,7 +4,20 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/favicon.png" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- viewport-fit=cover, or iOS insets the layout viewport out of the safe
+       areas in landscape and paints what is left over itself — the white bands
+       down each side of the screen. They are outside the page entirely, so no
+       background on html or body reaches them; only cover removes the region.
+
+       The app letterboxes itself (App.tsx scales the canvas to fit and centres
+       it), so covering the notch costs nothing: on a landscape phone there is
+       far more black margin either side than the notch inset takes, and the
+       canvas never reaches it. Nothing needs safe-area padding.
+
+       Triple Triad pairs this with apple-mobile-web-app-status-bar-style, but
+       that only bites once installed to the home screen, and this has no
+       manifest to install. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <!-- Tints the browser's own chrome to match the page. Firefox for Android and
        Chrome honour this; Safari on iOS takes its colour from the page itself,
        which is already black. -->
