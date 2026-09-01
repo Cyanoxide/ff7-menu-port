@@ -14,14 +14,14 @@ interface LookingPortraitProps {
     alt?: string;
     /** Forces a frame, overriding the pointer, for as long as it is set */
     look?: LookDirection | null;
-    /** Shuts his eyes. Only the centre pose has a closed-eye frame */
+    /** Shuts his eyes, whichever way he is looking */
     blink?: boolean;
 }
 
 /**
- * The default portrait, which follows the mouse: nine frames of the character
- * looking up/down/left/right, the four diagonals and straight ahead, plus a
- * closed-eye frame for the centre pose.
+ * The default portrait, which follows the mouse: nine poses -- up, down, left,
+ * right, the four diagonals and straight ahead -- each with a closed-eye frame
+ * beneath it on the sheet.
  *
  * Only the default gets this. The FF7 character faces come out of a single
  * spritesheet with one frame each, so there is nothing to swap to, and the
@@ -31,6 +31,10 @@ interface LookingPortraitProps {
  * him on a hit and hold his eyes shut while he is dead, rather than fighting a
  * timer inside here. A caller that only wants the idle rhythm passes useBlink
  * straight through.
+ *
+ * It does not follow only the mouse. Anything that knows where attention has
+ * gone can aim it through lookAt -- the landing page's keyboard cursor does,
+ * and so does a touch.
  */
 const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className, alt = "Portrait", look, blink }) => {
     const ref = useRef<HTMLDivElement>(null);

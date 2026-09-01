@@ -27,10 +27,19 @@ export const LOOK_SHEET = "/portrait-look-spritesheet.png";
  * still render -- it will simply point every glance the wrong way, which is
  * easy to mistake for a bug in the tracking. Change this and the artwork
  * together.
+ *
+ * **The sheet in the repo does not fully meet this.** Its columns are not on an
+ * even pitch -- the nine faces sit in three groups of three with uneven gutters,
+ * measuring 51 to 57px against the 53.4 an even ninth implies -- so the offset
+ * cuts slightly into the face next door, worst on the middle three. Each cell
+ * also carries a blank first row, which the browser blends into the pose above
+ * it as it upscales. Both are fixed by exporting the sheet on an even grid with
+ * a 1px margin around every cell; neither is fixable in the code without moving
+ * the artwork, which was tried and reverted.
  */
 export const SHEET_COLUMNS = LOOK_DIRECTIONS.length;
 export const SHEET_ROWS = 2.01;
-const BLINK_ROW = 1;
+const BLINK_ROW = 1.005;
 
 /** Facing front. Not a blink thing any more -- every pose has a blink now. */
 export const FACING_FRONT: LookDirection = "center";
