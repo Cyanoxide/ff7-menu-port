@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import useLookDirection, { LOOK_SHEET, SHEET_FRAMES, DEFAULT_LOOK, lookFrameIndex, type LookDirection } from "../../hooks/useLookDirection";
+import useLookDirection, { LOOK_SHEET, SHEET_COLUMNS, SHEET_ROWS, DEFAULT_LOOK, lookFrame, type LookDirection } from "../../hooks/useLookDirection";
 import styles from "./Portrait.module.scss";
 
 /** How long a glance takes to cross-fade. Short enough to feel like a reaction. */
@@ -78,9 +78,10 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
             style={{
                 width: width ? `${width}px` : undefined,
                 "--portrait-fade": `${FADE_MS}ms`,
-                // From the sheet itself, so the two cannot disagree about how
-                // far one frame is
-                "--frames": SHEET_FRAMES.length,
+                // From the sheet's own layout, so the CSS cannot disagree with
+                // it about how far one cell is
+                "--columns": SHEET_COLUMNS,
+                "--rows": SHEET_ROWS,
             } as React.CSSProperties}
         >
             <img
@@ -88,7 +89,7 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
                 alt=""
                 aria-hidden
                 className={styles.sheet}
-                style={{ "--frame": lookFrameIndex(layers.under) } as React.CSSProperties}
+                style={{ "--column": lookFrame(layers.under).column, "--row": lookFrame(layers.under).row } as React.CSSProperties}
                 onError={() => setFailed(true)}
             />
             {/*
@@ -98,7 +99,7 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
               * which is easy to get subtly wrong; a remount cannot half-apply.
               * The frames are preloaded, so the new node has nothing to fetch.
               *
-              * The blink changes this layer's *frame* without touching the key,
+              * The blink changes this layer's *row* without touching the key,
               * so it is a straight cut: eyes shut and open again, they do not
               * dissolve, and a blink cannot interrupt a glance that is fading.
               */}
@@ -108,7 +109,7 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
                 alt=""
                 aria-hidden
                 className={`${styles.sheet} ${styles.incoming}`}
-                style={{ "--frame": lookFrameIndex(layers.over, blink) } as React.CSSProperties}
+                style={{ "--column": lookFrame(layers.over, blink).column, "--row": lookFrame(layers.over, blink).row } as React.CSSProperties}
                 onError={() => setFailed(true)}
             />
         </div>

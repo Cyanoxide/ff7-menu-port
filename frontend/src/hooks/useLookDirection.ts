@@ -15,46 +15,41 @@ export type LookDirection = typeof LOOK_DIRECTIONS[number];
 export const LOOK_SHEET = "/portrait-look-spritesheet.png";
 
 /**
- * The sheet's frame order, left to right, and the whole specification of its
- * layout. **This list is the contract with the artwork.** The code offsets into
- * the sheet by index and by a fraction of its width, so the sheet must be:
+ * The sheet's layout, and the whole specification of it. **This is the contract
+ * with the artwork.** The code offsets into the sheet by column and row as a
+ * fraction of its size, so the sheet must be:
  *
- *   - a single row, no padding, no gaps;
- *   - exactly SHEET_FRAMES.length frames of identical width;
- *   - in this order.
+ *   - a grid, no padding, no gaps, every cell the same size;
+ *   - one column per entry in LOOK_DIRECTIONS, in that order;
+ *   - the top row eyes open, the bottom row the same poses with eyes shut.
  *
- * A sheet with a frame missing, an extra one, or the poses reordered will still
- * render -- it will simply point every glance the wrong way, which is easy to
- * mistake for a bug in the tracking. Change this list and the artwork together.
- *
- * The last is the eyes-closed frame, drawn over the centre pose. It is the only
- * variant there is, so a blink can only show while he is looking straight
- * ahead; glancing anywhere else has no closed-eye frame to swap to.
+ * A sheet with a column missing, an extra one, or the poses reordered will
+ * still render -- it will simply point every glance the wrong way, which is
+ * easy to mistake for a bug in the tracking. Change this and the artwork
+ * together.
  */
-export const SHEET_FRAMES = [...LOOK_DIRECTIONS, "blink"] as const;
+export const SHEET_COLUMNS = LOOK_DIRECTIONS.length;
+export const SHEET_ROWS = 2;
+const BLINK_ROW = 1;
 
-/** The one direction the blink frame is drawn for. */
-export const BLINK_DIRECTION: LookDirection = "center";
+/** Facing front. Not a blink thing any more -- every pose has a blink now. */
+export const FACING_FRONT: LookDirection = "center";
 
 /**
- * The resting pose: what a portrait shows before the mouse has said anything,
- * and what it returns to when the pointer leaves the window. It is also what a
- * touch device sees for the whole visit, since there is no pointer to track.
+ * The resting pose: what a portrait shows before anything has aimed it, and
+ * what it returns to when the pointer leaves the window.
  *
- * Not the same as the dead zone, which stays "center" -- that is the pointer
- * resting *on* the portrait, and looking away from a cursor that is on your
- * face reads as avoiding it rather than as a neutral pose.
+ * Not the same as the dead zone, which stays FACING_FRONT -- that is the
+ * pointer resting *on* the portrait, and looking away from a cursor that is on
+ * your face reads as avoiding it rather than as a neutral pose.
  */
 export const DEFAULT_LOOK: LookDirection = "up-right";
 
-/**
- * Which frame of the sheet to show. Blinking only has a frame for
- * BLINK_DIRECTION, so anywhere else it is ignored rather than approximated.
- */
-export const lookFrameIndex = (direction: LookDirection, blinking = false) =>
-    blinking && direction === BLINK_DIRECTION
-        ? SHEET_FRAMES.length - 1
-        : LOOK_DIRECTIONS.indexOf(direction);
+/** Where in the grid a pose lives: its column, and which row of eyes. */
+export const lookFrame = (direction: LookDirection, blinking = false) => ({
+    column: LOOK_DIRECTIONS.indexOf(direction),
+    row: blinking ? BLINK_ROW : 0,
+});
 
 /**
  * The eight directions in eighths clockwise from "right", since y grows

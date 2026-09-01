@@ -11,7 +11,7 @@ import { useContext } from "../../context/context.tsx";
 import { markKeyboardNavigation } from "../../hooks/useCursorNav.ts";
 import { landingNav } from "../../hooks/landingNav.ts";
 import useBlink from "../../hooks/useBlink.ts";
-import { BLINK_DIRECTION } from "../../hooks/useLookDirection.ts";
+import { FACING_FRONT } from "../../hooks/useLookDirection.ts";
 
 /** How long the portrait holds front-and-centre with its eyes open after a revive */
 const WAKE_MS = 600;
@@ -267,15 +267,16 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
      * until he is revived. (A limit break cannot start from 0 HP anyway --
      * runLimitBreak refuses it.)
      *
-     * The limit break holds him at centre for the length of the cut so the
-     * flinch on each hit reads. Off-centre he has no blink frame, so the hits
-     * would land with nothing to see.
+     * The limit break holds him at centre for the length of the cut, so the
+     * cut is delivered to camera rather than to wherever the mouse happens to
+     * be. (Every pose has a blink frame now, so the flinches would read at any
+     * angle -- this is framing, not a limitation.)
      *
      * Waking is the beat after a revive: the eyes open where the closed frame
      * was and stay front for a moment before the mouse has him back.
      */
     const isDead = healthReduction && currentHealth === 0;
-    const portraitLook = isDead || limitActive || waking ? BLINK_DIRECTION : null;
+    const portraitLook = isDead || limitActive || waking ? FACING_FRONT : null;
     // Waking suppresses the idle blink too: the point of the beat is the eyes
     // being open, so it must not open them and shut them again.
     const portraitBlink = isDead || (blinking && !waking);

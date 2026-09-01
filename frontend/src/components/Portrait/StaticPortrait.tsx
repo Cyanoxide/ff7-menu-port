@@ -1,4 +1,4 @@
-import { LOOK_SHEET, SHEET_FRAMES, DEFAULT_LOOK, lookFrameIndex, type LookDirection } from "../../hooks/useLookDirection";
+import { LOOK_SHEET, SHEET_COLUMNS, SHEET_ROWS, DEFAULT_LOOK, lookFrame, type LookDirection } from "../../hooks/useLookDirection";
 import styles from "./Portrait.module.scss";
 
 interface StaticPortraitProps {
@@ -14,8 +14,12 @@ interface StaticPortraitProps {
     sheet?: string;
     /** Index into `sheet`, left to right */
     frame?: number;
-    /** How many frames `sheet` holds; the offset is a fraction of its width */
+    /** How many columns `sheet` holds; the offset is a fraction of its width */
     frames?: number;
+    /** How many rows `sheet` holds. One unless it carries blinks as well. */
+    rows?: number;
+    /** Which row of `sheet` to take the frame from */
+    row?: number;
     /** CSS aspect-ratio of one frame, e.g. "53 / 61". Defaults to the look sheet's. */
     aspect?: string;
     /** Omit to let a class size it -- an inline width would override the class */
@@ -36,7 +40,7 @@ interface StaticPortraitProps {
  * has any use for.
  */
 const StaticPortrait: React.FC<StaticPortraitProps> = ({
-    src, look = DEFAULT_LOOK, sheet, frame, frames, aspect, width, className, alt = "Portrait",
+    src, look = DEFAULT_LOOK, sheet, frame, frames, rows = 1, row = 0, aspect, width, className, alt = "Portrait",
 }) => (
     <div
         role="img"
@@ -45,7 +49,8 @@ const StaticPortrait: React.FC<StaticPortraitProps> = ({
         className={`${styles.look} ${className ?? ""}`}
         style={{
             width: width ? `${width}px` : undefined,
-            "--frames": sheet ? frames : SHEET_FRAMES.length,
+            "--columns": sheet ? frames : SHEET_COLUMNS,
+            "--rows": sheet ? rows : SHEET_ROWS,
             "--portrait-aspect": aspect,
         } as React.CSSProperties}
     >
@@ -54,7 +59,10 @@ const StaticPortrait: React.FC<StaticPortraitProps> = ({
             alt=""
             aria-hidden
             className={styles.sheet}
-            style={{ "--frame": sheet ? frame : lookFrameIndex(look) } as React.CSSProperties}
+            style={{
+                "--column": sheet ? frame : lookFrame(look).column,
+                "--row": sheet ? row : lookFrame(look).row,
+            } as React.CSSProperties}
             onError={event => { event.currentTarget.src = src; }}
         />
     </div>

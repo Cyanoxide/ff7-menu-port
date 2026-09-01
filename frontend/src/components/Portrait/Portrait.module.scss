@@ -24,22 +24,29 @@
 }
 
 /*
- * One image, showing one frame of it. `height: 100%` with `width: auto` lets the
- * whole strip scale off the box's height, so a frame is exactly 1/--frames of
- * the element's own width whatever size it renders at -- which is what makes the
- * offset a plain percentage rather than pixel arithmetic against the app scale.
+ * One image, showing one cell of it.
+ *
+ * The image is sized in whole frames -- as many container-widths as the sheet
+ * has columns, as many container-heights as it has rows -- so one cell is
+ * exactly the size of the box, at whatever size the box renders. That is what
+ * lets the offset be a plain percentage rather than pixel arithmetic against
+ * the app's scale transform: a percentage in `translate` is of the element's
+ * own size, so one cell is 100%/columns across and 100%/rows down.
  *
  * max-width defeats any inherited `max-width: 100%`, which would squash the
- * whole strip into one frame's width and shrink the face to a tenth.
+ * whole grid into one cell's width.
  */
 .sheet {
     position: absolute;
     top: 0;
     left: 0;
-    height: 100%;
-    width: auto;
+    width: calc(100% * var(--columns));
+    height: calc(100% * var(--rows));
     max-width: none;
-    transform: translateX(calc(var(--frame) * -100% / var(--frames)));
+    transform: translate(
+        calc(var(--column) * -100% / var(--columns)),
+        calc(var(--row) * -100% / var(--rows))
+    );
 }
 
 .incoming {
