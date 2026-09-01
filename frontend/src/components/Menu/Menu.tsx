@@ -108,18 +108,26 @@ const Menu = () => {
      *
      * The portraits follow a position rather than a mouse, so the cursor can
      * hand them one: arrowing down the menu turns the face down the menu, the
-     * same as running the mouse down it would. Reads the row's box rather than
-     * deriving an angle, so it stays right whatever the menu's layout does.
+     * same as running the mouse down it would. Reads the target's box rather
+     * than deriving an angle, so it stays right whatever the layout does.
+     *
+     * Selecting the avatar aims him at himself, which lands inside the dead
+     * zone and comes out as facing front -- the same answer the mouse gives
+     * for a cursor resting on the portrait, from the same rule.
      *
      * An effect rather than onFocus, because the row has to have been laid out
      * before it can be measured -- on the first arrow press after arriving, the
      * menu is still opening.
      */
     useEffect(() => {
-        if (!isLanding || pos?.group !== "menu") return;
-        const row = document.querySelector<HTMLElement>(`[data-menu-index="${pos.index}"]`);
-        if (!row) return;
-        const box = row.getBoundingClientRect();
+        if (!isLanding || !pos) return;
+        // The menu's rows are told apart by index; the avatar and the revive
+        // button are each the only one of their kind.
+        const target = pos.group === "menu"
+            ? document.querySelector<HTMLElement>(`[data-menu-index="${pos.index}"]`)
+            : document.querySelector<HTMLElement>(`[data-look-target="${pos.group}"]`);
+        if (!target) return;
+        const box = target.getBoundingClientRect();
         if (!box.width || !box.height) return;
         lookAt(box.left + box.width / 2, box.top + box.height / 2);
     }, [isLanding, pos]);
