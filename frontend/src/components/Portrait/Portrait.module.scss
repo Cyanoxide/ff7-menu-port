@@ -17,10 +17,11 @@
      * width the caller sets -- an inline one on the landing page, a class on the
      * resume.
      *
-     * A sheet whose frames are a different shape passes --portrait-aspect; the
-     * history sheet's frames are 53x61 rather than the look sheet's 107x122.
+     * The default is the look sheet's cell, 55x62. A sheet whose frames are a
+     * different shape passes --portrait-aspect; the history sheet's are 53x61.
+     * Getting this wrong does not crop anything, it stretches it.
      */
-    aspect-ratio: var(--portrait-aspect, 107 / 122);
+    aspect-ratio: var(--portrait-aspect, 55 / 62);
 }
 
 /*
@@ -39,8 +40,7 @@
 .sheet {
     /*
      * Sample a hair inside each cell, so the edges never pick up the cell next
-     * door. The sheet is scaled up ~4% and the window re-centred, which drops
-     * about a pixel from each side of the frame.
+     * door. The sheet is scaled up 3% and the window re-centred.
      *
      * Without it the browser's filtering blends across the cell boundary as it
      * upscales, and the row below every open pose is the top of its blink --
@@ -48,10 +48,15 @@
      * strip along the bottom of the portrait. It only appeared once the sheet
      * gained a second row; before that there was nothing below to bleed in.
      *
+     * **The zoom is paired with the sheet's 1px margins.** It eats 0.80px
+     * across and 0.90px down of a 55x62 cell, so it lands inside the blank
+     * border and never touches the drawing. Raise it and it starts cropping
+     * the face -- which is what cutting the tops of the heads off looked like.
+     *
      * inset is (zoom - 1) / (2 * zoom), which splits the crop evenly.
      */
-    --sheet-zoom: 1.04;
-    --sheet-inset: 0.01923;
+    --sheet-zoom: 1.03;
+    --sheet-inset: 0.014563;
 
     position: absolute;
     top: 0;
