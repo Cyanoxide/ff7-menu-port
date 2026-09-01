@@ -37,15 +37,31 @@
  * whole grid into one cell's width.
  */
 .sheet {
+    /*
+     * Sample a hair inside each cell, so the edges never pick up the cell next
+     * door. The sheet is scaled up ~4% and the window re-centred, which drops
+     * about a pixel from each side of the frame.
+     *
+     * Without it the browser's filtering blends across the cell boundary as it
+     * upscales, and the row below every open pose is the top of its blink --
+     * which is light where the shoulders are dark, so it showed as a white
+     * strip along the bottom of the portrait. It only appeared once the sheet
+     * gained a second row; before that there was nothing below to bleed in.
+     *
+     * inset is (zoom - 1) / (2 * zoom), which splits the crop evenly.
+     */
+    --sheet-zoom: 1.04;
+    --sheet-inset: 0.01923;
+
     position: absolute;
     top: 0;
     left: 0;
-    width: calc(100% * var(--columns));
-    height: calc(100% * var(--rows));
+    width: calc(100% * var(--columns) * var(--sheet-zoom));
+    height: calc(100% * var(--rows) * var(--sheet-zoom));
     max-width: none;
     transform: translate(
-        calc(var(--column) * -100% / var(--columns)),
-        calc(var(--row) * -100% / var(--rows))
+        calc((var(--column) + var(--sheet-inset)) * -100% / var(--columns)),
+        calc((var(--row) + var(--sheet-inset)) * -100% / var(--rows))
     );
 }
 
