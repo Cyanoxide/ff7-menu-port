@@ -109,10 +109,9 @@ const DEAD_ZONE = 0.75;
  * per-portrait cost left is measuring its own box, which is the part that
  * genuinely differs.
  *
- * Mouse only: a touch would leave the face frozen mid-glance wherever the last
- * tap happened to be, which reads as a bug rather than an effect. The
- * `pointerType` guard matches the one the Projects and Equip lists already use,
- * and it is why a touch device only ever sees the centre frame.
+ * Movement is mouse only: a finger dragged across the screen would leave the
+ * face chasing it and then stopped mid-glance. Touches are handled as taps
+ * instead, by onTouch below, which is a deliberate aim rather than a drag.
  */
 type PointerListener = (at: { x: number; y: number } | null) => void;
 
@@ -137,6 +136,32 @@ const onMove = (event: PointerEvent) => {
     schedule();
 };
 
+/**
+ * Point every portrait at a place on the screen, in viewport coordinates.
+ *
+ * The portraits track a position, not specifically a mouse, so anything that
+ * knows where attention has gone can say so: the landing page's keyboard cursor
+ * aims them at the row it lands on, and a touch aims them where the finger
+ * went. A real mouse movement simply overwrites it, so the two never contend.
+ */
+export const lookAt = (x: number, y: number) => {
+    pointerAt = { x, y };
+    schedule();
+};
+
+/**
+ * A touch looks where it landed and stays there.
+ *
+ * pointermove is mouse-only on purpose -- dragging a finger would leave the
+ * face chasing it and then frozen mid-glance. A tap is different: it is a
+ * deliberate "look here", and it is the only way a touch device can aim them at
+ * all, since there is no pointer to follow.
+ */
+const onTouch = (event: PointerEvent) => {
+    if (event.pointerType === "mouse") return;
+    lookAt(event.clientX, event.clientY);
+};
+
 // Mouse gone from the window entirely -- look straight ahead rather than
 // holding the last glance indefinitely.
 const onLeave = () => {
@@ -147,6 +172,7 @@ const onLeave = () => {
 const subscribePointer = (listener: PointerListener) => {
     if (!listeners.size) {
         window.addEventListener("pointermove", onMove, { passive: true });
+        window.addEventListener("pointerdown", onTouch, { passive: true });
         document.addEventListener("pointerleave", onLeave);
         window.addEventListener("blur", onLeave);
     }
@@ -157,6 +183,7 @@ const subscribePointer = (listener: PointerListener) => {
         if (listeners.size) return;
 
         window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerdown", onTouch);
         document.removeEventListener("pointerleave", onLeave);
         window.removeEventListener("blur", onLeave);
         if (pending) cancelAnimationFrame(pending);

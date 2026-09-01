@@ -7,6 +7,7 @@ import playSound from "../../util/sounds";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCursorNav, markKeyboardNavigation, consumeKeyboardNavIntent } from "../../hooks/useCursorNav";
 import { useKonamiCode } from "../../hooks/useKonamiCode";
+import { lookAt } from "../../hooks/useLookDirection";
 import { landingNav } from "../../hooks/landingNav";
 import { closeNav } from "../../hooks/closeNav";
 import menuJSON from "../../data/menu.json";
@@ -101,6 +102,27 @@ const Menu = () => {
     });
 
     useKonamiCode(() => playSound("fanfare", isSoundEnabled), isLanding);
+
+    /**
+     * Point the portrait at whatever the keyboard cursor is on.
+     *
+     * The portraits follow a position rather than a mouse, so the cursor can
+     * hand them one: arrowing down the menu turns the face down the menu, the
+     * same as running the mouse down it would. Reads the row's box rather than
+     * deriving an angle, so it stays right whatever the menu's layout does.
+     *
+     * An effect rather than onFocus, because the row has to have been laid out
+     * before it can be measured -- on the first arrow press after arriving, the
+     * menu is still opening.
+     */
+    useEffect(() => {
+        if (!isLanding || pos?.group !== "menu") return;
+        const row = document.querySelector<HTMLElement>(`[data-menu-index="${pos.index}"]`);
+        if (!row) return;
+        const box = row.getBoundingClientRect();
+        if (!box.width || !box.height) return;
+        lookAt(box.left + box.width / 2, box.top + box.height / 2);
+    }, [isLanding, pos]);
 
     // Mouse hover on the landing avatar/revive moves the shared cursor
     useEffect(() => {
@@ -218,7 +240,7 @@ const Menu = () => {
                 {Array.from({ length: 11 }).map((_, position) => {
                     const menuItem = menuItems.find((item) => item.position === position);
                     return (
-                        <li key={position} className={`${["/", `/${menuItem && menuItem.id}`].includes(sectionPath) ? "h-[29px] mb-4" : "h-0 invisible"} flex justify-between`}>
+                        <li key={position} data-menu-index={menuItem ? navItems.indexOf(menuItem) : undefined} className={`${["/", `/${menuItem && menuItem.id}`].includes(sectionPath) ? "h-[29px] mb-4" : "h-0 invisible"} flex justify-between`}>
                             {menuItemContent(menuItem)}
                         </li>
                     )
