@@ -39,6 +39,9 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     const limitCharge = useSyncExternalStore(limitGauge.subscribe, limitGauge.getCharge);
     const [limitDraining, setLimitDraining] = useState(false);
     const limitRunningRef = useRef(false);
+    // Mirrors limitRunningRef for rendering. The ref guards re-entry from event
+    // handlers and cannot drive the portrait, since writing it repaints nothing.
+    const [limitActive, setLimitActive] = useState(false);
     const limitTimersRef = useRef<number[]>([]);
     const { isSoundEnabled, currentHealth, currentMana, userName, dispatch } = useContext();
     const navigate = useNavigate();
@@ -172,6 +175,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
         }
 
         limitRunningRef.current = true;
+        setLimitActive(true);
         limitGauge.spend();
         setLimitDraining(true);
         setLimitHits(0);
@@ -219,6 +223,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
         after(LIMIT_TIMING.drain, () => setLimitDraining(false));
         after(lastHitAt + LIMIT_TIMING.beforeSpin + LIMIT_TIMING.spin, () => {
             limitRunningRef.current = false;
+            setLimitActive(false);
             limitTimersRef.current = [];
         });
     };
@@ -262,11 +267,16 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
      * until he is revived. (A limit break cannot start from 0 HP anyway --
      * runLimitBreak refuses it.)
      *
+     * The limit break holds him facing front for the length of the cut. Not for
+     * want of a blink frame -- every pose has one now -- but because the gauge
+     * is off to the side, so he is always looking that way when it is clicked,
+     * and the cut reads as far less of an event delivered in profile.
+     *
      * Waking is the beat after a revive: the eyes open where the closed frame
      * was and stay front for a moment before the mouse has him back.
      */
     const isDead = healthReduction && currentHealth === 0;
-    const portraitLook = isDead || waking ? FACING_FRONT : null;
+    const portraitLook = isDead || limitActive || waking ? FACING_FRONT : null;
     // Waking suppresses the idle blink too: the point of the beat is the eyes
     // being open, so it must not open them and shut them again.
     const portraitBlink = isDead || (blinking && !waking);
