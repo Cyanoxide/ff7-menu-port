@@ -48,15 +48,17 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
      * the same commit that `over` takes the incoming one, or the pair repaint
      * out of step and the portrait flicks back to an older frame for a frame.
      */
-    const [layers, setLayers] = useState<{ under: LookDirection; over: LookDirection }>(
-        { under: DEFAULT_LOOK, over: DEFAULT_LOOK }
+    const [layers, setLayers] = useState<{ under: LookDirection; over: LookDirection; turn: number }>(
+        { under: DEFAULT_LOOK, over: DEFAULT_LOOK, turn: 0 }
     );
 
     // Layout effect, not an effect: this runs on the same commit that changed
     // the direction, so the swap is painted once rather than showing the old
     // frame for a beat first.
     useLayoutEffect(() => {
-        setLayers(prev => (prev.over === direction ? prev : { under: prev.over, over: direction }));
+        setLayers(prev => (prev.over === direction
+            ? prev
+            : { under: prev.over, over: direction, turn: prev.turn + 1 }));
     }, [direction]);
 
     // One sheet, so there is nothing to preload: the first paint fetches every
@@ -92,22 +94,18 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
                 onError={() => setFailed(true)}
             />
             {/*
-              * Keyed by direction so each glance mounts a fresh element and the
-              * CSS animation runs from the start. Restarting an animation on a
-              * persistent node means clearing it and forcing a reflow between,
-              * which is easy to get subtly wrong; a remount cannot half-apply.
-              * The frames are preloaded, so the new node has nothing to fetch.
+              * Alternating two identical animations restarts the fade on each
+              * glance. The element stays put -- see the note in the stylesheet.
               *
-              * The blink changes this layer's *row* without touching the key,
-              * so it is a straight cut: eyes shut and open again, they do not
-              * dissolve, and a blink cannot interrupt a glance that is fading.
+              * A blink changes only this layer's row, and does not advance the
+              * turn, so it is a straight cut: eyes shut and open again, they do
+              * not dissolve, and a blink cannot interrupt a glance mid-fade.
               */}
             <img
-                key={layers.over}
                 src={LOOK_SHEET}
                 alt=""
                 aria-hidden
-                className={`${styles.sheet} ${styles.incoming}`}
+                className={`${styles.sheet} ${layers.turn % 2 ? styles.incomingA : styles.incomingB}`}
                 style={sheetCellStyle(SHEET_COLUMNS, SHEET_ROWS, over.column, over.row)}
                 onError={() => setFailed(true)}
             />

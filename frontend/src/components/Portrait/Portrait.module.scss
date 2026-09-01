@@ -40,12 +40,44 @@
     max-width: none;
 }
 
-.incoming {
+/*
+ * The fade restarts by alternating two identical animations rather than by
+ * remounting the element.
+ *
+ * Keying the layer by direction was simpler to read, but it meant every glance
+ * destroyed an <img> and built another -- and since the sheet gained a second
+ * row that element's box is twice as tall, so the browser was throwing away and
+ * re-rasterising a large layer on every mouse move. Changing animation-name
+ * restarts an animation just as reliably and keeps the element.
+ */
+.incomingA,
+.incomingB {
     // Duration comes from the component so the two cannot drift apart
-    animation: portraitCrossFade var(--portrait-fade) ease-out;
+    animation-duration: var(--portrait-fade);
+    animation-timing-function: ease-out;
+    animation-fill-mode: none;
 }
 
-@keyframes portraitCrossFade {
+.incomingA {
+    animation-name: portraitCrossFadeA;
+}
+
+.incomingB {
+    animation-name: portraitCrossFadeB;
+}
+
+@keyframes portraitCrossFadeA {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+// Identical to A on purpose: swapping between them is what restarts the fade
+@keyframes portraitCrossFadeB {
     from {
         opacity: 0;
     }
