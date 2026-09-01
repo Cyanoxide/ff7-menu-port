@@ -16,35 +16,68 @@
      * PORTRAIT_HEIGHT in data/portraits.ts), and the ratio holds at whatever
      * width the caller sets -- an inline one on the landing page, a class on the
      * resume.
+     *
+     * A sheet whose frames are a different shape passes --portrait-aspect; the
+     * history sheet's frames are 53x61 rather than the look sheet's 107x122.
      */
-    aspect-ratio: 107 / 122;
+    aspect-ratio: var(--portrait-aspect, 107 / 122);
 }
 
 /*
- * One image, showing one frame of it. `height: 100%` with `width: auto` lets the
- * whole strip scale off the box's height, so a frame is exactly 1/--frames of
- * the element's own width whatever size it renders at -- which is what makes the
- * offset a plain percentage rather than pixel arithmetic against the app scale.
+ * One image, showing one cell of it.
+ *
+ * Its size and offset are set inline by sheetCellStyle, not here: they are the
+ * same numbers every render bar the transform, which keeps a glance to a
+ * composited move rather than a re-layout. See the note on that helper.
  *
  * max-width defeats any inherited `max-width: 100%`, which would squash the
- * whole strip into one frame's width and shrink the face to a tenth.
+ * whole grid into one cell's width.
  */
 .sheet {
     position: absolute;
     top: 0;
     left: 0;
-    height: 100%;
-    width: auto;
     max-width: none;
-    transform: translateX(calc(var(--frame) * -100% / var(--frames)));
 }
 
-.incoming {
+/*
+ * The fade restarts by alternating two identical animations rather than by
+ * remounting the element.
+ *
+ * Keying the layer by direction was simpler to read, but it meant every glance
+ * destroyed an <img> and built another -- and since the sheet gained a second
+ * row that element's box is twice as tall, so the browser was throwing away and
+ * re-rasterising a large layer on every mouse move. Changing animation-name
+ * restarts an animation just as reliably and keeps the element.
+ */
+.incomingA,
+.incomingB {
     // Duration comes from the component so the two cannot drift apart
-    animation: portraitCrossFade var(--portrait-fade) ease-out;
+    animation-duration: var(--portrait-fade);
+    animation-timing-function: ease-out;
+    animation-fill-mode: none;
 }
 
-@keyframes portraitCrossFade {
+.incomingA {
+    animation-name: portraitCrossFadeA;
+}
+
+.incomingB {
+    animation-name: portraitCrossFadeB;
+}
+
+@keyframes portraitCrossFadeA {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+// Identical to A on purpose: swapping between them is what restarts the fade
+@keyframes portraitCrossFadeB {
     from {
         opacity: 0;
     }

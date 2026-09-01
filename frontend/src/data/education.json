@@ -7,7 +7,10 @@
         "level": 23,
         "role": "Plymouth University",
         "year": "2010-14",
-        "image_path": "/history__plymouth.png"
+        "image_path": "/history__plymouth.png",
+        "windowColor": [
+            [30, 30, 60]
+        ]
     },
     {
         "id": 2,
@@ -17,6 +20,9 @@
         "level": 19,
         "role": "Gloucestershire College",
         "year": "2007-10",
-        "image_path": "/history__gloscol.png"
+        "image_path": "/history__gloscol.png",
+        "windowColor": [
+            [150, 150, 150]
+        ]
     }
 ]

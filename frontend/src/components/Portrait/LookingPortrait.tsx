@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import useLookDirection, { LOOK_SHEET, SHEET_FRAMES, lookFrameIndex, type LookDirection } from "../../hooks/useLookDirection";
+import useLookDirection, { LOOK_SHEET, SHEET_COLUMNS, SHEET_ROWS, DEFAULT_LOOK, lookFrame, sheetCellStyle, type LookDirection } from "../../hooks/useLookDirection";
 import styles from "./Portrait.module.scss";
 
 /** How long a glance takes to cross-fade. Short enough to feel like a reaction. */
@@ -48,15 +48,17 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
      * the same commit that `over` takes the incoming one, or the pair repaint
      * out of step and the portrait flicks back to an older frame for a frame.
      */
-    const [layers, setLayers] = useState<{ under: LookDirection; over: LookDirection }>(
-        { under: "center", over: "center" }
+    const [layers, setLayers] = useState<{ under: LookDirection; over: LookDirection; turn: number }>(
+        { under: DEFAULT_LOOK, over: DEFAULT_LOOK, turn: 0 }
     );
 
     // Layout effect, not an effect: this runs on the same commit that changed
     // the direction, so the swap is painted once rather than showing the old
     // frame for a beat first.
     useLayoutEffect(() => {
-        setLayers(prev => (prev.over === direction ? prev : { under: prev.over, over: direction }));
+        setLayers(prev => (prev.over === direction
+            ? prev
+            : { under: prev.over, over: direction, turn: prev.turn + 1 }));
     }, [direction]);
 
     // One sheet, so there is nothing to preload: the first paint fetches every
@@ -68,6 +70,9 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
         return <img src={src} width={width} className={className} alt={alt} />;
     }
 
+    const under = lookFrame(layers.under);
+    const over = lookFrame(layers.over, blink);
+
     return (
         <div
             ref={ref}
@@ -78,9 +83,6 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
             style={{
                 width: width ? `${width}px` : undefined,
                 "--portrait-fade": `${FADE_MS}ms`,
-                // From the sheet itself, so the two cannot disagree about how
-                // far one frame is
-                "--frames": SHEET_FRAMES.length,
             } as React.CSSProperties}
         >
             <img
@@ -88,27 +90,23 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
                 alt=""
                 aria-hidden
                 className={styles.sheet}
-                style={{ "--frame": lookFrameIndex(layers.under) } as React.CSSProperties}
+                style={sheetCellStyle(SHEET_COLUMNS, SHEET_ROWS, under.column, under.row)}
                 onError={() => setFailed(true)}
             />
             {/*
-              * Keyed by direction so each glance mounts a fresh element and the
-              * CSS animation runs from the start. Restarting an animation on a
-              * persistent node means clearing it and forcing a reflow between,
-              * which is easy to get subtly wrong; a remount cannot half-apply.
-              * The frames are preloaded, so the new node has nothing to fetch.
+              * Alternating two identical animations restarts the fade on each
+              * glance. The element stays put -- see the note in the stylesheet.
               *
-              * The blink changes this layer's *frame* without touching the key,
-              * so it is a straight cut: eyes shut and open again, they do not
-              * dissolve, and a blink cannot interrupt a glance that is fading.
+              * A blink changes only this layer's row, and does not advance the
+              * turn, so it is a straight cut: eyes shut and open again, they do
+              * not dissolve, and a blink cannot interrupt a glance mid-fade.
               */}
             <img
-                key={layers.over}
                 src={LOOK_SHEET}
                 alt=""
                 aria-hidden
-                className={`${styles.sheet} ${styles.incoming}`}
-                style={{ "--frame": lookFrameIndex(layers.over, blink) } as React.CSSProperties}
+                className={`${styles.sheet} ${layers.turn % 2 ? styles.incomingA : styles.incomingB}`}
+                style={sheetCellStyle(SHEET_COLUMNS, SHEET_ROWS, over.column, over.row)}
                 onError={() => setFailed(true)}
             />
         </div>

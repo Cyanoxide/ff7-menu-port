@@ -11,7 +11,7 @@ import { useContext } from "../../context/context.tsx";
 import { markKeyboardNavigation } from "../../hooks/useCursorNav.ts";
 import { landingNav } from "../../hooks/landingNav.ts";
 import useBlink from "../../hooks/useBlink.ts";
-import { BLINK_DIRECTION } from "../../hooks/useLookDirection.ts";
+import { FACING_FRONT } from "../../hooks/useLookDirection.ts";
 
 /** How long the portrait holds front-and-centre with its eyes open after a revive */
 const WAKE_MS = 600;
@@ -35,13 +35,13 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
     // Cross Slash: how many slashes have landed, and whether they are spinning away
     const [limitHits, setLimitHits] = useState(0);
     const [limitSpinning, setLimitSpinning] = useState(false);
-    // Mirrors limitRunningRef for rendering. The ref guards re-entry from event
-    // handlers and cannot drive the portrait, since writing it repaints nothing.
-    const [limitActive, setLimitActive] = useState(false);
     // Held outside React so it keeps filling while you are on another page
     const limitCharge = useSyncExternalStore(limitGauge.subscribe, limitGauge.getCharge);
     const [limitDraining, setLimitDraining] = useState(false);
     const limitRunningRef = useRef(false);
+    // Mirrors limitRunningRef for rendering. The ref guards re-entry from event
+    // handlers and cannot drive the portrait, since writing it repaints nothing.
+    const [limitActive, setLimitActive] = useState(false);
     const limitTimersRef = useRef<number[]>([]);
     const { isSoundEnabled, currentHealth, currentMana, userName, dispatch } = useContext();
     const navigate = useNavigate();
@@ -267,15 +267,16 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
      * until he is revived. (A limit break cannot start from 0 HP anyway --
      * runLimitBreak refuses it.)
      *
-     * The limit break holds him at centre for the length of the cut so the
-     * flinch on each hit reads. Off-centre he has no blink frame, so the hits
-     * would land with nothing to see.
+     * The limit break holds him facing front for the length of the cut. Not for
+     * want of a blink frame -- every pose has one now -- but because the gauge
+     * is off to the side, so he is always looking that way when it is clicked,
+     * and the cut reads as far less of an event delivered in profile.
      *
      * Waking is the beat after a revive: the eyes open where the closed frame
      * was and stay front for a moment before the mouse has him back.
      */
     const isDead = healthReduction && currentHealth === 0;
-    const portraitLook = isDead || limitActive || waking ? BLINK_DIRECTION : null;
+    const portraitLook = isDead || limitActive || waking ? FACING_FRONT : null;
     // Waking suppresses the idle blink too: the point of the beat is the eyes
     // being open, so it must not open them and shut them again.
     const portraitBlink = isDead || (blinking && !waking);
@@ -288,7 +289,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
 
         content = (
             <div className={`flex justify-between`}>
-                <div className={styles.portrait} data-shake={isAttacking} data-dying={isDying} data-interactive={healthReduction} data-health={currentHealth?.toString()} data-focused={keyboardFocus === "avatar"}>
+                <div className={styles.portrait} data-look-target="avatar" data-shake={isAttacking} data-dying={isDying} data-interactive={healthReduction} data-health={currentHealth?.toString()} data-focused={keyboardFocus === "avatar"}>
                     {isAttacking && <p className="absolute">{textToSprite(damage.toString(), true)}</p>}
                     <div className="self-center relative" onClick={handleOnClick} onMouseEnter={handleMouseEnter}>
                         <Portrait src={image_path} width={145} look={portraitLook} blink={portraitBlink} />
@@ -325,7 +326,7 @@ const PartyMember: React.FC<partyMemberProps> = ({ memberId, showProgressBars = 
                             </div>
                         )}
                     </div>
-                    {healthReduction && currentHealth === 0 && <div onClick={handleHealClick} onMouseEnter={() => landingNav.actions.focusTarget?.("revive")} className={styles.reviveButton}><ContentBox data-label="healButton" data-focused={keyboardFocus === "revive"}>{textToSprite("Revive", false, (!currentMana || currentMana < 34) ? "grey" : "")}</ContentBox></div>}
+                    {healthReduction && currentHealth === 0 && <div onClick={handleHealClick} onMouseEnter={() => landingNav.actions.focusTarget?.("revive")} className={styles.reviveButton} data-look-target="revive"><ContentBox data-label="healButton" data-focused={keyboardFocus === "revive"}>{textToSprite("Revive", false, (!currentMana || currentMana < 34) ? "grey" : "")}</ContentBox></div>}
                 </div>
                 <div className="mt-2 ml-8">
                     {healthReduction ? (

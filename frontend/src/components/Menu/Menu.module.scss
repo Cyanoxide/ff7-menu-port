@@ -64,3 +64,16 @@
         cursor: default;
     }
 }
+/*
+ * See isCrowdedHeading in Menu.tsx for why only one heading gets this.
+ *
+ * Relative offset rather than a margin. The span is inline and wraps the
+ * flex-laid glyph row, so a negative margin-left reflowed the line box and
+ * moved the text *down* instead of across. `left` on a relatively positioned
+ * box paints it somewhere else without taking part in layout at all, which is
+ * exactly the "only the text moves" that is wanted here.
+ */
+.longHeading {
+    position: relative;
+    left: -0.75rem;
+}

@@ -8,7 +8,7 @@ import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { useContext } from "../../context/context";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useCursorNav, markKeyboardNavigation } from "../../hooks/useCursorNav";
 import { closeNav } from "../../hooks/closeNav";
 import { elementUnderPointer } from "../../util/pointerActivity";
@@ -17,7 +17,14 @@ import historyJSON from "../../data/history.json";
 import type { HistoryType } from "../../context/types";
 
 const MIN_SAVE_SLOTS = 3;
-const OPTIONS = ["work", "education"];
+/**
+ * Also the URL segment and the heading label, capitalised. Only "education" is
+ * ever compared against, so the other is free to be renamed.
+ */
+const OPTIONS = ["career", "education"];
+
+/** Past the bar's 100, so the list shows without it having run */
+const LOADED_PROGRESS = 101;
 
 /**
  * How long a ContentBox takes to fade in — 0.25s, after a 0.2s delay. The save
@@ -30,9 +37,33 @@ const MemCardSelector = () => {
     const { isSoundEnabled } = useContext();
     const navigate = useNavigate();
     const [memoryCardLoaded, setMemoryCardLoaded] = useState(false);
-    const [optionSelected, setOptionSelected] = useState(false);
-    const [selectedHistoryType, setSelectedHistoryType] = useState("work");
-    const [memoryCardProgress, setMemoryCardProgress] = useState(0);
+
+    /**
+     * Which list is open is held in the URL -- /history is the option screen,
+     * /history/work and /history/education are the lists -- rather than in
+     * state, so a refresh comes back to the list rather than to the options.
+     *
+     * Deriving it rather than mirroring it into state is what keeps the two
+     * from disagreeing: the browser's back button moves between the screens for
+     * free, and an unknown type falls back to the options screen instead of
+     * rendering an empty list.
+     */
+    const { historyType: routeType } = useParams();
+    const selectedType = OPTIONS.includes(routeType ?? "") ? routeType! : null;
+    const optionSelected = selectedType !== null;
+    const selectedHistoryType = selectedType ?? OPTIONS[0];
+
+    /**
+     * Landing straight on a list URL skips the loading bar and shows the saves.
+     *
+     * The bar is the memory card being read, which is a thing that happens when
+     * you pick an option -- not something to sit through because you refreshed
+     * a page you were already on. Picking an option still plays it, because
+     * that arrives by navigation with the bar already at zero.
+     */
+    const [memoryCardProgress, setMemoryCardProgress] = useState(
+        () => (selectedType ? LOADED_PROGRESS : 0)
+    );
     const [savesRevealed, setSavesRevealed] = useState(false);
 
     const isLoading = optionSelected && memoryCardProgress <= 100;
@@ -45,6 +76,12 @@ const MemCardSelector = () => {
     // on the first save whatever the mouse happens to be resting over.
     const pickedByMouse = useRef(false);
 
+    const backToOptions = () => {
+        playSound("back", isSoundEnabled);
+        navigate("/history");
+        setPosSilently(pos ? { group: "options", index: 0 } : null);
+    };
+
     const onClickHandler = (historyType: string, viaMouse = false) => {
         if (!memoryCardLoaded) {
             playSound("error", isSoundEnabled);
@@ -52,9 +89,7 @@ const MemCardSelector = () => {
         }
         pickedByMouse.current = viaMouse;
         playSound("select", isSoundEnabled);
-        setOptionSelected(true);
-        setSelectedHistoryType(historyType)
-
+        navigate(`/history/${historyType}`);
     }
 
     /**
@@ -138,10 +173,7 @@ const MemCardSelector = () => {
         onCancel: () => {
             if (isLoading) return true;
             if (isListShown) {
-                playSound("back", isSoundEnabled);
-                setOptionSelected(false);
-                setMemoryCardProgress(0);
-                setPosSilently(pos ? { group: "options", index: 0 } : null);
+                backToOptions();
                 return true;
             }
             return false;
@@ -155,6 +187,28 @@ const MemCardSelector = () => {
     }, []);
 
     useEffect(() => () => closeNav.setFocus(false), []);
+
+    /**
+     * The bar belongs to whichever list is open, so it starts over when the URL
+     * moves between them -- and rewinds when cancelling back to the options,
+     * which is what makes re-picking replay it.
+     *
+     * Skipped on the first run, or it would immediately undo the initial state
+     * above and play the bar on a refresh after all.
+     */
+    const settled = useRef(false);
+    useEffect(() => {
+        if (!settled.current) {
+            settled.current = true;
+            return;
+        }
+        setMemoryCardProgress(0);
+
+        // Closing the list from the menu's X leaves the cursor pointing at the
+        // saves group, which is no longer rendered. Escape already did this on
+        // its way out; the X needs it too.
+        if (!selectedType) setPosSilently(pos ? { group: "options", index: 0 } : null);
+    }, [selectedType]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Hold the cursor back until the save rows have finished fading in, the way
     // the option rows already wait on memoryCardLoaded
@@ -188,6 +242,7 @@ const MemCardSelector = () => {
             <div className="relative h-[84px] mb-[10px]">
                 <ContentBox data-label="MemCardHeader" className="h-full absolute top-0 left-0 right-0">{textToSprite(headerText)}</ContentBox>
                 {isListShown && <ContentBox data-label="historyFileLabel" className="h-full w-[225px] absolute top-0 right-[280px] flex">{textToSprite("FILE", false, "yellow")}{textToSprite((selectedHistoryType !== "education") ? " 01" : " 02")}</ContentBox>}
+
             </div>
 
             {!optionSelected && <ContentBox data-label="memCardSelector" className="absolute z-1 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
