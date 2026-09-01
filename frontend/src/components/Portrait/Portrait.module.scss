@@ -26,12 +26,9 @@
 /*
  * One image, showing one cell of it.
  *
- * The image is sized in whole frames -- as many container-widths as the sheet
- * has columns, as many container-heights as it has rows -- so one cell is
- * exactly the size of the box, at whatever size the box renders. That is what
- * lets the offset be a plain percentage rather than pixel arithmetic against
- * the app's scale transform: a percentage in `translate` is of the element's
- * own size, so one cell is 100%/columns across and 100%/rows down.
+ * Its size and offset are set inline by sheetCellStyle, not here: they are the
+ * same numbers every render bar the transform, which keeps a glance to a
+ * composited move rather than a re-layout. See the note on that helper.
  *
  * max-width defeats any inherited `max-width: 100%`, which would squash the
  * whole grid into one cell's width.
@@ -40,13 +37,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: calc(100% * var(--columns));
-    height: calc(100% * var(--rows));
     max-width: none;
-    transform: translate(
-        calc(var(--column) * -100% / var(--columns)),
-        calc(var(--row) * -100% / var(--rows))
-    );
 }
 
 .incoming {

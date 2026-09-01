@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import useLookDirection, { LOOK_SHEET, SHEET_COLUMNS, SHEET_ROWS, DEFAULT_LOOK, lookFrame, type LookDirection } from "../../hooks/useLookDirection";
+import useLookDirection, { LOOK_SHEET, SHEET_COLUMNS, SHEET_ROWS, DEFAULT_LOOK, lookFrame, sheetCellStyle, type LookDirection } from "../../hooks/useLookDirection";
 import styles from "./Portrait.module.scss";
 
 /** How long a glance takes to cross-fade. Short enough to feel like a reaction. */
@@ -68,6 +68,9 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
         return <img src={src} width={width} className={className} alt={alt} />;
     }
 
+    const under = lookFrame(layers.under);
+    const over = lookFrame(layers.over, blink);
+
     return (
         <div
             ref={ref}
@@ -78,10 +81,6 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
             style={{
                 width: width ? `${width}px` : undefined,
                 "--portrait-fade": `${FADE_MS}ms`,
-                // From the sheet's own layout, so the CSS cannot disagree with
-                // it about how far one cell is
-                "--columns": SHEET_COLUMNS,
-                "--rows": SHEET_ROWS,
             } as React.CSSProperties}
         >
             <img
@@ -89,7 +88,7 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
                 alt=""
                 aria-hidden
                 className={styles.sheet}
-                style={{ "--column": lookFrame(layers.under).column, "--row": lookFrame(layers.under).row } as React.CSSProperties}
+                style={sheetCellStyle(SHEET_COLUMNS, SHEET_ROWS, under.column, under.row)}
                 onError={() => setFailed(true)}
             />
             {/*
@@ -109,7 +108,7 @@ const LookingPortrait: React.FC<LookingPortraitProps> = ({ src, width, className
                 alt=""
                 aria-hidden
                 className={`${styles.sheet} ${styles.incoming}`}
-                style={{ "--column": lookFrame(layers.over, blink).column, "--row": lookFrame(layers.over, blink).row } as React.CSSProperties}
+                style={sheetCellStyle(SHEET_COLUMNS, SHEET_ROWS, over.column, over.row)}
                 onError={() => setFailed(true)}
             />
         </div>

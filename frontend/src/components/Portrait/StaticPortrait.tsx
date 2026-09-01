@@ -1,4 +1,4 @@
-import { LOOK_SHEET, SHEET_COLUMNS, SHEET_ROWS, DEFAULT_LOOK, lookFrame, type LookDirection } from "../../hooks/useLookDirection";
+import { LOOK_SHEET, SHEET_COLUMNS, SHEET_ROWS, DEFAULT_LOOK, lookFrame, sheetCellStyle, type LookDirection } from "../../hooks/useLookDirection";
 import styles from "./Portrait.module.scss";
 
 interface StaticPortraitProps {
@@ -49,8 +49,6 @@ const StaticPortrait: React.FC<StaticPortraitProps> = ({
         className={`${styles.look} ${className ?? ""}`}
         style={{
             width: width ? `${width}px` : undefined,
-            "--columns": sheet ? frames : SHEET_COLUMNS,
-            "--rows": sheet ? rows : SHEET_ROWS,
             "--portrait-aspect": aspect,
         } as React.CSSProperties}
     >
@@ -59,10 +57,9 @@ const StaticPortrait: React.FC<StaticPortraitProps> = ({
             alt=""
             aria-hidden
             className={styles.sheet}
-            style={{
-                "--column": sheet ? frame : lookFrame(look).column,
-                "--row": sheet ? row : lookFrame(look).row,
-            } as React.CSSProperties}
+            style={sheet
+                ? sheetCellStyle(frames ?? 1, rows, frame ?? 0, row)
+                : sheetCellStyle(SHEET_COLUMNS, SHEET_ROWS, lookFrame(look).column, lookFrame(look).row)}
             onError={event => { event.currentTarget.src = src; }}
         />
     </div>

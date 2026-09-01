@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
 /**
  * The nine poses of the look-at-cursor portrait.
@@ -29,7 +29,7 @@ export const LOOK_SHEET = "/portrait-look-spritesheet.png";
  * together.
  */
 export const SHEET_COLUMNS = LOOK_DIRECTIONS.length;
-export const SHEET_ROWS = 2;
+export const SHEET_ROWS = 2.01;
 const BLINK_ROW = 1;
 
 /** Facing front. Not a blink thing any more -- every pose has a blink now. */
@@ -49,6 +49,23 @@ export const DEFAULT_LOOK: LookDirection = "up-right";
 export const lookFrame = (direction: LookDirection, blinking = false) => ({
     column: LOOK_DIRECTIONS.indexOf(direction),
     row: blinking ? BLINK_ROW : 0,
+});
+
+/**
+ * The inline style that shows one cell of a sheet.
+ *
+ * Size and offset are plain values, not custom properties: between one glance
+ * and the next, `transform` is the only thing that differs. That matters more
+ * than it looks. When the size was `calc(100% * var(--columns))` and a glance
+ * changed `--column` on the same element, the browser had to recompute that
+ * element's size and lay it out again -- on every mouse move -- instead of
+ * shifting a layer it had already rasterised. A glance is a composited
+ * transform now, which is the path browsers are fastest at.
+ */
+export const sheetCellStyle = (columns: number, rows: number, column: number, row: number): CSSProperties => ({
+    width: `${columns * 100}%`,
+    height: `${rows * 100}%`,
+    transform: `translate(${-column * 100 / columns}%, ${-row * 100 / rows}%)`,
 });
 
 /**
