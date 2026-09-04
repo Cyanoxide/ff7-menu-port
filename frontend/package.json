@@ -6,10 +6,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "bash ../scripts/dev.sh",
+    "dev:vite": "vite",
     "build": "node ../tests/public-links.mjs && tsc -b && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:php": "bash ../scripts/php-test.sh",
+    "test:all": "vitest run && bash ../scripts/php-test.sh",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -22,6 +25,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",
+    "@types/node": "^26.4.1",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react-swc": "^4.0.1",

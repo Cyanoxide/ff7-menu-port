@@ -65,3 +65,18 @@
 <Files "form-lib.php">
   Require all denied
 </Files>
+
+# The guestbook's entries, IF you point guestbook_dir at a directory inside the
+# web root rather than a private one beside it.
+#
+# Unlike the files above, this one guards itself with nothing at all — it is
+# plain JSON, and it carries a hashed sender address per entry. Without this
+# rule anyone can fetch the lot. Name the directory `guestbook-data` and it is
+# covered; use another name and this has to change with it.
+#
+# A private directory outside the web root is still better and needs no rule.
+# See the notes on guestbook_dir in contact-config.example.php, including what
+# an upload that mirror-deletes does to a data file living in here.
+<DirectoryMatch "guestbook-data">
+  Require all denied
+</DirectoryMatch>

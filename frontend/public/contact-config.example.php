@@ -145,16 +145,31 @@ return [
      *
      * Two rules, and both matter:
      *
-     *  1. **Outside the web root.** Deploying is a manual upload of dist/, and
-     *     everything in public/ is copied there verbatim, so a data file under
-     *     public/ would be overwritten on the next deploy. It is also read
-     *     directly over HTTP from there, and it holds hashed sender addresses.
+     *  1. **Outside the web root**, ideally. Something like
+     *     '/home/youraccount/private/guestbook' — a sibling of the public
+     *     directory rather than a child of it. Two reasons: the file holds
+     *     hashed sender addresses and has no business being fetchable, and
+     *     anything under the uploaded directory is in the deploy's path.
      *  2. **Somewhere durable.** Not the system temp directory: shared hosts
      *     clear it, and the guestbook would quietly empty itself.
      *
-     * Something like '/home/youraccount/private/guestbook'. The directory is
-     * created if it does not exist; if it cannot be created or written, the
-     * guestbook refuses signatures rather than accepting ones it cannot store.
+     * IF YOU PUT IT INSIDE THE UPLOADED DIRECTORY ANYWAY — which does work, and
+     * is the easy thing to do on a host that only gives you public_html — then
+     * two things have to be true, and neither is automatic:
+     *
+     *  - **The upload must not mirror-delete.** A plain FTP or file-manager
+     *     upload leaves files it does not know about alone, so the data
+     *     survives. Anything that syncs the directory to match dist/ exactly
+     *     (rsync --delete, some deploy tools, "delete extraneous files" in an
+     *     FTP client) will remove the guestbook on the next deploy. There is no
+     *     warning; the file is simply gone and so is every entry.
+     *  - **It must be denied over HTTP.** htaccess.example carries a rule for a
+     *     directory named `guestbook-data`; use that name and it is covered.
+     *     Without it, anyone can fetch the JSON.
+     *
+     * Take a copy before deploying either way. The directory is created if it
+     * does not exist; if it cannot be created or written, the guestbook refuses
+     * signatures rather than accepting ones it cannot store.
      *
      * Left as null the guestbook reports itself unconfigured and the tab says
      * so, which is the honest failure — better than a form that accepts
