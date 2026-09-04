@@ -1,0 +1,43 @@
+{
+  "_readme": [
+    "Every message the guestbook can show, in one place. Read at runtime by",
+    "public/guestbook.php and imported at build time by the Guestbook tab, so a",
+    "string lives here once rather than once per runtime. Same arrangement as",
+    "contact-messages.json, and for the same reason: those two had drifted.",
+    "",
+    "WIDTH BUDGET: these render on one line beside the Sign link, in a sprite",
+    "font that does not wrap. tests/message-widths.mjs measures every string",
+    "below against the real glyph widths in src/font.css and fails if one will",
+    "not fit, so you do not have to count characters by eye.",
+    "",
+    "Keys are referenced by name in both runtimes. Renaming one means changing it",
+    "in both; changing the text means changing nothing else.",
+    "",
+    "Lines starting with an underscore are ignored by everything that reads this."
+  ],
+
+  "signing": "Signing...",
+  "signed": "Signed. Thank you!",
+
+  "emptyFields": "Please fill in both fields.",
+  "tooLong": "Your message is too long.",
+  "badName": "That name cannot be used.",
+  "noLinks": "Entries cannot contain links.",
+
+  "tooQuick": "Entry flagged as spam.",
+  "expired": "Session expired. Please reload.",
+  "replay": "Already signed.",
+
+  "rateLimited": "Signing limit reached.",
+  "busy": "Guestbook is busy. Try later.",
+
+  "notConfigured": "Guestbook is not set up.",
+  "closed": "The guestbook is closed.",
+  "methodNotAllowed": "Method not allowed.",
+  "badRequest": "Entry could not be processed.",
+
+  "loadFailed": "Could not load the guestbook.",
+  "unreachable": "Could not reach the server.",
+  "empty": "No entries yet. Be the first!",
+  "fallback": "Something went wrong."
+}

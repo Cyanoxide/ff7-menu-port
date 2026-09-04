@@ -38,3 +38,34 @@ export const contactDraft = {
         draft = { ...EMPTY };
     },
 };
+
+/**
+ * The same thing for the guestbook, which shares the page.
+ *
+ * Kept separate rather than folded into one object with five fields: switching
+ * tab must not carry what was typed in one form into the other, and two stores
+ * that cannot see each other is a stronger guarantee of that than a convention
+ * about which keys belong to which tab.
+ */
+export interface GuestbookDraft {
+    name: string;
+    message: string;
+}
+
+const EMPTY_SIGNATURE: GuestbookDraft = { name: "", message: "" };
+
+let signature: GuestbookDraft = { ...EMPTY_SIGNATURE };
+
+export const guestbookDraft = {
+    get(): GuestbookDraft {
+        return signature;
+    },
+
+    set(next: GuestbookDraft) {
+        signature = next;
+    },
+
+    clear() {
+        signature = { ...EMPTY_SIGNATURE };
+    },
+};

@@ -1,5 +1,5 @@
 /**
- * Checks every string in contact-messages.json will fit on the status line.
+ * Checks every string the forms can show will fit on their status line.
  *
  * The messages render beside the Send link in a sprite font that does not wrap,
  * so one that is too long runs under Send and out of the panel. The font is
@@ -18,7 +18,12 @@ import { fileURLToPath } from 'url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'frontend');
 const css = fs.readFileSync(path.join(root, 'src/font.css'), 'utf8');
-const messages = JSON.parse(fs.readFileSync(path.join(root, 'public/contact-messages.json'), 'utf8'));
+/**
+ * Both message files, measured against the same budget. The guestbook's Sign
+ * link and the contact form's Send link sit in the same place in panels of the
+ * same width, so a string that fits one fits the other.
+ */
+const FILES = ['public/contact-messages.json', 'public/guestbook-messages.json'];
 
 /**
  * The space the status line actually has, in design pixels: the send row is
@@ -49,14 +54,20 @@ const measure = (text) => [...text].reduce((sum, ch) => {
 }, 0);
 
 let failed = 0;
-console.log(`budget ${BUDGET}px  (${widths.size} glyph widths from font.css)\n`);
-for (const [key, value] of Object.entries(messages)) {
-  if (key.startsWith('_')) continue;
-  if (typeof value !== 'string') { console.log(`  FAIL ${key}: not a string`); failed++; continue; }
-  const w = Math.round(measure(value));
-  const ok = w <= BUDGET;
-  if (!ok) failed++;
-  console.log(`  ${ok ? 'ok  ' : 'FAIL'} ${String(w).padStart(4)}px  ${key.padEnd(17)} ${JSON.stringify(value)}`);
+console.log(`budget ${BUDGET}px  (${widths.size} glyph widths from font.css)`);
+
+for (const file of FILES) {
+  const messages = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
+  console.log(`\n${file}`);
+
+  for (const [key, value] of Object.entries(messages)) {
+    if (key.startsWith('_')) continue;
+    if (typeof value !== 'string') { console.log(`  FAIL ${key}: not a string`); failed++; continue; }
+    const w = Math.round(measure(value));
+    const ok = w <= BUDGET;
+    if (!ok) failed++;
+    console.log(`  ${ok ? 'ok  ' : 'FAIL'} ${String(w).padStart(4)}px  ${key.padEnd(17)} ${JSON.stringify(value)}`);
+  }
 }
 
 if (missing.size) {

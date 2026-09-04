@@ -58,3 +58,10 @@
 <Files "contact-config.example.php">
   Require all denied
 </Files>
+
+# Shared machinery for contact.php and guestbook.php. It refuses to run unless
+# the requiring script has defined FORM_APP, so fetching it already yields a
+# blank 403 — this is the same second lock the config file gets.
+<Files "form-lib.php">
+  Require all denied
+</Files>

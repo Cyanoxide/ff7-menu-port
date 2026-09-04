@@ -1,6 +1,10 @@
 <?php
 /**
- * Template for the contact form's configuration.
+ * Template for the contact form's and the guestbook's configuration.
+ *
+ * One file for both. They share a recipient, a signing secret and a rate-limit
+ * store, and a second config would mean a second thing to upload by hand and
+ * keep in step. The guestbook's own settings are at the bottom.
  *
  * Copy this to contact-config.php, fill it in, and upload it alongside
  * contact.php. contact-config.php is gitignored: the real address and secret
@@ -17,9 +21,13 @@
 
 declare(strict_types=1);
 
-// Guards against the file being fetched directly over HTTP. contact.php defines
-// CONTACT_APP before requiring it; a browser hitting the URL does not, and gets
-// a blank 403 rather than the secret.
+// Guards against the file being fetched directly over HTTP. loadConfig() in
+// form-lib.php defines CONTACT_APP before requiring this; a browser hitting the
+// URL does not, and gets a blank 403 rather than the secret.
+//
+// The name is historical — it predates the guestbook, and the copy already
+// deployed on the server checks for this exact constant. Renaming it would mean
+// the live config rejecting both handlers until it was re-uploaded.
 if (!defined('CONTACT_APP')) {
     http_response_code(403);
     exit;
@@ -111,4 +119,58 @@ return [
     'log' => null,
 
     'rate_dir' => null,
+
+    /* ---------------------------------------------------------------------
+     * The guestbook
+     *
+     * Everything above is shared with it — the same recipient, the same From,
+     * the same secret, the same rate_dir and log. What follows is its own.
+     * ------------------------------------------------------------------- */
+
+    /**
+     * The guestbook's off switch, separate from the contact form's.
+     *
+     * Deliberately separate: the likely reason to close the guestbook is a spam
+     * run, and that is no reason to stop people writing to you. Leaving the key
+     * out is the same as true.
+     */
+    'guestbook_enabled' => true,
+
+    /**
+     * REQUIRED for the guestbook, and it has no default.
+     *
+     * Where the entries themselves are stored. Unlike rate_dir, which may point
+     * at the system temp directory and lose nothing worse than a counter, this
+     * file **is** the guestbook — losing it loses every entry.
+     *
+     * Two rules, and both matter:
+     *
+     *  1. **Outside the web root.** Deploying is a manual upload of dist/, and
+     *     everything in public/ is copied there verbatim, so a data file under
+     *     public/ would be overwritten on the next deploy. It is also read
+     *     directly over HTTP from there, and it holds hashed sender addresses.
+     *  2. **Somewhere durable.** Not the system temp directory: shared hosts
+     *     clear it, and the guestbook would quietly empty itself.
+     *
+     * Something like '/home/youraccount/private/guestbook'. The directory is
+     * created if it does not exist; if it cannot be created or written, the
+     * guestbook refuses signatures rather than accepting ones it cannot store.
+     *
+     * Left as null the guestbook reports itself unconfigured and the tab says
+     * so, which is the honest failure — better than a form that accepts
+     * signatures and drops them.
+     */
+    'guestbook_dir' => null,
+
+    /**
+     * The site's own base URL, used to build the delete link in the guestbook
+     * notification email. No trailing slash.
+     *
+     * Worth setting. Without it the link is built from the Host header, which
+     * is supplied by whoever made the request — so a crafted request could put
+     * a link to somewhere else in your inbox. The signature is what makes the
+     * link work, not the host, so nothing can be deleted that way; it is the
+     * link you are about to click that is worth pinning down.
+     */
+    'site_url' => 'https://www.example.com',
 ];
