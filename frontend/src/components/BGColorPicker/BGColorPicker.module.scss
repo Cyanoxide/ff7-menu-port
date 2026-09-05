@@ -88,16 +88,6 @@
         margin-top: -1px;
         z-index: 1;
         pointer-events: none;
-
-        /**
-         * Centred against the taller touch row — see .RGBSlider's own
-         * pointer: coarse block. The hand hangs off the row's top edge, so
-         * without this it rides up level with the track's first few pixels.
-         * Half the 36px the row grows by.
-         */
-        @media (pointer: coarse) {
-            margin-top: 17px;
-        }
     }
 
     &>div {
@@ -219,21 +209,71 @@
  * Hence a mixin and one rule per pseudo-element. Keep it that way: merging them
  * back is silent, and only shows up in the browser you are not testing in.
  */
-@mixin rgb-thumb($width, $height) {
+/**
+ * The pip.
+ *
+ * `$grab` is how wide the *box* is; `$width` is how wide the pip looks. They
+ * are the same on a mouse and differ on a touchscreen, where the box is padded
+ * out either side with transparent border so there is more of it to land a
+ * finger on. The pip is not drawn any bigger — only the target is.
+ *
+ * That is why the bevel is a set of background layers rather than a border:
+ * a border is painted at the edge of the box, so widening the box to widen the
+ * target would have widened the pip with it. Background layers are placed
+ * against the box independently of its size, so a centred stack stays put and
+ * the extra width stays empty. The layers are, front to back, the four bevel
+ * edges and then the fill.
+ */
+@mixin rgb-thumb($width, $height, $grab: null) {
+    /**
+     * $width and $height are the pip's whole painted size, bevel included — the
+     * thumb is border-box, so that is what they meant when this was a border
+     * too. Measured off a screenshot rather than assumed: painting them as a
+     * content box came out 4px larger on each axis, which is visible.
+     *
+     * $box is what the finger has to hit. Where it is wider than the pip, the
+     * difference is split either side as empty space.
+     */
+    $box: if($grab, $grab, $width);
+    $inset: calc((#{$box} - #{$width}) / 2);
+
     -webkit-appearance: none;
     appearance: none;
-    width: $width;
+    width: $box;
     height: $height;
     border-radius: 0;
-    background: #cccc;
+    border: 0;
     cursor: pointer;
-    border: 2px solid;
-    border-top-color: #fff;
-    // #fff, not fff. Unprefixed it is not a colour, so the declaration was
-    // dropped and this edge inherited the shorthand's colour instead.
-    border-left-color: #fff;
-    border-bottom-color: #000;
-    border-right-color: #000;
+    background-color: transparent;
+    background-repeat: no-repeat;
+
+    /**
+     * Front to back: the four bevel edges, then the fill.
+     *
+     * **Every position is the four-value form**, `<keyword> <offset>` per axis.
+     * Three values — `left calc(...) center` — is not valid syntax, and an
+     * invalid layer takes the whole `background-position` declaration with it:
+     * the pip loses its dark right edge and nothing else looks wrong, which is
+     * exactly how long that took to spot.
+     */
+    background-image:
+        linear-gradient(#fff, #fff),
+        linear-gradient(#fff, #fff),
+        linear-gradient(#000, #000),
+        linear-gradient(#000, #000),
+        linear-gradient(#cccc, #cccc);
+    background-size:
+        $width 2px,
+        2px $height,
+        $width 2px,
+        2px $height,
+        $width $height;
+    background-position:
+        left $inset top 0,
+        left $inset top 0,
+        left $inset bottom 0,
+        right $inset top 0,
+        left $inset top 0;
 }
 
 @mixin rgb-track($height) {
@@ -258,27 +298,23 @@
     &::-moz-range-track { @include rgb-track(1.8rem); }
 
     /**
-     * Touch devices get a taller row, because the fixed canvas makes this
-     * control tiny in real pixels.
+     * A wider pip to grab on a touchscreen — the same pip, more of it to hit.
      *
-     * The stage scales by min(vw / 1200, vh / 975), so on a 390pt iPhone the
-     * scale is 0.325 and a 36px row is **11.7 physical pixels** tall. Pressing
-     * the track anywhere jumps the pip and starts a drag, so horizontal
-     * precision was never the problem — landing on that 12px band was.
+     * The canvas scales by min(vw / 1200, vh / 975), so on a 390pt iPhone the
+     * scale is 0.325 and the pip's 19.2px box is **6.2 physical pixels** wide.
+     * The box goes to 3.6rem here, which is 18.7, while the pip carries on
+     * being drawn at 1.2rem. Nothing moves and nothing looks different: the
+     * thumb is the only thing in the track, so a wider box has room to grow
+     * into at every position along it.
      *
-     * Only the height grows. Scaling the whole panel would preserve the
-     * proportions but it is 34rem wide already, and 403.4px in the guestbook's
-     * compact variant, which is the full width of that column — there is
-     * nowhere for it to get wider. Both panels are positioned from the edge
-     * they open away from (`top` on config, `bottom` on the compact one), so
-     * the extra height falls into empty space either way.
+     * Row heights are deliberately left alone. Growing them does buy a taller
+     * target, but it changes the proportions of a control that should look the
+     * same everywhere.
      *
      * pointer: coarse rather than a viewport width: it is the input device that
      * decides this, and a phone in landscape is not a narrow viewport.
      */
     @media (pointer: coarse) {
-        height: 72px;
-
         /**
          * The page does not scroll, but the *document* can on a landscape
          * phone, and while it might the browser holds the touch back to see
@@ -288,10 +324,7 @@
          */
         touch-action: none;
 
-        &::-webkit-slider-thumb { @include rgb-thumb(1.8rem, 3.4rem); }
-        &::-moz-range-thumb { @include rgb-thumb(1.8rem, 3.4rem); }
-
-        &::-webkit-slider-runnable-track { @include rgb-track(3.6rem); }
-        &::-moz-range-track { @include rgb-track(3.6rem); }
+        &::-webkit-slider-thumb { @include rgb-thumb(1.2rem, 1.7rem, 3.6rem); }
+        &::-moz-range-thumb { @include rgb-thumb(1.2rem, 1.7rem, 3.6rem); }
     }
 }
