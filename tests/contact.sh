@@ -23,6 +23,14 @@ chk() { if [ "$2" = "$3" ]; then pass=$((pass+1)); printf '  ok   %s\n' "$1"
         else fail=$((fail+1)); printf '  FAIL %s: want %s got %s\n' "$1" "$2" "$3"; fi; }
 tok()  { curl -s "$BASE/contact.php" | sed -n 's/.*"token":"\([^"]*\)".*/\1/p'; }
 post() { curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d "$1" "$BASE/contact.php"; }
+# The body, not the status. A PHP warning printed in front of the JSON leaves
+# the status line saying 200 while the response is unparseable, so the page
+# reports a failure for a message that was actually sent. mail() warns whenever
+# the local mailer exits non-zero, so this is a real case, not a theoretical
+# one. See the note at the top of form-lib.php.
+postbody() { curl -s -X POST -H 'Content-Type: application/json' -d "$1" "$BASE/contact.php"; }
+parses()  { python3 -c 'import json,sys;json.load(sys.stdin);print(1)' 2>/dev/null || echo 0; }
+okflag()  { python3 -c 'import json,sys;print(str(json.load(sys.stdin).get("ok")).lower())' 2>/dev/null || echo unparseable; }
 j()    { python3 -c 'import json,sys;print(json.dumps(dict(a.split("=",1) for a in sys.argv[1:])))' "$@"; }
 reset(){ find "$RATE_DIR" -maxdepth 1 -name 'contact-*.json' -delete 2>/dev/null; }
 # A fresh token, aged past the minimum fill time
@@ -43,6 +51,7 @@ echo "contact.php at $BASE  (counters in $RATE_DIR)"
 
 # --- the shape of the endpoint ---------------------------------------------
 chk "GET issues a token" 1 "$([ -n "$(tok)" ] && echo 1 || echo 0)"
+chk "the GET body is JSON and nothing else" 1 "$(curl -s "$BASE/contact.php" | parses)"
 chk "the config is not fetchable" 403 "$(curl -s -o /dev/null -w '%{http_code}' "$BASE/contact-config.php")"
 chk "PUT is refused" 405 "$(curl -s -o /dev/null -w '%{http_code}' -X PUT "$BASE/contact.php")"
 chk "a non-json body is refused" 400 "$(post 'name=A&email=a@b.co')"
@@ -70,7 +79,9 @@ chk "one link is still allowed" 200 "$(post "$(j token=$(fresh) name=A email=a@b
 # --- tokens are single use --------------------------------------------------
 reset
 T2=$(fresh)
-chk "a good submission is accepted" 200 "$(post "$(j token=$T2 name=Jamie email=j@example.com message=hello)")"
+SENT=$(postbody "$(j token=$T2 name=Jamie email=j@example.com message=hello)")
+chk "the response is JSON and nothing else" 1 "$(printf '%s' "$SENT" | parses)"
+chk "a good submission is accepted" true "$(printf '%s' "$SENT" | okflag)"
 chk "the same token cannot be used twice" 400 "$(post "$(j token=$T2 name=Jamie email=j@example.com message=again)")"
 
 # --- the per-address ceiling ------------------------------------------------

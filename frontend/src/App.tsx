@@ -188,11 +188,13 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/skills" element={<Skills />} />
             <Route path="/equip" element={<Equip />} />
-            <Route path="/projects" element={<Projects />} />
+            {/* The tabs are addressable: /projects/websites, /contact/guestbook.
+                Optional, so /projects and /contact still open the first tab. */}
+            <Route path="/projects/:projectsTab?" element={<Projects />} />
             <Route path="/history/:historyType?" element={<MemCardSelector />} />
             <Route path="/config" element={<Config />} />
             <Route path="/resume" element={<Resume />} />
-            <Route path="/contact" element={<Contact />} />
+            <Route path="/contact/:contactTab?" element={<Contact />} />
             <Route path="/name" element={<NameEntry />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

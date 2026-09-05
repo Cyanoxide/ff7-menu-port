@@ -60,6 +60,16 @@ interface SpriteInputProps {
     rows?: number;
     label: string;
     name: string;
+    /**
+     * Drawn in grey inside the box while it is empty and unfocused, in place of
+     * a label beside it.
+     *
+     * Hidden on focus rather than on the first keystroke, which is what a
+     * browser does. The caret is a real glyph painted at the start of the line,
+     * so leaving the placeholder up would put it straight through the first
+     * letter of the word.
+     */
+    placeholder?: string;
     /*
      * There is deliberately no `type` here any more. Every field renders as
      * type="text": type="email" is the strongest trigger there is for the
@@ -74,7 +84,7 @@ interface SpriteInputProps {
 }
 
 const SpriteInput: React.FC<SpriteInputProps> = ({
-    value, onChange, maxLength, multiline, rows = 4, label, name, invalid, selected, inputRef,
+    value, onChange, maxLength, multiline, rows = 4, label, name, placeholder, invalid, selected, inputRef,
 }) => {
     const { isSoundEnabled } = useContext();
     const ownRef = useRef<(HTMLInputElement & HTMLTextAreaElement) | null>(null);
@@ -522,6 +532,21 @@ const SpriteInput: React.FC<SpriteInputProps> = ({
                     {lines.map(renderLine)}
                 </div>
             </div>
+            {/*
+              * The placeholder, laid over the text window rather than rendered
+              * as one of its lines — the line renderer owns the caret and the
+              * selection, and neither has anything to say about a value that is
+              * not there. An overlay leaves all of that alone.
+              *
+              * Offsets match .field's own padding, so it starts exactly where
+              * the first character will.
+              */}
+            {placeholder && !value && !focused && (
+                <span className={styles.placeholder} aria-hidden="true">
+                    {textToSprite(placeholder, false, "grey")}
+                </span>
+            )}
+
             {/* The site's own FF7 scrollbar, same component the Skills materia
                 list uses. It hides itself when nothing overflows. */}
             {multiline && <Scrollbar targetRef={viewRef} />}

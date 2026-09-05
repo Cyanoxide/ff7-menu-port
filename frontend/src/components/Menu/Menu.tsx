@@ -32,8 +32,22 @@ const Menu = () => {
      * closing that lands on the menu. Same box, same size, same X, one rung
      * further down.
      */
-    const [, section, subsection] = location.pathname.split("/");
+    const [, section, subPath] = location.pathname.split("/");
     const sectionPath = section ? `/${section}` : "/";
+
+    /**
+     * Sections whose second path segment is a *tab*, not a screen below them.
+     *
+     * History's sub-routes are drilled into — /history/career is a list you
+     * opened from the selector — so the heading box takes their name and the X
+     * steps back up one level. Projects and Contact are not like that: their
+     * segment picks between peers on the same screen, and treating it the same
+     * way would put the tab's name in the corner where the section's belongs and
+     * make closing the page take two presses of X.
+     */
+    const TAB_SECTIONS = ["projects", "contact"];
+    const subsection = TAB_SECTIONS.includes(section) ? undefined : subPath;
+
     const closeTo = subsection ? sectionPath : "/";
     const lastMenuIndexRef = useRef(0);
     const closeFocused = useSyncExternalStore(closeNav.subscribe, closeNav.getFocus);

@@ -33,6 +33,29 @@
   # CV to someone who kept the link is the thing being prevented.
   RewriteRule ^Jamie_Pates_Resume_2025\.pdf$ /Jamie_Pates_Resume.pdf [L,R=301]
 
+  # The guestbook's entries, IF guestbook_dir points at a directory inside the
+  # web root rather than a private one beside it.
+  #
+  # Unlike the files denied below, this one guards itself with nothing at all —
+  # it is plain JSON and carries a hashed sender address per entry, so without
+  # this rule anyone can fetch the lot. Name the directory `guestbook-data` and
+  # it is covered; use another name and this has to change with it.
+  #
+  # **A rewrite, because <DirectoryMatch> is not allowed in .htaccess.** That is
+  # what this rule used to be, and Apache answers a request with a 500 and
+  # "<DirectoryMatch not allowed here" in the error log — the whole site, not
+  # just this directory. It is a server-config and vhost directive only. Nothing
+  # about the message points at the file it came from, so it reads as the host
+  # being broken.
+  #
+  # Before the SPA rule, and matching `/guestbook-data` with or without a
+  # trailing path, so the directory itself is refused as well as what is in it.
+  #
+  # A private directory outside the web root is still better and needs no rule.
+  # See the notes on guestbook_dir in contact-config.example.php, including what
+  # an upload that mirror-deletes does to a data file living in here.
+  RewriteRule ^guestbook-data(/|$) - [F,L]
+
   # Single-page app: unknown paths are routes, so hand them to index.html and
   # let React Router work out what they mean.
   #
@@ -56,5 +79,12 @@
 
 # The committed template is inert, but there is no reason to serve it either.
 <Files "contact-config.example.php">
+  Require all denied
+</Files>
+
+# Shared machinery for contact.php and guestbook.php. It refuses to run unless
+# the requiring script has defined FORM_APP, so fetching it already yields a
+# blank 403 — this is the same second lock the config file gets.
+<Files "form-lib.php">
   Require all denied
 </Files>

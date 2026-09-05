@@ -1,6 +1,10 @@
 <?php
 /**
- * Template for the contact form's configuration.
+ * Template for the contact form's and the guestbook's configuration.
+ *
+ * One file for both. They share a recipient, a signing secret and a rate-limit
+ * store, and a second config would mean a second thing to upload by hand and
+ * keep in step. The guestbook's own settings are at the bottom.
  *
  * Copy this to contact-config.php, fill it in, and upload it alongside
  * contact.php. contact-config.php is gitignored: the real address and secret
@@ -17,9 +21,13 @@
 
 declare(strict_types=1);
 
-// Guards against the file being fetched directly over HTTP. contact.php defines
-// CONTACT_APP before requiring it; a browser hitting the URL does not, and gets
-// a blank 403 rather than the secret.
+// Guards against the file being fetched directly over HTTP. loadConfig() in
+// form-lib.php defines CONTACT_APP before requiring this; a browser hitting the
+// URL does not, and gets a blank 403 rather than the secret.
+//
+// The name is historical — it predates the guestbook, and the copy already
+// deployed on the server checks for this exact constant. Renaming it would mean
+// the live config rejecting both handlers until it was re-uploaded.
 if (!defined('CONTACT_APP')) {
     http_response_code(403);
     exit;
@@ -111,4 +119,102 @@ return [
     'log' => null,
 
     'rate_dir' => null,
+
+    /* ---------------------------------------------------------------------
+     * The guestbook
+     *
+     * Everything above is shared with it — the same recipient, the same From,
+     * the same secret, the same rate_dir and log. What follows is its own.
+     * ------------------------------------------------------------------- */
+
+    /**
+     * The guestbook's off switch, separate from the contact form's.
+     *
+     * Deliberately separate: the likely reason to close the guestbook is a spam
+     * run, and that is no reason to stop people writing to you. Leaving the key
+     * out is the same as true.
+     */
+    'guestbook_enabled' => true,
+
+    /**
+     * WHERE THE GUESTBOOK IS KEPT. Optional — see the default below.
+     *
+     * This is the only setting that stores anything. The handler keeps one file
+     * in this directory, guestbook.json, and that file *is* the guestbook:
+     * every entry anyone has ever signed. There is no database behind it.
+     * rate_dir above looks similar and is not — that holds throwaway counters,
+     * and losing it costs nothing but a reset rate limit. Losing this loses the
+     * lot.
+     *
+     * LEAVE IT UNSET and it becomes a folder called `guestbook-data` sitting
+     * beside guestbook.php, created the first time someone signs. That keeps
+     * the site self-contained, which is usually what you want, and it is what
+     * the rest of this comment assumes.
+     *
+     * Two things follow from the data living inside the uploaded directory, and
+     * neither is automatic:
+     *
+     *  1. **It is a URL as well as a file.** guestbook.json is plain JSON and
+     *     carries a hashed sender address per entry. The `guestbook-data` deny
+     *     rule in htaccess.example covers the default name — but that file is a
+     *     *reference copy* and is never uploaded, so the rule has to be in the
+     *     server's own .htaccess. Check it by asking for
+     *     yoursite.com/guestbook-data/guestbook.json in a browser: you should
+     *     be refused.
+     *  2. **A mirroring upload will delete it.** The folder exists only on the
+     *     server — it is never in dist/ — so a plain FTP or file-manager upload
+     *     leaves it alone. Anything that syncs the directory to *match* dist/
+     *     (rsync --delete, some deploy tools, "remove extraneous files" in an
+     *     FTP client) removes it, silently and completely. Take a copy before
+     *     deploying if you are not sure which yours does.
+     *
+     * A private directory outside the web root — '/home/you/private/guestbook'
+     * — sidesteps both, at the cost of somewhere else to remember.
+     *
+     * WRITE IT ABSOLUTE, either way. A relative path like 'guestbook-data' is
+     * resolved against the *process's* working directory, which is the script's
+     * folder on some hosts and the filesystem root on others, so it appears to
+     * work until it does not. A leading slash is not the fix — '/guestbook-data'
+     * is the filesystem root, which no shared host lets you write to. Use
+     * __DIR__ . '/name', or leave it unset and take the default.
+     *
+     * If it cannot be created or written, signing is refused rather than
+     * accepted and dropped, and the reason goes to the `log` file above: the
+     * resolved path, whether it exists, and whether it is writable. Reading
+     * still works, so a bad path shows an empty guestbook rather than an error.
+     */
+    'guestbook_dir' => null,
+
+    /**
+     * The site's own base URL, used to build the delete link in the guestbook
+     * notification email. No trailing slash.
+     *
+     * Worth setting. Without it the link is built from the Host header, which
+     * is supplied by whoever made the request — so a crafted request could put
+     * a link to somewhere else in your inbox. The signature is what makes the
+     * link work, not the host, so nothing can be deleted that way; it is the
+     * link you are about to click that is worth pinning down.
+     */
+    'site_url' => 'https://www.example.com',
+
+    /**
+     * Rate limits, if the defaults do not suit. Leave them out and the handlers
+     * use their own: 5 an hour per address and 20 overall for the contact form,
+     * 2 and 10 for the guestbook — a guestbook entry is published rather than
+     * sent to one inbox, so it is held tighter.
+     *
+     *   'contact_rate_limit'     'contact_global_limit'
+     *   'guestbook_rate_limit'   'guestbook_global_limit'
+     *
+     * These exist mainly so a *local* config can get out of its own way: two an
+     * hour is two test messages, and there is nothing to do after that but
+     * wait. scripts/php-env.sh writes the dev config with them raised.
+     *
+     * **Do not raise them on the server to make testing easier**, and do not be
+     * tempted to exempt localhost in the code instead — behind a reverse proxy,
+     * which is most shared hosting, REMOTE_ADDR is 127.0.0.1 for every request,
+     * so that exemption would switch the limit off in production and nothing
+     * would look wrong. Anything that is not a positive integer is ignored, so
+     * a typo here leaves the default in place rather than the cap off.
+     */
 ];

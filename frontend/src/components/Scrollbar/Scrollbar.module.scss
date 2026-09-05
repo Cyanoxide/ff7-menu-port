@@ -3,6 +3,11 @@
 .track {
     position: absolute;
     top: 1.65px;
+    // Flush with the right edge of whatever positions it. A parent that wants
+    // the bar held off its frame gives the *content* padding instead — see
+    // .gbListWrap in the contact page's stylesheet, which insets the entries by
+    // 1.5rem while leaving the bar on the edge. This moved 2px: every other
+    // scrollbar on the site shifts by the same amount.
     right: 2px;
     bottom: 0;
     width: 32px;
