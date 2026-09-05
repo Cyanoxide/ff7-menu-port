@@ -37,17 +37,22 @@ const PHP_PORT = process.env.PHP_PORT ?? '8123'
 const PHP_REQUESTS = '^/[^?]*\\.php(\\?|$)'
 
 /**
- * Keeps the local config out of the build.
+ * Local-only files that must never reach the build.
  *
- * contact-config.php is gitignored but it still sits in public/, and Vite
- * copies public/ into dist/ verbatim — so every build drops a copy of the local
- * dev config, with its dev secret and its dev@localhost recipient, into the
- * directory that gets uploaded. Deploying that over the real one would leave
- * both the contact form and the guestbook quietly broken: mail addressed
- * nowhere, and tokens signed with a secret that is in a public repo's sibling.
+ * Both live in public/, which Vite copies into dist/ verbatim:
  *
- * The example file is emitted as documentation and stays.
+ *  - contact-config.php — the dev config, with its dev secret and its
+ *    dev@localhost recipient. Deploying it over the real one would leave both
+ *    forms quietly broken.
+ *  - guestbook-data/ — the guestbook's store when `guestbook_dir` is left
+ *    unset. On the server that is exactly where it should be; here it is local
+ *    test entries, and shipping them would publish them *and* overwrite the
+ *    real ones on a mirroring upload.
+ *
+ * The example config is emitted as documentation and stays.
  */
+const LOCAL_ONLY = ['contact-config.php', 'guestbook-data'];
+
 const dropLocalConfig = () => {
   /**
    * Taken from the resolved config rather than from __dirname and a hardcoded
@@ -63,10 +68,11 @@ const dropLocalConfig = () => {
       resolved = config
     },
     closeBundle() {
-      const stray = path.resolve(resolved.root, resolved.build.outDir, 'contact-config.php')
-      if (fs.existsSync(stray)) {
-        fs.unlinkSync(stray)
-        resolved.logger.info('  removed contact-config.php from the build (local only — never deploy it)')
+      for (const name of LOCAL_ONLY) {
+        const stray = path.resolve(resolved.root, resolved.build.outDir, name)
+        if (!fs.existsSync(stray)) continue
+        fs.rmSync(stray, { recursive: true, force: true })
+        resolved.logger.info(`  removed ${name} from the build (local only — never deploy it)`)
       }
     },
   }
