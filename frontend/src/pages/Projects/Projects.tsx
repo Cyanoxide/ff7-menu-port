@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useContext } from "../../context/context";
 
 import ContentBox from "../../components/ContentBox/ContentBox";
@@ -56,11 +56,6 @@ const wrap = (text: string, max: number): string[] => {
     if (line) lines.push(line);
     return lines;
 };
-
-/** How long hover is ignored on the tab row after arriving on the page.
- *  The panels fade in over ~450ms, and crossing the row on the way to the list
- *  during that time should not switch tab. */
-const TAB_SETTLE_MS = 600;
 
 const TABS = [
     { key: "projects", label: "Projects" },
@@ -192,13 +187,20 @@ const separator = <div className={styles.separator}>{textToSprite("_".repeat(21)
 function ProjectsContent() {
     const { isSoundEnabled, isCRTEnabled } = useContext();
     const navigate = useNavigate();
-    const [tab, setTab] = useState<TabKey>("projects");
+    const { projectsTab } = useParams();
+
+    /**
+     * The open tab comes from the URL, not from state — same rule as the
+     * history page, so a refresh or a shared link comes back to the same tab.
+     * An unrecognised segment falls back to the first rather than 404ing.
+     */
+    const tabFromRoute = TABS.findIndex((entry) => entry.key === projectsTab);
+    const tab: TabKey = TABS[Math.max(0, tabFromRoute)].key;
     // The whole entry, so the left panel can show everything about it rather
     // than just the two strings the description and info boxes needed
     const [selected, setSelected] = useState<Entry | null>(null);
     const [showImages, setShowImages] = useState(false);
     const [hasScrollbar, setHasScrollbar] = useState(false);
-    const [tabsSettled, setTabsSettled] = useState(false);
     const anchorRefs = useRef<(HTMLAnchorElement | null)[]>([]);
     const projectListRef = useRef<HTMLDivElement>(null);
     const projectItemRefs = useRef<(HTMLLIElement | null)[]>([]);
@@ -265,7 +267,7 @@ function ProjectsContent() {
                 // equipment categories do
                 playSound("select", isSoundEnabled);
                 const key = TABS[pos.index].key;
-                setTab(key);
+                selectTab(key);
                 const next = ENTRIES[key];
                 if (next.length) {
                     setPosSilently({ group: "items", index: 0 });
@@ -283,7 +285,8 @@ function ProjectsContent() {
     const selectTab = (key: TabKey) => {
         if (key === tab) return;
         playSound("select", isSoundEnabled);
-        setTab(key);
+        // The first tab keeps the bare /projects, which is what the menu links to
+        navigate(key === TABS[0].key ? "/projects" : `/projects/${key}`);
     };
 
     // Whichever tab is showing, its first entry is selected and under the
@@ -299,14 +302,6 @@ function ProjectsContent() {
 
     useEffect(() => () => closeNav.setFocus(false), []);
 
-    // Hover switches tab with no click needed, which is easy to trigger by
-    // accident while the page is still settling and the pointer crosses the row
-    // on its way somewhere else. Clicking a tab still works straight away.
-    useEffect(() => {
-        const timer = setTimeout(() => setTabsSettled(true), TAB_SETTLE_MS);
-        return () => clearTimeout(timer);
-    }, []);
-
     // Keep the keyboard-focused project on screen as the cursor moves.
     useEffect(() => {
         if (pos?.group === "items") {
@@ -319,7 +314,13 @@ function ProjectsContent() {
             <ContentBox data-label="header" className="h-[84px] absolute">
                 {/* Spaced after the FF7 item menu, where the tabs sit at fixed
                     stops rather than flowing: the first is inset far enough to
-                    leave the cursor room beside it. */}
+                    leave the cursor room beside it.
+
+                    **Click to switch, not hover.** Hover used to do it, with a
+                    settling delay to stop the list changing under a pointer on
+                    its way somewhere else — but a top-level tab changing what
+                    the whole screen shows because the mouse passed over it is
+                    startling however long you wait first. */}
                 <ul className={`${styles.tabs} flex h-full items-center`}>
                     {TABS.map(({ key, label }, index) => (
                         <li
@@ -327,7 +328,6 @@ function ProjectsContent() {
                             className={styles.tab}
                             data-focused={isFocused("tabs", index)}
                             data-active={key === tab}
-                            onPointerEnter={(event) => { if (tabsSettled && event.pointerType === "mouse" && isPointerMoving()) selectTab(key); }}
                             onClick={() => selectTab(key)}
                         >
                             {textToSprite(label)}
