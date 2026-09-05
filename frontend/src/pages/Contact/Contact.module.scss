@@ -40,6 +40,10 @@
  * the header above it and the labels below it. Width is all it needs from the
  * shared styles; the 24px inset then comes from ContentBox's own padding, the
  * same one the header uses.
+ *
+ * It still carries a data-label, just a different one. Dropping the attribute
+ * altogether is what made this panel fade in behind the others: .panel-group
+ * only silences .contentBox's own animation for elements that have one.
  */
 .descriptionPanel {
     width: 100%;

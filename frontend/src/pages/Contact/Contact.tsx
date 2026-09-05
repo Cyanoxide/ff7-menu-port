@@ -137,7 +137,14 @@ function ContactContent() {
                     goes back when it clears. It is the full width of the stage,
                     which is what lets a message be a sentence rather than something
                     squeezed into the 470px column the form lives in. */}
-                <ContentBox className={`${styles.descriptionPanel} h-[87px] absolute top-[93px]`}>
+                {/* The label is load-bearing, and its value is not: .panel-group
+                    keys `animation: none` off the attribute's presence, so a
+                    panel without one keeps .contentBox's own fade and runs it
+                    *inside* the group's — the two opacities multiply and the
+                    box arrives visibly late. That is what this one did.
+                    "contactDescription" rather than "description" because the
+                    shared rule for that name adds a 2rem left inset. */}
+                <ContentBox data-label="contactDescription" className={`${styles.descriptionPanel} h-[87px] absolute top-[93px]`}>
                     {alert
                         ? textToSprite(alert.text, false, alert.tone)
                         : textToSprite(TABS[tabIndex].description)}
