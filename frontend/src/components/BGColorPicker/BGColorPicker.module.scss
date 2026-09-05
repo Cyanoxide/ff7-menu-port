@@ -35,6 +35,8 @@
     &>div {
         position: absolute;
         left: calc(100% + 7rem);
+        // Above the same things the sliders are — it sits beside them
+        z-index: 5;
         padding: 0.5rem 0.7rem 0.5rem 0.55rem;
         opacity: 0.3;
         display: flex;
@@ -62,6 +64,15 @@
     top: calc(100% + 15px);
     position: absolute;
     left: -1px;
+    /**
+     * Above everything it opens over.
+     *
+     * It is a popup, so it has to win against whatever it overlaps — and on the
+     * guestbook that is the entries panel, which carries a z-index of its own so
+     * that it paints at the seam between the two columns. Without this the
+     * sliders opened *underneath* it.
+     */
+    z-index: 5;
     padding: 0.35rem 1.3rem 0.35rem 1rem;
     width: 34rem;
 
@@ -107,6 +118,79 @@
         &.blue:before {
             background-position-x: -76px;
         }
+    }
+}
+
+/**
+ * The sliders for a caller with less room than the config screen.
+ *
+ * 34rem does not fit a 470px column, and the panel is absolutely positioned, so
+ * at full width it hung across the entries beside it. This is narrow enough to
+ * stay inside its own column. The cursor offset comes down with it — at -110px
+ * the hand pointed at the panel next door.
+ */
+/**
+ * The picker sized to sit on a field row rather than a row of its own.
+ *
+ * 64px is a single sprite line plus the field padding and border — the same
+ * height as the Name box beside it, so the two read as one row. 120 wide rather
+ * than 180: four corner buttons of 60x32 are still an easy target, and every
+ * pixel taken off here is one the Name box gets.
+ *
+ * The preview swatch goes with it: at this size the box is 180px of live
+ * four-corner gradient, which previews the colour better than a 40px square of
+ * one corner did, and there is nowhere to the right to put it — the column ends
+ * where the picker does.
+ */
+.compactPicker {
+    width: 120px;
+    height: 64px;
+
+    .RGBPreview {
+        display: none;
+    }
+}
+
+.compactSliders {
+    /**
+     * The same width as the Message box below it, so the panel that opens has
+     * the same footprint as the field it is above rather than a width of its
+     * own. 403.4 is the form column's content width: 470 less 4px of border and
+     * its 28.8/33.8 of padding.
+     *
+     * Right-aligned to the picker, which is itself flush with the Message box's
+     * right edge — so matching the width lines up both sides.
+     */
+    width: 403.4px;
+    padding-right: 1rem;
+
+    /**
+     * Opens upward, not down.
+     *
+     * The config screen's picker sits near the top of its panel, so dropping the
+     * sliders below it is fine there. This one is the last thing in a form at
+     * the foot of the stage, and opening down put them off the bottom of the
+     * canvas where nothing clips them and nothing can be dragged.
+     */
+    top: auto;
+    bottom: calc(100% + 15px);
+
+    /**
+     * Right-aligned with the picker box rather than left.
+     *
+     * The picker is the last thing on its row, hard against the form's right
+     * edge; the panel is three times its width, so hanging it from the left
+     * pushed it out over the column. Hanging it from the right keeps the whole
+     * thing inside.
+     */
+    left: auto;
+    // -2px, not 0: an absolutely positioned child is placed against its
+    // ancestor's *padding* box, and the picker has a 2px border. At 0 the two
+    // right edges were 2px apart.
+    right: -2px;
+
+    &>div[data-focused=true]:after {
+        margin-left: -92px;
     }
 }
 

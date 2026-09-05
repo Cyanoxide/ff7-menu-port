@@ -38,6 +38,22 @@
      */
 }
 
+/**
+ * Stands in for a label beside the box. Positioned rather than in flow so it
+ * cannot push the text window around, and inset by .field's own padding so it
+ * begins on the same column the first typed character will.
+ */
+.placeholder {
+    position: absolute;
+    top: 0.55rem;
+    left: 1.1rem;
+    display: flex;
+    align-items: center;
+    min-height: var(--sprite-line);
+    pointer-events: none;
+    opacity: 0.6;
+}
+
 // A fixed window over the painted text. The glyphs are nowrap spans, so without
 // clipping a long value runs straight out of the field and over its neighbour.
 .text {

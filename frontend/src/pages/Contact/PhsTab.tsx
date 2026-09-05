@@ -284,11 +284,12 @@ const PhsTab: React.FC<PhsTabProps> = ({ tabIndex, tabCount, onSelectTab }) => {
                 return null;
             }
 
-            // close
+            // close. Left reaches the tab row, the same as on the guestbook tab.
             if (dir === "down") return { group: "tabs", index: tabIndex };
             if (dir === "up") {
                 return links.length ? { group: "links", index: lastLink } : { group: "send", index: 0 };
             }
+            if (dir === "left") return { group: "tabs", index: tabIndex };
             return null;
         },
         onFocus: (current: CursorPos, source: FocusSource) => {

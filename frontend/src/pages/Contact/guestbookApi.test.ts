@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadGuestbook, signGuestbook } from "./guestbookApi";
+import type { WindowColor } from "../../context/types";
 
 function mockFetch(body: unknown, ok = true) {
     const fetchMock = vi.fn(async () => ({ ok, json: async () => body }) as Response);
@@ -7,13 +8,21 @@ function mockFetch(body: unknown, ok = true) {
     return fetchMock;
 }
 
-const entry = { name: "Cloud", message: "Nice sandbox.", at: 1757000000 };
+const colors: WindowColor = {
+    topLeft: [2, 34, 186],
+    topRight: [2, 24, 145],
+    bottomLeft: [0, 15, 105],
+    bottomRight: [0, 3, 50],
+};
+
+const entry = { name: "Cloud", message: "Nice sandbox.", at: 1757000000, colors };
 
 const signature = {
     name: "Cloud",
     message: "Nice sandbox.",
     token: "1234:abcd:sig",
     website: "",
+    colors,
 };
 
 afterEach(() => {
@@ -31,6 +40,19 @@ describe("loadGuestbook", () => {
         mockFetch({ ok: true, token: "t", count: 2, entries: [entry, { name: "Broken" }] });
         const result = await loadGuestbook();
         expect(result.ok && result.page.entries).toEqual([entry]);
+    });
+
+    it("keeps an entry with no colours, so old ones still show", async () => {
+        mockFetch({ ok: true, token: "t", count: 1, entries: [{ ...entry, colors: null }] });
+        const result = await loadGuestbook();
+        expect(result.ok && result.page.entries).toEqual([{ ...entry, colors: null }]);
+    });
+
+    it("drops colours that are not three numbers a corner", async () => {
+        const broken = { ...colors, topLeft: [2, 34, "186"] };
+        mockFetch({ ok: true, token: "t", count: 1, entries: [{ ...entry, colors: broken }] });
+        const result = await loadGuestbook();
+        expect(result.ok && result.page.entries).toEqual([{ ...entry, colors: null }]);
     });
 
     it("fails with the handler's error", async () => {

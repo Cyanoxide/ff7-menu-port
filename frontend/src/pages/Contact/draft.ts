@@ -14,6 +14,8 @@
  * Same shape as closeNav and limitGauge: plain module state with a small API,
  * rather than context threaded through the app for one page's benefit.
  */
+import type { WindowColor } from "../../context/types";
+
 export interface ContactDraft {
     name: string;
     email: string;
@@ -50,9 +52,14 @@ export const contactDraft = {
 export interface GuestbookDraft {
     name: string;
     message: string;
+    /**
+     * The window colours picked for the post. Null means "not chosen yet", so
+     * the form seeds from the reader's own colour rather than from a stale one.
+     */
+    colors: WindowColor | null;
 }
 
-const EMPTY_SIGNATURE: GuestbookDraft = { name: "", message: "" };
+const EMPTY_SIGNATURE: GuestbookDraft = { name: "", message: "", colors: null };
 
 let signature: GuestbookDraft = { ...EMPTY_SIGNATURE };
 

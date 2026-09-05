@@ -9,6 +9,7 @@ import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 import { useCursorNav, markKeyboardNavigation } from "../../hooks/useCursorNav";
 import { closeNav } from "../../hooks/closeNav";
+import { defaultWindowColor } from "../../context/defaults";
 import styles from "./Config.module.scss";
 
 const CORNERS: WindowCorner[] = ["topLeft", "topRight", "bottomLeft", "bottomRight"];
@@ -20,7 +21,7 @@ const ROW_DESCRIPTIONS: Record<string, string> = {
 };
 
 function ConfigContent() {
-    const { dispatch, isSoundEnabled, isCRTEnabled } = useContext();
+    const { dispatch, isSoundEnabled, isCRTEnabled, windowColor } = useContext();
     const navigate = useNavigate();
     const [windowDescription, setWindowDescription] = useState("");
     const [activeColorPicker, setActiveColorPicker] = useState<WindowCorner | null>(null);
@@ -129,6 +130,15 @@ function ConfigContent() {
                     <li className="ml-24 mb-8 flex" onMouseEnter={() => setWindowDescription(ROW_DESCRIPTIONS.corners)}>
                         <div className="w-[24rem] flex items-end pb-1">{textToSprite("Window Color", false, "blue")}</div>
                         <BGColorPicker
+                            // The picker is controlled, so persisting the
+                            // player's choice is this screen's job rather than
+                            // something the component does on everyone's behalf
+                            color={windowColor}
+                            defaultColor={defaultWindowColor}
+                            onChange={(next) => {
+                                dispatch({ type: "SET_WINDOW_COLOR", payload: next });
+                                localStorage.setItem("windowColor", JSON.stringify(next));
+                            }}
                             activeColorPicker={activeColorPicker}
                             setActiveColorPicker={setActiveColorPicker}
                             focusSlidersOnOpen={pickerOpenedByKeyboard}

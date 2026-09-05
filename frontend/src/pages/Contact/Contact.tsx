@@ -6,6 +6,7 @@ import ContentBox from "../../components/ContentBox/ContentBox";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
 
+import { contactAlert } from "./contactAlert";
 import { contactTabs } from "./contactTabs";
 import PhsTab from "./PhsTab";
 import GuestbookTab from "./GuestbookTab";
@@ -47,6 +48,7 @@ function ContactContent() {
     const navigate = useNavigate();
     const { contactTab } = useParams();
     const tabFocus = useSyncExternalStore(contactTabs.subscribe, contactTabs.getFocus);
+    const alert = useSyncExternalStore(contactAlert.subscribe, contactAlert.get);
 
     /**
      * The open tab comes from the URL, not from state.
@@ -116,8 +118,15 @@ function ContactContent() {
 
             {/* Heights and offsets copied from Projects rather than chosen:
                 header 0-84, this strip 93-180, the panels from 190. */}
-            <ContentBox data-label="description" className="h-[87px] absolute top-[93px]">
-                {textToSprite(TABS[tabIndex].description)}
+            {/* The strip doubles as the page's alert line: when a tab has
+                something to report it says that instead of the description, and
+                goes back when it clears. It is the full width of the stage,
+                which is what lets a message be a sentence rather than something
+                squeezed into the 470px column the form lives in. */}
+            <ContentBox className={`${styles.descriptionPanel} h-[87px] absolute top-[93px]`}>
+                {alert
+                    ? textToSprite(alert.text, false, alert.tone)
+                    : textToSprite(TABS[tabIndex].description)}
             </ContentBox>
 
             <TabContent tabIndex={tabIndex} tabCount={TABS.length} onSelectTab={selectTab} />

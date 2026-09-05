@@ -12,6 +12,7 @@
 
 /** Read at runtime by guestbook.php and bundled here, so the strings cannot drift. */
 import messages from "../../../public/guestbook-messages.json";
+import type { WindowColor } from "../../context/types";
 
 const ENDPOINT = "/guestbook.php";
 
@@ -20,6 +21,12 @@ export interface GuestbookEntry {
     message: string;
     /** Unix seconds. Formatted for display by formatSignedAt. */
     at: number;
+    /**
+     * The window colours this signer chose, or null to draw the entry in
+     * whatever the *reader* has configured. Null is meaningful, not missing:
+     * entries signed before the picker existed have none.
+     */
+    colors: WindowColor | null;
 }
 
 export interface GuestbookPage {
@@ -43,22 +50,74 @@ export interface GuestbookSignature {
     token: string;
     /** The honeypot's value. Empty for a real person. */
     website: string;
+    colors: WindowColor;
 }
 
 /**
- * The date under a signature.
+ * The date under a signature, as DD/MM/YY.
  *
  * UTC, and assembled by hand rather than by toLocaleDateString. The sprite font
  * has no glyph for most of what a locale might produce — no comma in some, no
  * month names at all — and a date that renders as a row of gaps on one visitor's
- * machine and not another's is not worth the friendliness.
+ * machine and not another's is not worth the friendliness. Fixing the order also
+ * means it reads the same for everyone, which a locale would not.
  */
 export function formatSignedAt(at: number): string {
     const date = new Date(at * 1000);
     if (Number.isNaN(date.getTime())) return "";
 
     const pad = (value: number) => String(value).padStart(2, "0");
-    return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
+    return [
+        pad(date.getUTCDate()),
+        pad(date.getUTCMonth() + 1),
+        String(date.getUTCFullYear()).slice(-2),
+    ].join("/");
+}
+
+/**
+ * A message as it is *shown*, with runs of blank lines collapsed to one.
+ *
+ * Nothing stops someone signing with twenty newlines in the middle of their
+ * message, and the handler has no business rewriting what was written — but a
+ * guestbook where one entry is a screen of empty blue is a guestbook nobody
+ * scrolls past. So the text is stored exactly as typed and tidied on the way
+ * out; take this out and the original is still there.
+ *
+ * `\n{3,}` is two or more *blank* lines: three newlines in a row already means
+ * two empty rows between paragraphs. One is left, which is what a paragraph
+ * break looks like everywhere else on the site.
+ *
+ * CRLF is normalised first. A textarea produces bare newlines, but this text
+ * arrives from an HTTP request rather than from the field, and a stray carriage
+ * return would leave the run unmatched and the blank lines in place.
+ */
+export function collapseBlankLines(message: string): string {
+    return message.replace(/\r\n?/g, "\n").replace(/\n{3,}/g, "\n\n");
+}
+
+const CORNERS = ["topLeft", "topRight", "bottomLeft", "bottomRight"] as const;
+
+/**
+ * A colour set from the handler, or null.
+ *
+ * Checked channel by channel rather than trusted, because these values go
+ * straight into a CSS gradient — anything that is not a number would produce a
+ * malformed rgb() and silently drop the whole background. The handler validates
+ * the same shape on the way in; this is the half that has to hold if the file
+ * on disk was ever edited by hand.
+ */
+function toColors(raw: unknown): WindowColor | null {
+    if (!raw || typeof raw !== "object") return null;
+    const value = raw as Record<string, unknown>;
+
+    const colors = {} as WindowColor;
+    for (const corner of CORNERS) {
+        const channels = value[corner];
+        if (!Array.isArray(channels) || channels.length !== 3) return null;
+        if (!channels.every((n) => typeof n === "number" && Number.isFinite(n))) return null;
+        colors[corner] = [channels[0], channels[1], channels[2]];
+    }
+    return colors;
 }
 
 /** Anything the handler returns that is not an entry-shaped object is dropped
@@ -71,6 +130,7 @@ function toEntry(raw: unknown): GuestbookEntry | null {
         name: value.name,
         message: value.message,
         at: typeof value.at === "number" ? value.at : 0,
+        colors: toColors(value.colors),
     };
 }
 

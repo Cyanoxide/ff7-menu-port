@@ -19,18 +19,32 @@ import { fileURLToPath } from 'url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'frontend');
 const css = fs.readFileSync(path.join(root, 'src/font.css'), 'utf8');
 /**
- * Both message files, measured against the same budget. The guestbook's Sign
- * link and the contact form's Send link sit in the same place in panels of the
- * same width, so a string that fits one fits the other.
+ * The message files, each with the width it actually has.
+ *
+ * They used to share one budget, on the reasoning that both rendered beside a
+ * Send/Sign link in panels of the same width. The guestbook's no longer does:
+ * its alerts moved into a box of their own above the form, which is only as
+ * wide as that column. Measuring both against the looser figure would have let
+ * a 500px string through into a 418px box.
  */
-const FILES = ['public/contact-messages.json', 'public/guestbook-messages.json'];
-
-/**
- * The space the status line actually has, in design pixels: the send row is
- * 761 wide, Send itself is 85, and the flex gap between them is 24. Measured in
- * the browser rather than derived, so re-measure if the panel widths change.
- */
-const BUDGET = 761 - 85 - 24;
+const FILES = [
+  { path: 'public/contact-messages.json', budget: 761 - 85 - 24 },
+  {
+    path: 'public/guestbook-messages.json',
+    /**
+     * The guestbook's alerts render in the description strip under the header,
+     * which is the full width of the stage — 1048px inside its border and
+     * padding. They were held to 410 while they had a panel of their own beside
+     * the form, which is why several of them read so tersely.
+     */
+    budget: 1000,
+    /**
+     * Except these two, which are not alerts. They are drawn in the entries
+     * panel when the list has nothing to show, and that is 503px wide.
+     */
+    tighter: { loadFailed: 480, empty: 480 },
+  },
+];
 
 // .font-glyph's own width, used by any glyph without an override
 const DEFAULT = Number(/\.font-glyph\s*\{[^}]*?width:\s*([\d.]+)px/s.exec(css)?.[1] ?? 20);
@@ -54,19 +68,21 @@ const measure = (text) => [...text].reduce((sum, ch) => {
 }, 0);
 
 let failed = 0;
-console.log(`budget ${BUDGET}px  (${widths.size} glyph widths from font.css)`);
+console.log(`${widths.size} glyph widths from font.css`);
 
-for (const file of FILES) {
+for (const { path: file, budget: BUDGET, tighter = {} } of FILES) {
   const messages = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
-  console.log(`\n${file}`);
+  console.log(`\n${file}  (budget ${BUDGET}px)`);
 
   for (const [key, value] of Object.entries(messages)) {
     if (key.startsWith('_')) continue;
     if (typeof value !== 'string') { console.log(`  FAIL ${key}: not a string`); failed++; continue; }
+    const budget = tighter[key] ?? BUDGET;
     const w = Math.round(measure(value));
-    const ok = w <= BUDGET;
+    const ok = w <= budget;
     if (!ok) failed++;
-    console.log(`  ${ok ? 'ok  ' : 'FAIL'} ${String(w).padStart(4)}px  ${key.padEnd(17)} ${JSON.stringify(value)}`);
+    const note = tighter[key] ? ` (${budget}px: shown in the entries panel)` : '';
+    console.log(`  ${ok ? 'ok  ' : 'FAIL'} ${String(w).padStart(4)}px  ${key.padEnd(17)} ${JSON.stringify(value)}${note}`);
   }
 }
 

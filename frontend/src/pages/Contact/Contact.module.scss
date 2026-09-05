@@ -120,7 +120,7 @@
  * Targets the row's direct div because that is SpriteInput's root; the label
  * beside it is a span and is untouched.
  */
-.field > div {
+.field>div {
     margin-inline: 6px;
 }
 
@@ -324,58 +324,209 @@
 /* ===========================================================================
  * The guestbook
  *
- * The entries scroll in the top of the form panel and the sign form sits under
- * them, both inside .formColumn — so the list, the fields and Sign all share
- * one right inset and finish on the same column.
+ * Two panels, split differently from the PHS tab: the form and its meta box on
+ * the left, and the entries on the right in a panel holding nothing else —
+ * which is what lets the list be full height with the scrollbar on its frame.
  *
- * THE VERTICAL BUDGET IS EXACT AND THE PIECES ARE A SET. The panel runs from
- * 190px to the foot of the 825px stage, so 635px, less 2px of border and 24px
- * of padding at each end: 583px of content.
+ * **The entries are on the right so that the scrollbar is at the edge of the
+ * page rather than up its middle.** They were the other way round first, and a
+ * bar running down the centre of the stage cut the screen in half and made a
+ * page with two panels on it read as a busy one.
  *
- *   list          296   .gbList below
- *   gap            28   .gbListWrap's margin
- *   Name row       64   a single sprite line: 42 + 8.8 padding x2 + 2 border x2
- *   fields gap     17.6 1.1rem
- *   Message row   105.6 two sprite lines: 84 + the same padding and border
- *   send row       61.6 1.6rem margin plus a 36px line
- *   ------------------
- *                 572.8
- *
- * And 573 is the number, not 583. The panel measures 625px rather than the 635
- * its top and bottom imply, because .contentBox carries a 0.6rem margin-bottom
- * and an element pinned top *and* bottom loses its margins from its height.
- * Budgeting against 583 put the Sign row 9.6px past the panel's inner edge —
- * where nothing clips it, so it sat on the border rather than disappearing.
- *
- * Change the message box's rows, the field padding or the send row's margin and
- * the list height has to move by the same amount, or the form runs out of the
- * bottom of the panel where nothing clips it.
+ * 470 + 633 = 1103, so the pair overruns the 1100 stage by 3px and the two
+ * frames land on each other as a single seam. The list panel carries a
+ * `z-index: 1` so it is the one that paints there, rather than leaving it to
+ * whichever happens to come later in the DOM.
  * ======================================================================== */
 
+/**
+ * Padding cut back to almost nothing, because the frame art is mostly empty.
+ *
+ * border.png is 24x24 with a 9px slice drawn into a 24px band, outset 5px — but
+ * only the first 3 source pixels carry the line. So the visible frame runs from
+ * 5px *outside* the border box to 3px inside it, and everything from 3px inward
+ * is transparent. .contentBox's own 1.5rem padding then held the content 26px
+ * in, which is 23px of nothing between the frame and whatever it contains: the
+ * gap that made the scrollbar look adrift.
+ *
+ * The entries get their inset from .gbListWrap's padding-inline instead, which
+ * the absolutely-positioned scrollbar does not inherit — an abspos child is
+ * placed against its ancestor's *padding box*, so the bar stays on the edge
+ * while the text it scrolls sits 1.5rem inside it.
+ */
+.gbListPanel {
+    width: 633px;
+    padding: 0;
+    margin: 0;
+    // Paints over the form column at the seam. See the note above.
+    z-index: 1;
+}
+
+/**
+ * The meta box and the form, stacked in a flex column. The meta box grows to
+ * fill what the form leaves, so there is no slack to distribute. Two absolutely-placed
+ * panels would each need a height of their own, and the column can just share
+ * out what it has instead.
+ *
+ * Named for what it holds rather than which side it is on — it has already
+ * moved once.
+ */
+.gbFormColumn {
+    position: absolute;
+    top: 190px;
+    left: 0;
+    bottom: 0;
+    width: 470px;
+    display: flex;
+    flex-direction: column;
+    // Meta box at the top, form at the foot. The slack between them is what the
+    // status row grows into when there is something to report.
+    justify-content: space-between;
+}
+
+/**
+ * Both class names are doubled, for the same reason .gbMessage is: ContentBox
+ * always applies its own .contentBox, a single class here ties with it, and the
+ * winner is then whichever stylesheet happens to load first. The declaration
+ * that has to win is `margin-bottom` — .contentBox carries 0.6rem, which opened
+ * a gap where the seam belongs and pushed the form panel 9.6px out of the foot
+ * of the stage, where nothing clips it.
+ */
+.gbMetaPanel.gbMetaPanel {
+    flex: none;
+    margin-bottom: 0;
+    padding: 1.2rem 1.5rem;
+    padding-left: 1.4rem;
+    /**
+     * A name too long for two lines is clipped rather than allowed to push the
+     * box into the form below it, which is fixed to the foot of the column and
+     * has nowhere to go. GuestbookTab caps the lines as well; this is the
+     * backstop.
+     */
+    overflow: hidden;
+    /**
+     * Takes whatever the form leaves rather than a height of its own.
+     *
+     * It was a fixed 225, then 170, and both left a band of empty blue between
+     * the two boxes — the form panel hugs its content, so the slack always
+     * landed in the gap. Growing to fill it means the column is two boxes with
+     * a seam between them at any message-box height, and MESSAGE_ROWS can move
+     * without this having to move with it.
+     */
+    flex: 1;
+}
+
+.gbSignPanel.gbSignPanel {
+    margin-bottom: 0;
+    /**
+     * Sized by its content, not by what is left of the column.
+     *
+     * It was `height: 100%` first, which resolves against the *whole* column
+     * rather than what the meta box left of it — so the panel was sized to the
+     * full 635 and hung 43px out of the foot of the stage, where nothing clips
+     * it. `flex: 1` fixed that but fixed the height too, which left the empty
+     * status row reading as a band of nothing under the form.
+     *
+     * Hugging the content instead means the panel is exactly as tall as it
+     * needs to be, and the column's `space-between` keeps its foot on the
+     * stage's — so a status line grows it upward into the gap.
+     */
+    flex: none;
+    padding-left: 1.8rem;
+    /**
+     * 33.8px, not the 24 that would match the other side.
+     *
+     * The gaps have to *look* equal, and this edge is the seam: the entries
+     * panel overlaps it by 3px and paints on top, so the frame the fields are
+     * measured against is that panel's, 5px further left again. Measured, the
+     * left gap was 27.8px and the right one 18 — the fields were symmetric in
+     * the code and visibly were not on screen.
+     *
+     * 24 + 9.8 puts both at 27.8. The same trick, and the same reason, as
+     * .formColumn's right padding on the PHS tab.
+     */
+    padding-right: 33.8px;
+    /**
+     * 16.8px, not the 24 the box would otherwise have, so the space above and
+     * below the Sign row reads as equal.
+     *
+     * Measured off a screenshot rather than reasoned about, because the sprite
+     * glyphs do not fill their boxes: within a 39px cell a capital's ink starts
+     * about 3px down and the baseline sits well above the foot. Box to box the
+     * two gaps were 12 and 24; ink to frame they were 15.3 and 22.5. Taking 7.2
+     * off the padding puts both at 15.3.
+     */
+    padding-bottom: 16.8px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- the entries -------------------------------------------------------- */
+
+/**
+ * Full height and full width of the panel's content box, so the scrollbar it
+ * carries spans the whole frame rather than an inset rectangle inside it.
+ *
+ * The padding insets the entries and nothing else: the Scrollbar is absolutely
+ * positioned, and an abspos box is placed against its containing block's
+ * padding box, so padding here does not move it. That is the whole trick —
+ * text held off the frame, bar sitting on it.
+ */
 .gbListWrap {
     position: relative;
-    // Wide enough to read as a gap rather than as the list having run out. The
-    // bottom row of a scrolling list is cut mid-line by design, and a cut line
-    // sitting tight against the Name label reads as a rendering fault.
-    margin-bottom: 28px;
+    height: 100%;
+    padding-left: 1.5rem;
+    /**
+     * Symmetric by default. The gutter the scrollbar needs is only reserved
+     * while the bar is actually there — a short guestbook uses the full width
+     * rather than leaving a strip of nothing down its right-hand side.
+     *
+     * Usually a reclaimed gutter is a trap: widening re-wraps the text to fewer
+     * lines, it stops overflowing, the bar hides, and the two states chase each
+     * other. That needs widening to make the content *taller*, which it cannot
+     * — wider lines are the same number or fewer, never more — so each state is
+     * stable once reached.
+     */
+    padding-right: 1.5rem;
+}
+
+.gbListWrap[data-scrollbar] {
+    padding-right: 3.3rem;
+
+    // The 32px bar overhangs the wrap's padding, so this keeps the text off it
+    .gbList {
+        padding-right: 10px;
+    }
 }
 
 .gbList {
-    height: 296px;
+    height: 100%;
     overflow-y: auto;
+
     /**
-     * The scrollbar's gutter, reserved whether or not the bar is showing.
-     * Reclaiming it would change the wrap width as the bar appears, which can
-     * add a line, which keeps the bar — a loop that settles somewhere
-     * arbitrary. Same reasoning as the multiline field's gutter in SpriteInput.
+     * The vertical inset, plus two horizontal nudges that are not decoration.
      *
-     * 46, not the 34 that gutter uses. The bar itself measures 32px, so 34 left
-     * a 2px gap and the entry dates — which are right-aligned, so they are the
-     * only text that reaches this edge — sat flush against the thumb and read
-     * as running underneath it. The extra 12 is clearance, and MESSAGE_WIDTH in
-     * GuestbookTab.tsx is measured against what is left.
+     * **Left, 6px**: every entry's message is a ContentBox, and its frame is
+     * drawn 5px *outside* its own border box by border-image-outset. This
+     * element is a scroll container, so it clips at its padding box — with no
+     * left padding the outset fell outside that box and the left edge of every
+     * message frame was sliced off.
+     *
+     * **Right** matches the left while there is no scrollbar. The rule on
+     * .gbListWrap[data-scrollbar] widens it to 10px when a bar appears, which
+     * is what keeps the text off it — the 32px bar overhangs the wrap's padding
+     * by 8.
      */
-    padding-right: 46px;
+    /**
+     * The bottom is 30, not 18, and the last entry drops its margin (below).
+     *
+     * The two together put the same 32px between the last message and the
+     * panel's foot as there is between any message and the panel's left edge —
+     * 2px of border plus this. Before, the last entry kept its 22.4px
+     * inter-entry margin *and* got the 18, so the foot of the list had twice
+     * the air of its sides.
+     */
+    padding: 18px 6px 30px 6px;
 }
 
 /**
@@ -407,49 +558,91 @@
     }
 }
 
-// Name on the left, date on the right, on one row.
+// Name on the left, date on the right, on one row above the message window.
 .gbEntryHead {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.35rem;
+    // Enough that the name reads as a heading over the window rather than as a
+    // line stuck to the top of it
+    margin-bottom: 0.75rem;
 }
 
+/**
+ * The message, in a window of its own.
+ *
+ * The class is doubled to win on specificity. ContentBox always applies its own
+ * .contentBox class, and a single class here ties with it — which of the two
+ * stylesheets loads first then decides whether the padding is 1.5rem or this,
+ * and that is not something to leave to chance. Doubling costs nothing and
+ * settles it. (A data-label rule in ContentBox.module.scss is the alternative,
+ * and the note at the top of this file is about why not.)
+ *
+ * The bottom margin is the gap between entries. There is no underscore divider
+ * any more — the window is the separator, and drawing both read as a box with a
+ * line under it rather than as a list.
+ */
+.gbMessage.gbMessage {
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+/**
+ * The margin above separates one entry from the next, and there is nothing
+ * after the last one — the list's own padding-bottom is the space there.
+ *
+ * Without this the foot of the list carried both: 32px of inter-entry margin
+ * plus the list's padding, against the 32px total down its left edge.
+ */
+.gbEntry:last-child .gbMessage.gbMessage {
+    margin-bottom: 0;
+}
+
+/**
+ * The date, shown only when the entry it belongs to is under the pointer or
+ * under the cursor.
+ *
+ * Twelve dates down a column is twelve things to read that nobody came for, and
+ * they were the busiest part of the list. Faded rather than removed from the
+ * flow: the name row keeps its height either way, so revealing one does not
+ * shift the entry it is in or any entry below it.
+ *
+ * data-focused covers touch and the keyboard — a finger produces no hover, so
+ * without it the date would be unreachable on a phone.
+ */
 .gbDate {
     flex-shrink: 0;
     margin-left: 1rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/**
+ * Hover reveals it, and so does the keyboard cursor — but *not* data-focused,
+ * which is what the hand uses. The cursor deliberately stays where it was last
+ * left, so a date tied to it hung around after the pointer had moved away and
+ * only cleared when something else took the cursor. See data-keyed in
+ * GuestbookTab.tsx.
+ */
+.gbEntry:hover .gbDate,
+.gbEntry[data-keyed] .gbDate {
+    opacity: 1;
 }
 
 /**
  * One wrapped line of a message.
  *
- * No line-height: the height comes from .font's own 36px, so a line of text and
- * an empty one between paragraphs are the same height without either being
- * stated here.
+ * 42px rather than the 36 a `.font` is tall, so a message running to three or
+ * four lines has some air in it. The glyphs are 39px in a 36px row to begin
+ * with, so at 36 consecutive lines all but touched.
+ *
+ * No line-height: the height is the row's, so a line of text and an empty one
+ * between paragraphs stay the same height without either being stated here.
  */
 .gbLine {
     display: flex;
-    min-height: 36px;
-}
-
-/**
- * The divider between entries, drawn with the sprite font's underscore glyphs —
- * the same one the resume puts between its records.
- *
- * The glyph's ink sits near the bottom of a 39px box, so the row is clipped to
- * 6px and the text pulled up into it rather than the underscores being given a
- * row of their own.
- */
-.gbSeparator {
-    height: 6px;
-    overflow: hidden;
-    opacity: 0.4;
-    pointer-events: none;
-    margin: 0.75rem 0 1rem;
-
-    :global(.font) {
-        margin-top: -30px;
-    }
+    align-items: center;
+    min-height: 42px;
 }
 
 // "No entries yet", or why the list could not be loaded. Never both.
@@ -460,22 +653,25 @@
 
 /* --- the sign form ------------------------------------------------------ */
 
+.gbSignColumn {
+    display: flex;
+    flex-direction: column;
+}
+
 .gbFields {
     display: flex;
     flex-direction: column;
-    gap: 1.1rem;
+    gap: 0.75rem;
 }
 
 /**
- * A field row: the label beside the box rather than above it.
- *
- * Above is what the PHS tab does, and it costs 55px a field — a 39px glyph plus
- * its margin. Two of those is 110px, which is a third of the space the entry
- * list has to live in. Beside costs nothing vertically and reads the same.
+ * A field row. There are no labels beside the boxes — the field's name is a
+ * grey placeholder inside it.
  */
 .gbField {
     position: relative;
     display: flex;
+    align-items: flex-start;
 
     &[data-focused="true"]::before {
         content: "";
@@ -483,7 +679,7 @@
         left: -76px;
         // The middle of the box's first line: 2px border + 8.8px padding + half
         // of a 42px sprite line. Fixed rather than centred on the row, so the
-        // one-line Name box and the two-line Message box put their cursors on
+        // one-line Name box and the five-line Message box put their cursors on
         // the same part of the field.
         top: 32px;
         transform: translateY(calc(-50% + 11px));
@@ -498,29 +694,133 @@
 }
 
 /**
- * 160px fits "Message", the longer of the two labels, and holds both boxes on
- * the same column. flex: none or the longer label squeezes its own box.
+ * The box, and the part of the row that takes the hover. See the note in
+ * GuestbookTab.tsx for why the handler is not on the row itself.
+ *
+ * min-width lets it actually shrink to the row; without it a flex item refuses
+ * to go below its content's width and the field overruns the panel.
  */
-.gbFieldLabel {
-    flex: none;
-    width: 160px;
-    // Lines the label up with the first line of text inside the box beside it,
-    // rather than with the top of the box: 2px border + 8.8px padding, and a
-    // little for the difference between .font's 36px and the 42px row.
-    margin-top: 11px;
-}
-
-.gbFieldBox {
-    // min-width lets the box actually shrink to the row; without it a flex item
-    // refuses to go below its content's width and the field overruns the panel.
+.gbFieldMain {
+    display: flex;
+    flex-direction: column;
     flex: 1;
     min-width: 0;
 }
 
-/* --- the side panel ----------------------------------------------------- */
-
-// The number of signatures, under its heading.
-.gbStat {
+/**
+ * Name and the colour picker, side by side.
+ *
+ * The picker's corner cursor is pulled in from the -102px the config screen
+ * uses: this column starts 30px into the stage, and at -102 the hand landed
+ * 71px outside it — past the 50px of canvas either side of the stage, so it
+ * would clip at the screen edge on a phone. -76 matches every other cursor in
+ * this column and fits.
+ */
+.gbNameRow {
     display: flex;
-    margin-bottom: 1.5rem;
+    align-items: flex-start;
+    /**
+     * 22.7px, not 1rem.
+     *
+     * The gap has to *look* the same as the one between the Name and Message
+     * boxes, and it does not follow from the number: each box's frame is drawn
+     * outside its border box, and by different amounts on the two axes. Measured
+     * off a screenshot, 16px here read as 10.8 against 17.5 there; 22.7 puts
+     * both at 17.5.
+     */
+    gap: 22.7px;
+
+    // The Name field takes what the picker leaves
+    >.gbField {
+        flex: 1;
+        min-width: 0;
+    }
+
+    :global(button[data-focused="true"])::before {
+        margin-left: -76px !important;
+    }
+}
+
+/**
+ * The counter and Sign, at the foot of the form: counter hard left, Sign hard
+ * right. Sign keeps the right edge it has always had, flush with the fields
+ * above it.
+ */
+.gbSignRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+}
+
+/**
+ * How many have signed, and who last did — laid out two to a row, wrapping when
+ * they do not fit.
+ *
+ * With the two entries there are now, they usually do not: "Signed" and its
+ * count come to 175px of the 418 available and "Last by" is another 127, which
+ * leaves 88 for a name. Anything longer takes the second row on its own. That
+ * is the intended behaviour rather than a fallback — the row is sized for the
+ * content, so a third item, or a shorter name, pairs up without anything here
+ * changing.
+ */
+.gbMeta {
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 1.2rem;
+    margin: 0;
+}
+
+.gbMetaItem {
+    align-items: flex-start;
+    // Never wider than the row, whatever it holds
+    min-width: 0;
+    /**
+     * One item to a row, not two.
+     *
+     * Half a 470px panel left a name about 200px, a third of what the handler
+     * allows — while the panel had room going spare underneath. A full row each
+     * fills it and gives the value the whole width.
+     */
+    width: 100%;
+
+    dt {
+        flex: none;
+        margin-right: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    dd {
+        margin: 0;
+        min-width: 0;
+    }
+}
+
+/**
+ * The status line, under the fields.
+ *
+ * It cannot share the Sign button's line: these messages run to 515px in the
+ * sprite font and the whole panel is 470 wide. The height is reserved whether
+ * or not there is anything to say, so the form does not resize as you type.
+ */
+/**
+ * The character counter, at the left end of the Sign row.
+ *
+ * Nudged a pixel left and a pixel down to sit on the message box's bottom-left
+ * corner. The sprite glyphs do not fill their boxes, so lining the counter up
+ * with the border above it is not the same as lining up the two boxes.
+ */
+.gbCounter {
+    display: flex;
+    align-items: center;
+    /**
+     * Offsets rather than margins. The row centres its items, and a centred
+     * flex item splits a margin between both sides — a 1px top margin moves it
+     * half a pixel. `top` and `left` on a relatively positioned box are painted
+     * offsets, so they move it exactly as far as they say and take no part in
+     * the layout.
+     */
+    position: relative;
+    left: -6px;
+    top: 3px;
 }
