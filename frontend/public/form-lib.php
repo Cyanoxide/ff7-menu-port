@@ -227,6 +227,26 @@ function prepareDir(?string $dir): array
 }
 
 /**
+ * Where the guestbook keeps its entries.
+ *
+ * Shared, because two files need the same answer and **they disagreed once**: a
+ * default was added to guestbook.php and not to guestbook-moderate.php, so the
+ * store moved for one of them and every delete link in every notification
+ * started reporting itself invalid. The moderation page checked for the key
+ * before it checked the signature, so a perfectly good link failed with a
+ * message about the link.
+ *
+ * `$beside` is the caller's __DIR__. Unset, the store is a `guestbook-data`
+ * folder next to the handlers — see contact-config.example.php for why that is
+ * the default and what it relies on.
+ */
+function guestbookDir(array $config, string $beside): string
+{
+    $configured = trim((string) ($config['guestbook_dir'] ?? ''));
+    return $configured !== '' ? $configured : $beside . '/guestbook-data';
+}
+
+/**
  * Counter and replay files, keyed by the secret so the filenames give nothing
  * away if the directory is ever readable.
  */
@@ -248,6 +268,29 @@ function underLimit(array $window, int $limit): array
     $cutoff = time() - 3600;
     $window = array_values(array_filter($window, static fn($at) => is_int($at) && $at > $cutoff));
     return [count($window) < $limit, $window];
+}
+
+/**
+ * A rate limit from the config, or the handler's own default.
+ *
+ * **Deliberately not "skip the limit for localhost".** That is the obvious way
+ * to stop the cap firing while developing, and it is a trap: behind a reverse
+ * proxy — nginx in front of php-fpm, which is most shared hosting — REMOTE_ADDR
+ * is 127.0.0.1 for *every* request, so the exemption would disable the limit in
+ * production and nothing would look wrong. A limit that is off when you think
+ * it is on is worse than no limit at all.
+ *
+ * Config instead: the dev config that scripts/php-env.sh writes sets these
+ * generously, the real one on the server leaves them out and gets the defaults.
+ * The dev/prod boundary is already that file, so nothing new has to be trusted.
+ *
+ * Anything that is not a positive integer is ignored rather than obeyed — a
+ * typo should not turn the cap off.
+ */
+function limitFrom(array $config, string $key, int $default): int
+{
+    $value = $config[$key] ?? null;
+    return (is_int($value) && $value > 0) ? $value : $default;
 }
 
 /**

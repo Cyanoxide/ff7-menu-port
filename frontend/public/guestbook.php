@@ -42,7 +42,10 @@ header('Cache-Control: no-store');
 useMessages(__DIR__ . '/guestbook-messages.json');
 
 /** Longest we accept for each field, in characters */
-const LIMITS = ['name' => 32, 'message' => 500];
+const LIMITS = ['name' => 12, 'message' => 255];
+
+/** The window corners a signer may colour, in the order ContentBox names them. */
+const CORNERS = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'];
 
 /** A form filled faster than this was not filled by a person */
 const MIN_SECONDS = 4;
@@ -64,11 +67,39 @@ const NONCE_TTL = MAX_SECONDS;
 const RATE_LIMIT = 2;
 const GLOBAL_LIMIT = 10;
 
+/**
+ * Both can be raised from the config — 'guestbook_rate_limit' and
+ * 'guestbook_global_limit'. That exists so a dev config can get out of its own
+ * way; see limitFrom() in form-lib.php for why this is not "exempt localhost".
+ */
+
 /** Entries kept. The oldest fall off the end rather than the file growing forever. */
 const MAX_ENTRIES = 500;
 
 /** Entries returned to the page. The list scrolls, but it does not need all 500. */
 const PAGE_SIZE = 100;
+
+/**
+ * The entry that is always there.
+ *
+ * Not stored, so nothing can delete it and a wiped or reset store still opens
+ * on something rather than on an empty panel. It is appended as the oldest
+ * entry, which puts it at the foot of the list, and it counts towards the total
+ * because it is a signature like any other — Jamie's.
+ *
+ * It has no id, so the moderation link cannot address it. That is the point.
+ */
+const WELCOME_ENTRY = [
+    'name' => 'Jamie Pates',
+    'message' => 'Welcome to my Guestbook! Feel free to leave a note, and thanks for stopping by!',
+    'at' => 1788552192,
+    'colors' => [
+        'topLeft' => [168, 0, 0],
+        'topRight' => [2, 0, 0],
+        'bottomLeft' => [0, 0, 0],
+        'bottomRight' => [138, 3, 0],
+    ],
+];
 
 $config = loadConfig(__DIR__);
 
@@ -82,15 +113,18 @@ if (($config['guestbook_enabled'] ?? true) !== true) {
 }
 
 /**
- * No default, deliberately. See the note at the top: a guestbook writing to the
- * system temp directory is a guestbook that empties itself, and one writing
- * under public/ is a guestbook that a deploy overwrites.
+ * Where the entries live. One directory holding one file, guestbook.json, and
+ * that file is the whole guestbook — there is no database behind it.
+ *
+ * Unset, it is a `guestbook-data` folder beside this handler, created on first
+ * use. That name is not arbitrary: htaccess.example already denies a directory
+ * called `guestbook-data`, so the default is covered by a rule that exists.
+ *
+ * `__DIR__` rather than a relative path. A relative value is resolved against
+ * the *process's* working directory, which is the script's folder on some hosts
+ * and the filesystem root on others — so it appears to work until it does not.
  */
-if (empty($config['guestbook_dir'])) {
-    respond(503, ['ok' => false, 'error' => msg('notConfigured')]);
-}
-
-[$dataDir, $dataReady] = prepareDir((string) $config['guestbook_dir']);
+[$dataDir, $dataReady] = prepareDir(guestbookDir($config, __DIR__));
 [$rateDir, $rateReady] = prepareDir($config['rate_dir'] ?? null);
 
 $secret = (string) $config['secret'];
@@ -124,6 +158,69 @@ function looksLikeDomain(string $text): bool
     return preg_match('~\b[a-z0-9][a-z0-9-]+\.(?:' . $tlds . ')\b~i', $text) === 1;
 }
 
+/**
+ * The colours a signer picked for their entry's window, or null for "use
+ * whatever the reader has configured".
+ *
+ * Returns false — distinct from null — when the value is present but malformed,
+ * which the caller turns into a refusal. Nothing legitimate sends a broken
+ * colour: the picker clamps every channel to 0-255 before it leaves the page,
+ * so a bad one means the request was not made by the page. Refusing beats
+ * quietly dropping it, which would publish an entry in colours the signer did
+ * not choose and never say why.
+ *
+ * Every channel must be a genuine integer. A float would sail through a range
+ * check and then land in a CSS rgb() as "2.5", and json_decode only produces
+ * one if the sender wrote one.
+ */
+function readColors(mixed $raw): array|false|null
+{
+    if ($raw === null) {
+        return null;
+    }
+    if (!is_array($raw)) {
+        return false;
+    }
+
+    $colors = [];
+    foreach (CORNERS as $corner) {
+        $channels = $raw[$corner] ?? null;
+        if (!is_array($channels) || count($channels) !== 3) {
+            return false;
+        }
+
+        $rgb = [];
+        foreach ($channels as $value) {
+            if (!is_int($value) || $value < 0 || $value > 255) {
+                return false;
+            }
+            $rgb[] = $value;
+        }
+        $colors[$corner] = $rgb;
+    }
+
+    return $colors;
+}
+
+/**
+ * Write down why the store could not be reached.
+ *
+ * "Busy" on its own could mean four things — no directory, no write permission,
+ * a lock that did not come free, or a write that failed — and from outside the
+ * server they look identical. This is the line that tells them apart. It is
+ * only written while something is actually wrong, so it stops as soon as the
+ * path is right.
+ */
+function logStoreProblem(array $config, string $dir): void
+{
+    logLine($config, sprintf(
+        "guestbook\tstore-unreachable\tdir=%s\texists=%d\twritable=%d",
+        $dir,
+        is_dir($dir) ? 1 : 0,
+        is_writable($dir) ? 1 : 0
+    ));
+}
+
 /** Only ever the fields the page draws. The stored entry also carries an id and
  *  a hashed address; neither is anybody's business but the site owner's. */
 function publicEntry(array $entry): array
@@ -132,12 +229,24 @@ function publicEntry(array $entry): array
         'name' => (string) ($entry['name'] ?? ''),
         'message' => (string) ($entry['message'] ?? ''),
         'at' => (int) ($entry['at'] ?? 0),
+        // null is meaningful: the reader's own window colour is used instead
+        'colors' => is_array($entry['colors'] ?? null) ? $entry['colors'] : null,
     ];
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    /**
+     * Reading does not need write access, and it used to demand it — a GET
+     * answered "busy" purely because prepareDir() reported the directory as
+     * unwritable, which is how a mistyped path looked like an outage.
+     *
+     * A store that is not there is an *empty* guestbook, not an error: a fresh
+     * install has signed nothing yet, and the welcome entry below means the
+     * panel still opens on something. Signing is where write access is
+     * genuinely required, and that refuses loudly further down.
+     */
     if (!$dataReady) {
-        respond(503, ['ok' => false, 'error' => msg('busy')]);
+        logStoreProblem($config, $dataDir);
     }
 
     $raw = @file_get_contents($entriesPath);
@@ -149,11 +258,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Newest first. Stored oldest-first so appending is cheap.
     $visible = array_reverse($stored);
 
+    // The welcome goes last, so it reads as the first entry ever signed. One
+    // slot of PAGE_SIZE is kept back for it rather than added on top.
+    $page = array_map('publicEntry', array_slice($visible, 0, PAGE_SIZE - 1));
+    $page[] = publicEntry(WELCOME_ENTRY);
+
     respond(200, [
         'ok' => true,
         'token' => makeToken($secret, 'guestbook'),
-        'count' => count($stored),
-        'entries' => array_map('publicEntry', array_slice($visible, 0, PAGE_SIZE)),
+        'count' => count($stored) + 1,
+        'entries' => $page,
     ]);
 }
 
@@ -169,6 +283,7 @@ $field = static fn(string $key): string => trim((string) ($input[$key] ?? ''));
 $name = $field('name');
 $message = $field('message');
 $token = $field('token');
+$colors = readColors($input['colors'] ?? null);
 
 /**
  * The honeypot, answered with a cheerful 200 and nothing written. A bot told it
@@ -211,12 +326,17 @@ if (preg_match('/[\r\n]/', $name)) {
     respond(422, ['ok' => false, 'error' => msg('badName')]);
 }
 
+if ($colors === false) {
+    respond(422, ['ok' => false, 'error' => msg('badColour')]);
+}
+
 /**
  * Nothing published on the site carries a URL. See the note at the top.
  *
  * The name is checked as well as the message. It is displayed on the page and
- * it goes in the notification's subject line, so "www.buy-things.example" is
- * just as good a delivery vehicle there as it is in the body.
+ * it goes in the notification's subject line, so a domain is just as good a
+ * delivery vehicle there as it is in the body — 12 characters is enough for
+ * "spam.example".
  */
 if (countLinks($name . "\n" . $message) > 0 || looksLikeDomain($name . "\n" . $message)) {
     respond(422, ['ok' => false, 'error' => msg('noLinks')]);
@@ -228,16 +348,21 @@ if (countLinks($name . "\n" . $message) > 0 || looksLikeDomain($name . "\n" . $m
  * guestbook — accepting a signature we cannot record would tell someone their
  * message was published when it was not.
  */
-if (!$rateReady || !$dataReady) {
+if (!$dataReady) {
+    logStoreProblem($config, $dataDir);
+    respond(503, ['ok' => false, 'error' => msg('storeUnreachable')]);
+}
+
+if (!$rateReady) {
     respond(503, ['ok' => false, 'error' => msg('busy')]);
 }
 
-if (!claimRateSlot($rateDir, $secret, 'gb|global', GLOBAL_LIMIT)) {
+if (!claimRateSlot($rateDir, $secret, 'gb|global', limitFrom($config, 'guestbook_global_limit', GLOBAL_LIMIT))) {
     respond(429, ['ok' => false, 'error' => msg('busy')]);
 }
 
 $remote = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-if (!claimRateSlot($rateDir, $secret, 'gb|ip|' . $remote, RATE_LIMIT)) {
+if (!claimRateSlot($rateDir, $secret, 'gb|ip|' . $remote, limitFrom($config, 'guestbook_rate_limit', RATE_LIMIT))) {
     respond(429, ['ok' => false, 'error' => msg('rateLimited')]);
 }
 
@@ -260,6 +385,7 @@ $entry = [
     'name' => $name,
     'message' => $message,
     'at' => time(),
+    'colors' => $colors,
     'ip' => hash_hmac('sha256', $remote, $secret),
 ];
 
@@ -273,8 +399,10 @@ $stored = withLock($entriesPath, static function (array $entries) use ($entry) {
 });
 
 if ($stored !== true) {
-    // The lock failed, so nothing was written. Saying "signed" here would be a lie.
-    respond(503, ['ok' => false, 'error' => msg('busy')]);
+    // The lock or the write failed, so nothing was stored. Saying "signed" here
+    // would be a lie, and the log line says which of the two it was.
+    logStoreProblem($config, $dataDir);
+    respond(503, ['ok' => false, 'error' => msg('storeUnreachable')]);
 }
 
 /**

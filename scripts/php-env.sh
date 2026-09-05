@@ -36,14 +36,40 @@ PHP_FILES=(
 # Configuration
 # ---------------------------------------------------------------------------
 
-# php_env_write_config <path> <rate_dir> <guestbook_dir> <site_url> [secret]
+# php_env_write_config <path> <rate_dir> <guestbook_dir> <site_url> [secret] [relax]
 #
 # Paths are written absolute. They are read at request time by a server whose
 # working directory is not ours, and a relative path that resolves differently
 # in the two is a bad afternoon.
+#
+# `relax` raises the hourly rate limits. Pass it for a dev session, where the
+# guestbook's two-an-hour cap otherwise stops you after the second test message
+# and there is nothing to do but wait. Do NOT pass it for a test run: the suites
+# assert on the real caps.
 php_env_write_config() {
     local path="$1" rate_dir="$2" gb_dir="$3" site_url="$4"
     local secret="${5:-$(php -r 'echo bin2hex(random_bytes(32));')}"
+    local relax="${6:-}"
+    local log_file="$DEV_ROOT/handler.log"
+
+    local limits=""
+    if [ -n "$relax" ]; then
+        limits="
+    /**
+     * Raised so a dev session is not stopped by its own spam protection — the
+     * guestbook's real cap is two an hour per address, which is two test
+     * messages. The defaults are in the handlers; the config on the server
+     * leaves these out entirely and gets them.
+     *
+     * High rather than absent: the counters still run, so the code path is
+     * still exercised.
+     */
+    'contact_rate_limit' => 500,
+    'contact_global_limit' => 1000,
+    'guestbook_rate_limit' => 500,
+    'guestbook_global_limit' => 1000,
+"
+    fi
 
     cat > "$path" <<EOF
 <?php
@@ -78,7 +104,12 @@ return [
 
     'guestbook_enabled' => true,
     'enabled' => true,
-];
+
+    // One line per submission, and the reason whenever a store cannot be
+    // reached. Worth having locally for the same reason it is worth having on
+    // the server: it is what turns a one-word error into an answer.
+    'log' => '$log_file',
+$limits];
 EOF
 }
 
@@ -99,6 +130,19 @@ php_env_check_config() {
         echo "     The guestbook tab will report itself unconfigured. Add:"
         echo
         echo "       'guestbook_dir' => '$DEV_ROOT/data',"
+        echo
+    fi
+
+    # A config written before the limits were configurable will stop you after
+    # two guestbook entries, which looks like a bug and is not.
+    if ! grep -q "guestbook_rate_limit" "$path"; then
+        echo
+        echo "  !  $path has no raised rate limits, so the guestbook will refuse"
+        echo "     a third entry in an hour. Delete the file to have it written"
+        echo "     again, or add:"
+        echo
+        echo "       'guestbook_rate_limit' => 500,"
+        echo "       'guestbook_global_limit' => 1000,"
         echo
     fi
 }
@@ -160,13 +204,25 @@ php_env_require_port() {
 
 # php_env_stop <pid> <port>
 #
-# Killing the pid alone is not enough. PHP_CLI_SERVER_WORKERS makes php -S fork
-# workers, and they do not go with the parent — they keep the socket, so the
-# next run is refused the port with a list of processes nothing appears to own.
-# Kill the parent, then anything still holding the port.
+# **Only ever call this with a pid this script started.** The port sweep below
+# kills whatever is listening, so calling it on the strength of the port alone
+# takes down somebody else's server. That is not hypothetical: the exit trap ran
+# unconditionally at first, so a second `npm run dev` — refused the port because
+# one was already running — killed the running instance's backend on its way
+# out, and left a dev session with a proxy answering 503 and no clue why.
+#
+# Killing the pid alone is not enough either. PHP_CLI_SERVER_WORKERS makes php -S
+# fork workers, and they do not go with the parent — they keep the socket, so
+# the next run is refused a port nothing appears to own. Kill the parent, then
+# anything still holding the port.
 php_env_stop() {
     local pid="${1:-}" port="${2:-}"
-    [ -n "$pid" ] && kill "$pid" 2>/dev/null || true
+
+    # No pid means we never got as far as starting one, so there is nothing of
+    # ours to stop and the port belongs to someone else.
+    [ -n "$pid" ] || return 0
+
+    kill "$pid" 2>/dev/null || true
 
     if [ -n "$port" ]; then
         local strays
@@ -188,9 +244,15 @@ php_env_stop() {
 php_env_serve() {
     local port="$1" doc_root="$2" sendmail="$3" log="$4"
 
+    # opcache off. It caches the *compiled* contact-config.php and only
+    # revalidates every couple of seconds by default, so an edit to the config
+    # does not take effect on the next request — which is confusing while
+    # developing and made a test silently pass against a config it had just
+    # changed. Nothing here is slow enough to want the cache.
     PHP_CLI_SERVER_WORKERS=8 php \
         -d sendmail_path="$sendmail" \
         -d display_errors=0 \
+        -d opcache.enable=0 \
         -S "127.0.0.1:$port" \
         -t "$doc_root" >"$log" 2>&1 &
     PHP_PID=$!

@@ -53,7 +53,8 @@ if [ -f "$CONFIG" ]; then
     php_env_check_config "$CONFIG"
 else
     echo "no contact-config.php — writing a local dev one"
-    php_env_write_config "$CONFIG" "$RATE_DIR" "$DATA_DIR" "http://localhost:5173"
+    # The last argument relaxes the rate limits — see php_env_write_config.
+    php_env_write_config "$CONFIG" "$RATE_DIR" "$DATA_DIR" "http://localhost:5173" "" relax
 fi
 
 echo "starting the PHP handlers on 127.0.0.1:$PHP_PORT"

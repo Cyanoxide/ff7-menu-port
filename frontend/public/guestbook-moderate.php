@@ -111,11 +111,15 @@ function page(string $heading, string $detail, ?string $entry = null, ?string $f
 $config = loadConfig(__DIR__);
 $secret = (string) $config['secret'];
 
-if (empty($config['guestbook_dir'])) {
-    page(PAGE_MESSAGES['badLink'], PAGE_MESSAGES['badLinkDetail']);
-}
-
-[$dataDir, $dataReady] = prepareDir((string) $config['guestbook_dir']);
+/**
+ * The same answer guestbook.php gets, from the same function.
+ *
+ * This used to bail out with "not valid" when guestbook_dir was unset — before
+ * looking at the signature, so a good link failed with a message blaming the
+ * link. Deriving the path in two places is what allowed that, so neither
+ * derives it any more.
+ */
+[$dataDir, $dataReady] = prepareDir(guestbookDir($config, __DIR__));
 $entriesPath = $dataDir . '/guestbook.json';
 
 $id = (string) ($_GET['id'] ?? '');

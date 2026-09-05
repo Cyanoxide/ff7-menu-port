@@ -22,6 +22,7 @@
   "emptyFields": "Please fill in both fields.",
   "tooLong": "Your message is too long.",
   "badName": "That name cannot be used.",
+  "badColour": "Those colours are not valid.",
   "noLinks": "Entries cannot contain links.",
 
   "tooQuick": "Entry flagged as spam.",
@@ -30,6 +31,7 @@
 
   "rateLimited": "Signing limit reached.",
   "busy": "Guestbook is busy. Try later.",
+  "storeUnreachable": "Guestbook unreachable",
 
   "notConfigured": "Guestbook is not set up.",
   "closed": "The guestbook is closed.",

@@ -137,43 +137,51 @@ return [
     'guestbook_enabled' => true,
 
     /**
-     * REQUIRED for the guestbook, and it has no default.
+     * WHERE THE GUESTBOOK IS KEPT. Optional — see the default below.
      *
-     * Where the entries themselves are stored. Unlike rate_dir, which may point
-     * at the system temp directory and lose nothing worse than a counter, this
-     * file **is** the guestbook — losing it loses every entry.
+     * This is the only setting that stores anything. The handler keeps one file
+     * in this directory, guestbook.json, and that file *is* the guestbook:
+     * every entry anyone has ever signed. There is no database behind it.
+     * rate_dir above looks similar and is not — that holds throwaway counters,
+     * and losing it costs nothing but a reset rate limit. Losing this loses the
+     * lot.
      *
-     * Two rules, and both matter:
+     * LEAVE IT UNSET and it becomes a folder called `guestbook-data` sitting
+     * beside guestbook.php, created the first time someone signs. That keeps
+     * the site self-contained, which is usually what you want, and it is what
+     * the rest of this comment assumes.
      *
-     *  1. **Outside the web root**, ideally. Something like
-     *     '/home/youraccount/private/guestbook' — a sibling of the public
-     *     directory rather than a child of it. Two reasons: the file holds
-     *     hashed sender addresses and has no business being fetchable, and
-     *     anything under the uploaded directory is in the deploy's path.
-     *  2. **Somewhere durable.** Not the system temp directory: shared hosts
-     *     clear it, and the guestbook would quietly empty itself.
+     * Two things follow from the data living inside the uploaded directory, and
+     * neither is automatic:
      *
-     * IF YOU PUT IT INSIDE THE UPLOADED DIRECTORY ANYWAY — which does work, and
-     * is the easy thing to do on a host that only gives you public_html — then
-     * two things have to be true, and neither is automatic:
+     *  1. **It is a URL as well as a file.** guestbook.json is plain JSON and
+     *     carries a hashed sender address per entry. The `guestbook-data` deny
+     *     rule in htaccess.example covers the default name — but that file is a
+     *     *reference copy* and is never uploaded, so the rule has to be in the
+     *     server's own .htaccess. Check it by asking for
+     *     yoursite.com/guestbook-data/guestbook.json in a browser: you should
+     *     be refused.
+     *  2. **A mirroring upload will delete it.** The folder exists only on the
+     *     server — it is never in dist/ — so a plain FTP or file-manager upload
+     *     leaves it alone. Anything that syncs the directory to *match* dist/
+     *     (rsync --delete, some deploy tools, "remove extraneous files" in an
+     *     FTP client) removes it, silently and completely. Take a copy before
+     *     deploying if you are not sure which yours does.
      *
-     *  - **The upload must not mirror-delete.** A plain FTP or file-manager
-     *     upload leaves files it does not know about alone, so the data
-     *     survives. Anything that syncs the directory to match dist/ exactly
-     *     (rsync --delete, some deploy tools, "delete extraneous files" in an
-     *     FTP client) will remove the guestbook on the next deploy. There is no
-     *     warning; the file is simply gone and so is every entry.
-     *  - **It must be denied over HTTP.** htaccess.example carries a rule for a
-     *     directory named `guestbook-data`; use that name and it is covered.
-     *     Without it, anyone can fetch the JSON.
+     * A private directory outside the web root — '/home/you/private/guestbook'
+     * — sidesteps both, at the cost of somewhere else to remember.
      *
-     * Take a copy before deploying either way. The directory is created if it
-     * does not exist; if it cannot be created or written, the guestbook refuses
-     * signatures rather than accepting ones it cannot store.
+     * WRITE IT ABSOLUTE, either way. A relative path like 'guestbook-data' is
+     * resolved against the *process's* working directory, which is the script's
+     * folder on some hosts and the filesystem root on others, so it appears to
+     * work until it does not. A leading slash is not the fix — '/guestbook-data'
+     * is the filesystem root, which no shared host lets you write to. Use
+     * __DIR__ . '/name', or leave it unset and take the default.
      *
-     * Left as null the guestbook reports itself unconfigured and the tab says
-     * so, which is the honest failure — better than a form that accepts
-     * signatures and drops them.
+     * If it cannot be created or written, signing is refused rather than
+     * accepted and dropped, and the reason goes to the `log` file above: the
+     * resolved path, whether it exists, and whether it is writable. Reading
+     * still works, so a bad path shows an empty guestbook rather than an error.
      */
     'guestbook_dir' => null,
 
@@ -188,4 +196,25 @@ return [
      * link you are about to click that is worth pinning down.
      */
     'site_url' => 'https://www.example.com',
+
+    /**
+     * Rate limits, if the defaults do not suit. Leave them out and the handlers
+     * use their own: 5 an hour per address and 20 overall for the contact form,
+     * 2 and 10 for the guestbook — a guestbook entry is published rather than
+     * sent to one inbox, so it is held tighter.
+     *
+     *   'contact_rate_limit'     'contact_global_limit'
+     *   'guestbook_rate_limit'   'guestbook_global_limit'
+     *
+     * These exist mainly so a *local* config can get out of its own way: two an
+     * hour is two test messages, and there is nothing to do after that but
+     * wait. scripts/php-env.sh writes the dev config with them raised.
+     *
+     * **Do not raise them on the server to make testing easier**, and do not be
+     * tempted to exempt localhost in the code instead — behind a reverse proxy,
+     * which is most shared hosting, REMOTE_ADDR is 127.0.0.1 for every request,
+     * so that exemption would switch the limit off in production and nothing
+     * would look wrong. Anything that is not a positive integer is ignored, so
+     * a typo here leaves the default in place rather than the cap off.
+     */
 ];

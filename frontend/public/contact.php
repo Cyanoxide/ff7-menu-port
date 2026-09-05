@@ -38,7 +38,8 @@ const MIN_SECONDS = 4;
 /** Tokens go stale so one cannot be minted and reused for weeks */
 const MAX_SECONDS = 3600;
 
-/** Submissions allowed from one address per hour */
+/** Submissions allowed from one address per hour. Raisable from the config with
+ *  'contact_rate_limit' — see limitFrom() in form-lib.php. */
 const RATE_LIMIT = 5;
 
 /**
@@ -167,13 +168,13 @@ $secret = (string) $config['secret'];
  * The global ceiling, checked before the per-address one because it is the
  * guarantee rather than the filter — no number of addresses gets past it.
  */
-if (!claimRateSlot($rateDir, $secret, 'global', GLOBAL_LIMIT)) {
+if (!claimRateSlot($rateDir, $secret, 'global', limitFrom($config, 'contact_global_limit', GLOBAL_LIMIT))) {
     respond(429, ['ok' => false, 'error' => msg('busy')]);
 }
 
 /** Per-address, so one sender cannot use up the global allowance alone. */
 $remote = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-if (!claimRateSlot($rateDir, $secret, 'ip|' . $remote, RATE_LIMIT)) {
+if (!claimRateSlot($rateDir, $secret, 'ip|' . $remote, limitFrom($config, 'contact_rate_limit', RATE_LIMIT))) {
     respond(429, ['ok' => false, 'error' => msg('rateLimited')]);
 }
 
