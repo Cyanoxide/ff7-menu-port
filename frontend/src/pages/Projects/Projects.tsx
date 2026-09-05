@@ -9,6 +9,7 @@ import { isPointerMoving } from "../../util/pointerActivity";
 import { scrollIntoList } from "../../util/scrollIntoList";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
+import { useTabFade } from "../../util/useTabFade";
 import { useCursorNav, markKeyboardNavigation } from "../../hooks/useCursorNav";
 import { closeNav } from "../../hooks/closeNav";
 
@@ -195,7 +196,16 @@ function ProjectsContent() {
      * An unrecognised segment falls back to the first rather than 404ing.
      */
     const tabFromRoute = TABS.findIndex((entry) => entry.key === projectsTab);
-    const tab: TabKey = TABS[Math.max(0, tabFromRoute)].key;
+    const routeTab: TabKey = TABS[Math.max(0, tabFromRoute)].key;
+
+    /**
+     * The list, the detail panel and the description lag the route by one
+     * fade-out, so the tab you are leaving is still drawn while the screen dips
+     * to black — see useTabFade. Everything downstream of here reads `tab` and
+     * so lags with them; only the tab row itself takes routeTab, so the tab you
+     * pressed lights up on the press rather than a fifth of a second later.
+     */
+    const { shown: tab, fading } = useTabFade(routeTab);
     // The whole entry, so the left panel can show everything about it rather
     // than just the two strings the description and info boxes needed
     const [selected, setSelected] = useState<Entry | null>(null);
@@ -283,7 +293,9 @@ function ProjectsContent() {
     // Clicking a tab does what confirming it does: switch, and put the cursor
     // on the tab so the two input routes agree about where it is
     const selectTab = (key: TabKey) => {
-        if (key === tab) return;
+        // Against the route, not the tab on screen: during a fade those differ,
+        // and guarding on the lagging one would let a second press through
+        if (key === routeTab) return;
         playSound("select", isSoundEnabled);
         // The first tab keeps the bare /projects, which is what the menu links to
         navigate(key === TABS[0].key ? "/projects" : `/projects/${key}`);
@@ -327,7 +339,7 @@ function ProjectsContent() {
                             key={key}
                             className={styles.tab}
                             data-focused={isFocused("tabs", index)}
-                            data-active={key === tab}
+                            data-active={key === routeTab}
                             onClick={() => selectTab(key)}
                         >
                             {textToSprite(label)}
@@ -335,125 +347,131 @@ function ProjectsContent() {
                     ))}
                 </ul>
             </ContentBox>
-            <ContentBox data-label="description" className="h-[87px] absolute top-[93px]">{textToSprite(selected?.description ?? "")}</ContentBox>
-            <ContentBox data-label="contentLeft" className="absolute top-[190px] bottom-0 flex flex-col">
-                {selected && <div className={styles.detail}>
-                    <div className={styles.detailHead}>
-                        {(() => {
-                            const lines = wrap(selected.fullName ?? selected.name, TITLE_WIDTH);
-                            const last = lines.length - 1;
-                            // A title that runs to two lines takes the date up
-                            // beside it, so the block is two lines either way and
-                            // nothing below it moves. Only at three does it grow.
-                            const inlineDate = lines.length > 1 &&
-                                lines[last].length + 1 + selected.date.length <= TITLE_WIDTH;
+            {/* The three panels below all change with the tab, so they dip out
+                and back as one — see useTabFade. The header is left out: it is
+                the frame the change happens inside, and taking it with them
+                would blink the tabs themselves. */}
+            <div className="tab-fade" data-fading={fading}>
+                <ContentBox data-label="description" className="h-[87px] absolute top-[93px]">{textToSprite(selected?.description ?? "")}</ContentBox>
+                <ContentBox data-label="contentLeft" className="absolute top-[190px] bottom-0 flex flex-col">
+                    {selected && <div className={styles.detail}>
+                        <div className={styles.detailHead}>
+                            {(() => {
+                                const lines = wrap(selected.fullName ?? selected.name, TITLE_WIDTH);
+                                const last = lines.length - 1;
+                                // A title that runs to two lines takes the date up
+                                // beside it, so the block is two lines either way and
+                                // nothing below it moves. Only at three does it grow.
+                                const inlineDate = lines.length > 1 &&
+                                    lines[last].length + 1 + selected.date.length <= TITLE_WIDTH;
 
-                            return lines.map((line, index) => (
-                                <div key={line} className={index === last && inlineDate ? styles.titleWithDate : undefined}>
-                                    {textToSprite(line, false, "blue")}
-                                    {index === last && inlineDate &&
-                                        <span className={styles.detailDate}>{textToSprite(selected.date)}</span>}
-                                </div>
-                            )).concat(
-                                inlineDate ? [] : [<div key="date" className={styles.detailDate}>{textToSprite(selected.date)}</div>]
-                            );
-                        })()}
-                    </div>
-
-                    {separator}
-
-                    <div>
-                        {/* Each skill carries its own materia, drawn the way the
-                            skills list draws them: the orb sits inline before the
-                            name rather than in a slot */}
-                        <div className={styles.skillList}>
-                            {selected.skills.map((name) => (
-                                <span key={name} className={styles.skill} data-color={SKILL_BY_NAME.get(name)?.color ?? "blue"}>
-                                    {textToSprite(name)}
-                                </span>
-                            ))}
+                                return lines.map((line, index) => (
+                                    <div key={line} className={index === last && inlineDate ? styles.titleWithDate : undefined}>
+                                        {textToSprite(line, false, "blue")}
+                                        {index === last && inlineDate &&
+                                            <span className={styles.detailDate}>{textToSprite(selected.date)}</span>}
+                                    </div>
+                                )).concat(
+                                    inlineDate ? [] : [<div key="date" className={styles.detailDate}>{textToSprite(selected.date)}</div>]
+                                );
+                            })()}
                         </div>
-                    </div>
 
-                    {separator}
+                        {separator}
 
-                    {/* The info text sits in the panel itself now, rather than in a
-                        box of its own, which the panel had no room for */}
-                    <div className={styles.detailInfo}>
-                        {selected.moreInfo.map((item) => (<div key={item}>{textToSprite(item)}</div>))}
-                    </div>
-
-                    {/* data-text-color colours the icon as well as the word: the
-                        glyph is a .font-glyph, so it takes the coloured
-                        spritesheet from the attribute just as the letters do */}
-                    {separator}
-
-                    <div className={styles.detailLinks}>
-                        {!!selected.link && <a
-                            className={styles.viewButton}
-                            href={selected.link}
-                            target="_blank"
-                            rel="noreferrer"
-                            data-text-color="yellow"
-                            onClick={() => playSound("select", isSoundEnabled)}
-                        >
-                            {textToSprite("View", false, "yellow")}
-                            <span className="font-glyph ml-2" data-sprite="external-link-icon" />
-                        </a>}
-
-                        {/* Only offered when there is something to show */}
-                        {!!selected.screenshots?.length && <button
-                            type="button"
-                            className={styles.viewButton}
-                            data-text-color="yellow"
-                            onClick={() => { playSound("select", isSoundEnabled); setShowImages(true); }}
-                        >
-                            {textToSprite("Images", false, "yellow")}
-                        </button>}
-                    </div>
-                </div>}
-            </ContentBox>
-            <ContentBox className="absolute top-[190px] right-0 bottom-0" data-label="contentRight">
-                {/* Fixed 48px rows in a 576px viewport => 12 fit in this taller box;
-                    pl-24/-ml-24 reserves room for the cursor's left overhang. */}
-                <div ref={projectListRef} className={`hide-scrollbar -ml-24 h-[576px] snap-y snap-mandatory overflow-y-auto pl-24 ${hasScrollbar ? "pr-9" : ""}`}>
-                    <ul>
-                        {entries.map((project, index) => (
-                            <li key={project.key} ref={(el) => { projectItemRefs.current[index] = el; }} className={`${styles.item} flex h-[48px] snap-start items-center`} data-focused={isFocused("items", index)} onMouseEnter={() => { if (isPointerMoving()) focus({ group: "items", index }); }} onClick={() => playSound("select", isSoundEnabled)}>
-                                <a
-                                    href={project.link}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    ref={(el) => { anchorRefs.current[index] = el; }}
-                                    className="flex h-full w-full justify-between items-center"
-                                    // An entry with screenshots opens them rather
-                                    // than leaving the menu; the carousel carries
-                                    // its own link out to the live page. Entries
-                                    // without any keep going straight there.
-                                    // Confirming with the keyboard clicks this same
-                                    // anchor, so both routes agree.
-                                    onClick={(event) => {
-                                        if (!project.screenshots?.length) return;
-                                        event.preventDefault();
-                                        setSelected(project);
-                                        setShowImages(true);
-                                    }}
-                                >
-                                    <span className="flex items-center">
-                                        <img src={project.icon} alt="" width="36" height="36" className={`mr-3 ${tab === "websites" && isCRTEnabled ? styles.crtSoftened : ""}`} />
-                                        <span>{textToSprite(project.name)}</span>
+                        <div>
+                            {/* Each skill carries its own materia, drawn the way the
+                                skills list draws them: the orb sits inline before the
+                                name rather than in a slot */}
+                            <div className={styles.skillList}>
+                                {selected.skills.map((name) => (
+                                    <span key={name} className={styles.skill} data-color={SKILL_BY_NAME.get(name)?.color ?? "blue"}>
+                                        {textToSprite(name)}
                                     </span>
-                                    <span className="flex">
-                                        <span className="mr-2">{textToSprite(":")}</span>
-                                        <span className="mt-1">{textToSprite("1", true)}</span>
-                                    </span>
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <Scrollbar targetRef={projectListRef} onVisibleChange={setHasScrollbar} />
-            </ContentBox>
+                                ))}
+                            </div>
+                        </div>
+
+                        {separator}
+
+                        {/* The info text sits in the panel itself now, rather than in a
+                            box of its own, which the panel had no room for */}
+                        <div className={styles.detailInfo}>
+                            {selected.moreInfo.map((item) => (<div key={item}>{textToSprite(item)}</div>))}
+                        </div>
+
+                        {/* data-text-color colours the icon as well as the word: the
+                            glyph is a .font-glyph, so it takes the coloured
+                            spritesheet from the attribute just as the letters do */}
+                        {separator}
+
+                        <div className={styles.detailLinks}>
+                            {!!selected.link && <a
+                                className={styles.viewButton}
+                                href={selected.link}
+                                target="_blank"
+                                rel="noreferrer"
+                                data-text-color="yellow"
+                                onClick={() => playSound("select", isSoundEnabled)}
+                            >
+                                {textToSprite("View", false, "yellow")}
+                                <span className="font-glyph ml-2" data-sprite="external-link-icon" />
+                            </a>}
+
+                            {/* Only offered when there is something to show */}
+                            {!!selected.screenshots?.length && <button
+                                type="button"
+                                className={styles.viewButton}
+                                data-text-color="yellow"
+                                onClick={() => { playSound("select", isSoundEnabled); setShowImages(true); }}
+                            >
+                                {textToSprite("Images", false, "yellow")}
+                            </button>}
+                        </div>
+                    </div>}
+                </ContentBox>
+                <ContentBox className="absolute top-[190px] right-0 bottom-0" data-label="contentRight">
+                    {/* Fixed 48px rows in a 576px viewport => 12 fit in this taller box;
+                        pl-24/-ml-24 reserves room for the cursor's left overhang. */}
+                    <div ref={projectListRef} className={`hide-scrollbar -ml-24 h-[576px] snap-y snap-mandatory overflow-y-auto pl-24 ${hasScrollbar ? "pr-9" : ""}`}>
+                        <ul>
+                            {entries.map((project, index) => (
+                                <li key={project.key} ref={(el) => { projectItemRefs.current[index] = el; }} className={`${styles.item} flex h-[48px] snap-start items-center`} data-focused={isFocused("items", index)} onMouseEnter={() => { if (isPointerMoving()) focus({ group: "items", index }); }} onClick={() => playSound("select", isSoundEnabled)}>
+                                    <a
+                                        href={project.link}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        ref={(el) => { anchorRefs.current[index] = el; }}
+                                        className="flex h-full w-full justify-between items-center"
+                                        // An entry with screenshots opens them rather
+                                        // than leaving the menu; the carousel carries
+                                        // its own link out to the live page. Entries
+                                        // without any keep going straight there.
+                                        // Confirming with the keyboard clicks this same
+                                        // anchor, so both routes agree.
+                                        onClick={(event) => {
+                                            if (!project.screenshots?.length) return;
+                                            event.preventDefault();
+                                            setSelected(project);
+                                            setShowImages(true);
+                                        }}
+                                    >
+                                        <span className="flex items-center">
+                                            <img src={project.icon} alt="" width="36" height="36" className={`mr-3 ${tab === "websites" && isCRTEnabled ? styles.crtSoftened : ""}`} />
+                                            <span>{textToSprite(project.name)}</span>
+                                        </span>
+                                        <span className="flex">
+                                            <span className="mr-2">{textToSprite(":")}</span>
+                                            <span className="mt-1">{textToSprite("1", true)}</span>
+                                        </span>
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <Scrollbar targetRef={projectListRef} onVisibleChange={setHasScrollbar} />
+                </ContentBox>
+            </div>
 
             {showImages && selected && (
                 // Keyed by entry so a different project always gets a fresh

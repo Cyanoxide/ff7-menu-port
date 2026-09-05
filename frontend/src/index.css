@@ -174,3 +174,22 @@ body.crt-effect * {
     background-position: 0px 15px;
   }
 }
+/*
+ * The dip between top-level tabs, on Projects and Contact — see useTabFade.
+ *
+ * Opacity alone: the stage sits on black, so fading the content out *is* fading
+ * it to black, with nothing to paint and nothing to get the colour of wrong.
+ * The panel frames go with it deliberately — holding the window still while its
+ * contents vanish reads as the page failing to load rather than as a change.
+ *
+ * Inside .panel-group on Contact, so the two opacities multiply. That is only
+ * ever on arrival, where the group's own fade has finished long before a tab
+ * can be clicked.
+ */
+.tab-fade {
+  transition: opacity 120ms linear;
+}
+
+.tab-fade[data-fading="true"] {
+  opacity: 0;
+}

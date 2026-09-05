@@ -5,6 +5,7 @@ import { useContext } from "../../context/context";
 import ContentBox from "../../components/ContentBox/ContentBox";
 import textToSprite from "../../util/textToSprite";
 import playSound from "../../util/sounds";
+import { useTabFade } from "../../util/useTabFade";
 
 import { contactAlert } from "./contactAlert";
 import { contactTabs } from "./contactTabs";
@@ -59,8 +60,16 @@ function ContactContent() {
      * unrecognised segment falls back to the first tab rather than 404ing —
      * /contact/nonsense is a typo, not a missing page.
      */
-    const tabIndex = Math.max(0, TABS.findIndex((entry) => entry.key === contactTab));
-    const tab: TabKey = TABS[tabIndex].key;
+    const routeIndex = Math.max(0, TABS.findIndex((entry) => entry.key === contactTab));
+    const routeTab: TabKey = TABS[routeIndex].key;
+
+    /**
+     * The content lags the route by one fade-out, so the old tab is still drawn
+     * while the screen dips to black. The tab row above does not lag — it takes
+     * routeTab, so the tab you pressed lights up on the press.
+     */
+    const { shown: tab, fading } = useTabFade(routeTab);
+    const tabIndex = TABS.findIndex((entry) => entry.key === tab);
 
     /**
      * Switching remounts the open tab, which would normally replay
@@ -71,7 +80,7 @@ function ContactContent() {
      */
     const selectTab = (index: number) => {
         const next = TABS[index];
-        if (!next || next.key === tab) return;
+        if (!next || next.key === routeTab) return;
         playSound("select", isSoundEnabled);
         // The first tab keeps the bare /contact, which is what the menu links to
         navigate(index === 0 ? "/contact" : `/contact/${next.key}`);
@@ -107,7 +116,7 @@ function ContactContent() {
                             key={key}
                             className={styles.tab}
                             data-focused={tabFocus === index}
-                            data-active={key === tab}
+                            data-active={key === routeTab}
                             onClick={() => selectTab(index)}
                         >
                             {textToSprite(label)}
@@ -116,20 +125,26 @@ function ContactContent() {
                 </ul>
             </ContentBox>
 
-            {/* Heights and offsets copied from Projects rather than chosen:
-                header 0-84, this strip 93-180, the panels from 190. */}
-            {/* The strip doubles as the page's alert line: when a tab has
-                something to report it says that instead of the description, and
-                goes back when it clears. It is the full width of the stage,
-                which is what lets a message be a sentence rather than something
-                squeezed into the 470px column the form lives in. */}
-            <ContentBox className={`${styles.descriptionPanel} h-[87px] absolute top-[93px]`}>
-                {alert
-                    ? textToSprite(alert.text, false, alert.tone)
-                    : textToSprite(TABS[tabIndex].description)}
-            </ContentBox>
+            {/* Everything below the tab row changes with the tab, so it all
+                dips out together — see useTabFade. The header stays put: it is
+                the frame the change happens inside, and blinking it out would
+                take the tabs with it. */}
+            <div className="tab-fade" data-fading={fading}>
+                {/* Heights and offsets copied from Projects rather than chosen:
+                    header 0-84, this strip 93-180, the panels from 190. */}
+                {/* The strip doubles as the page's alert line: when a tab has
+                    something to report it says that instead of the description, and
+                    goes back when it clears. It is the full width of the stage,
+                    which is what lets a message be a sentence rather than something
+                    squeezed into the 470px column the form lives in. */}
+                <ContentBox className={`${styles.descriptionPanel} h-[87px] absolute top-[93px]`}>
+                    {alert
+                        ? textToSprite(alert.text, false, alert.tone)
+                        : textToSprite(TABS[tabIndex].description)}
+                </ContentBox>
 
-            <TabContent tabIndex={tabIndex} tabCount={TABS.length} onSelectTab={selectTab} />
+                <TabContent tabIndex={tabIndex} tabCount={TABS.length} onSelectTab={selectTab} />
+            </div>
         </div>
     );
 }
