@@ -88,6 +88,16 @@
         margin-top: -1px;
         z-index: 1;
         pointer-events: none;
+
+        /**
+         * Centred against the taller touch row — see .RGBSlider's own
+         * pointer: coarse block. The hand hangs off the row's top edge, so
+         * without this it rides up level with the track's first few pixels.
+         * Half the 36px the row grows by.
+         */
+        @media (pointer: coarse) {
+            margin-top: 17px;
+        }
     }
 
     &>div {
@@ -194,6 +204,44 @@
     }
 }
 
+/**
+ * The pip and its track.
+ *
+ * **Never put two vendor pseudo-elements in one selector list.** A selector list
+ * is invalid as a whole if any selector in it is, and each engine only knows its
+ * own prefix — so `&::-webkit-slider-thumb, &::-moz-range-thumb { ... }` is
+ * thrown away entirely by WebKit and Blink, which do not recognise the -moz
+ * half. That is what shipped: the rule parsed in Firefox and nowhere else, so
+ * the sliders looked right on a Firefox desktop and fell back to the stock blue
+ * iOS control on a phone. Probing document.styleSheets in Chrome found no rule
+ * mentioning slider-thumb at all.
+ *
+ * Hence a mixin and one rule per pseudo-element. Keep it that way: merging them
+ * back is silent, and only shows up in the browser you are not testing in.
+ */
+@mixin rgb-thumb($width, $height) {
+    -webkit-appearance: none;
+    appearance: none;
+    width: $width;
+    height: $height;
+    border-radius: 0;
+    background: #cccc;
+    cursor: pointer;
+    border: 2px solid;
+    border-top-color: #fff;
+    // #fff, not fff. Unprefixed it is not a colour, so the declaration was
+    // dropped and this edge inherited the shorthand's colour instead.
+    border-left-color: #fff;
+    border-bottom-color: #000;
+    border-right-color: #000;
+}
+
+@mixin rgb-track($height) {
+    background-color: rgba(255, 255, 255, 0.15);
+    box-shadow: inset -2.2px -2.2px rgba(255, 255, 255, 0.2), -2.2px -2.2px rgba(0, 0, 0, 0.4);
+    height: $height;
+}
+
 .RGBSlider {
     width: 100%;
     -webkit-appearance: none;
@@ -203,26 +251,47 @@
         filter: blur(0.8px);
     }
 
-    &::-webkit-slider-thumb,
-    &::-moz-range-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 1.2rem;
-        height: 1.7rem;
-        border-radius: 0;
-        background: #cccc;
-        cursor: pointer;
-        border: 2px solid;
-        border-top-color: #fff;
-        border-left-color: fff;
-        border-bottom-color: #000;
-        border-right-color: #000;
-    }
+    &::-webkit-slider-thumb { @include rgb-thumb(1.2rem, 1.7rem); }
+    &::-moz-range-thumb { @include rgb-thumb(1.2rem, 1.7rem); }
 
-    &::-webkit-slider-runnable-track,
-    &::-moz-range-track {
-        background-color: rgba(255, 255, 255, 0.15);
-        box-shadow: inset -2.2px -2.2px rgba(255, 255, 255, 0.2), -2.2px -2.2px rgba(0, 0, 0, 0.4);
-        height: 1.8rem
+    &::-webkit-slider-runnable-track { @include rgb-track(1.8rem); }
+    &::-moz-range-track { @include rgb-track(1.8rem); }
+
+    /**
+     * Touch devices get a taller row, because the fixed canvas makes this
+     * control tiny in real pixels.
+     *
+     * The stage scales by min(vw / 1200, vh / 975), so on a 390pt iPhone the
+     * scale is 0.325 and a 36px row is **11.7 physical pixels** tall. Pressing
+     * the track anywhere jumps the pip and starts a drag, so horizontal
+     * precision was never the problem — landing on that 12px band was.
+     *
+     * Only the height grows. Scaling the whole panel would preserve the
+     * proportions but it is 34rem wide already, and 403.4px in the guestbook's
+     * compact variant, which is the full width of that column — there is
+     * nowhere for it to get wider. Both panels are positioned from the edge
+     * they open away from (`top` on config, `bottom` on the compact one), so
+     * the extra height falls into empty space either way.
+     *
+     * pointer: coarse rather than a viewport width: it is the input device that
+     * decides this, and a phone in landscape is not a narrow viewport.
+     */
+    @media (pointer: coarse) {
+        height: 72px;
+
+        /**
+         * The page does not scroll, but the *document* can on a landscape
+         * phone, and while it might the browser holds the touch back to see
+         * whether the finger is scrolling — which eats the start of a drag.
+         * index.css sets touch-action: manipulation globally; this opts the
+         * slider out so a drag is a drag from the first frame.
+         */
+        touch-action: none;
+
+        &::-webkit-slider-thumb { @include rgb-thumb(1.8rem, 3.4rem); }
+        &::-moz-range-thumb { @include rgb-thumb(1.8rem, 3.4rem); }
+
+        &::-webkit-slider-runnable-track { @include rgb-track(3.6rem); }
+        &::-moz-range-track { @include rgb-track(3.6rem); }
     }
 }
